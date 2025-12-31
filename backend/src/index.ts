@@ -26,13 +26,24 @@ import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
 dotenv.config();
 
+// Early crash logging
+process.on('uncaughtException', (err) => {
+    console.error('🔥 UNCAUGHT EXCEPTION:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('🔥 UNHANDLED REJECTION at:', promise, 'reason:', reason);
+});
+
 const app = express();
 const httpServer = createServer(app);
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 8080;
-console.log(`Starting server on port ${PORT}...`);
-logger.info(`Starting server on port ${PORT}...`);
-logger.info(`Environment: ${process.env.NODE_ENV}`);
+console.log(`🚀 Starting server...`);
+console.log(`📅 Time: ${new Date().toISOString()}`);
+console.log(`🔌 Port: ${PORT}`);
+console.log(`🌍 Node Env: ${process.env.NODE_ENV}`);
 
 // Initialize Socket.io
 socketService.init(httpServer);
