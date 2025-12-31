@@ -16,6 +16,7 @@ import {
 import { notificationService } from '../services/notificationService';
 import { healthService } from '../services/healthService';
 import { profileService } from '../services/profileService';
+import { reminderService } from '../services/reminderService';
 import { authService } from '../services/authService';
 import { socketService } from '../services/socketService';
 
@@ -446,12 +447,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const doc = state.documents.find(d => d.id === id);
         if (doc) {
             try {
-                // Assuming updateDocument exists or we use a generic update
-                const updatedDoc = await healthService.updateDocument(id, { inVisitPack: !doc.inVisitPack } as any);
+                // Use the specific visit-pack update endpoint
+                const updatedDoc = await healthService.updateDocumentVisitPack(id, !doc.inVisitPack);
                 dispatch({ type: 'UPDATE_DOCUMENT', payload: updatedDoc });
             } catch (error) {
-                console.error('Update document error:', error);
-                alert('Failed to update document. Please try again.');
+                console.error('Failed to toggle visit pack:', error);
             }
         }
     };
@@ -504,18 +504,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
             let glucoseReadings = [];
             let symptoms = [];
             let documents = [];
+            let reminders = [];
 
             if (currentProfileId) {
-                const [bp, glucose, symp, docs] = await Promise.all([
+                const [bp, glucose, symp, docs, rems] = await Promise.all([
                     healthService.getBPReadings(currentProfileId),
                     healthService.getGlucoseReadings(currentProfileId),
                     healthService.getSymptoms(currentProfileId),
                     healthService.getDocuments(currentProfileId),
+                    reminderService.getReminders(currentProfileId),
                 ]);
                 bpReadings = bp;
                 glucoseReadings = glucose;
                 symptoms = symp;
                 documents = docs;
+                reminders = rems;
             }
 
             const familyOverview = await profileService.getFamilyOverview();
@@ -530,6 +533,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                     glucoseReadings,
                     symptoms,
                     documents,
+                    reminders,
                     familyOverview,
                 }
             });

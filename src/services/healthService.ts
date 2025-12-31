@@ -28,13 +28,13 @@ export const healthService = {
 
     // Documents
     getDocuments: async (profileId: string) => {
-        return apiClient.get(`/health/documents?profileId=${profileId}`);
+        return apiClient.get(`/documents?profileId=${profileId}`);
     },
     addDocument: async (document: FormData) => {
-        return apiClient.post('/health/documents', document);
+        return apiClient.post('/documents', document);
     },
-    updateDocument: async (id: string, data: Partial<Document>) => {
-        return apiClient.put(`/health/documents/${id}`, data);
+    updateDocumentVisitPack: async (id: string, inVisitPack: boolean) => {
+        return apiClient.patch(`/documents/${id}/visit-pack`, { inVisitPack });
     },
 
     // Bulk Sync (for migration)
