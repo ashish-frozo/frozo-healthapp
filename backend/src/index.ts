@@ -128,8 +128,10 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     });
 });
 
-httpServer.listen(PORT, () => {
-    console.log(`🚀 Server ready at http://localhost:${PORT}`);
+const port = Number(PORT);
+httpServer.listen(port, '0.0.0.0', () => {
+    logger.info(`🚀 Server ready at http://0.0.0.0:${port}`);
+    console.log(`🚀 Server ready at http://0.0.0.0:${port}`);
 });
 
 export { app, prisma };
