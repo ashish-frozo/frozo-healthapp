@@ -30,6 +30,9 @@ const app = express();
 const httpServer = createServer(app);
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5001;
+console.log(`Starting server on port ${PORT}...`);
+logger.info(`Starting server on port ${PORT}...`);
+logger.info(`Environment: ${process.env.NODE_ENV}`);
 
 // Initialize Socket.io
 socketService.init(httpServer);
@@ -91,28 +94,22 @@ app.use('/api/analytics', analyticsRoutes);
 // Serve uploads as static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-app.get('/health', async (req, res) => {
-    const startTime = process.hrtime();
-    let dbStatus = 'ok';
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
+});
 
+app.get('/api/health/db', async (req, res) => {
     try {
         await prisma.$queryRaw`SELECT 1`;
+        res.json({ status: 'ok', database: 'connected' });
     } catch (error) {
-        dbStatus = 'error';
-        logger.error({ err: error }, 'Health check: Database connection failed');
+        logger.error({ err: error }, 'Database health check failed');
+        res.status(500).json({ status: 'error', database: 'disconnected' });
     }
-
-    const uptime = process.uptime();
-    const [seconds] = process.hrtime(startTime);
-
-    res.json({
-        status: dbStatus === 'ok' ? 'ok' : 'degraded',
-        timestamp: new Date().toISOString(),
-        uptime: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`,
-        database: dbStatus,
-        responseTime: `${seconds}ms`,
-        version: '1.0.0',
-    });
 });
 
 // Global Error Handler
