@@ -24,6 +24,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 
-# EXPOSE 5001 (Railway handles port mapping)
+# EXPOSE 8080 (Railway handles port mapping)
+ENV PORT=8080
+ENV NODE_ENV=production
 
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]

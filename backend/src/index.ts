@@ -29,7 +29,7 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 8080;
 console.log(`Starting server on port ${PORT}...`);
 logger.info(`Starting server on port ${PORT}...`);
 logger.info(`Environment: ${process.env.NODE_ENV}`);
@@ -93,6 +93,10 @@ app.use('/api/analytics', analyticsRoutes);
 
 // Serve uploads as static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+app.get('/', (req, res) => {
+    res.status(200).send('Frozo Backend is running');
+});
 
 app.get('/health', (req, res) => {
     res.status(200).json({
