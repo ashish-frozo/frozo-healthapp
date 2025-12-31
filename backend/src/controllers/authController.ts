@@ -33,9 +33,14 @@ export const verifyOTP = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Phone number and OTP are required' });
         }
 
+        console.log(`[VERIFY OTP] Phone: ${phoneNumber}, OTP: ${otp}`);
+        console.log(`[VERIFY OTP] Stored OTPs:`, Array.from(otpStore.entries()));
+
         const savedOTP = otpStore.get(phoneNumber);
+        console.log(`[VERIFY OTP] Saved OTP for ${phoneNumber}:`, savedOTP);
 
         if (savedOTP !== otp) {
+            console.log(`[VERIFY OTP] Mismatch - Expected: ${savedOTP}, Got: ${otp}`);
             return res.status(400).json({ error: 'Invalid OTP' });
         }
 
