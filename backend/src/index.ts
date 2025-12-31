@@ -40,6 +40,10 @@ const app = express();
 const httpServer = createServer(app);
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 8080;
+
+// Trust proxy for Railway
+app.set('trust proxy', 1);
+
 console.log(`🚀 Starting server...`);
 console.log(`📅 Time: ${new Date().toISOString()}`);
 console.log(`🔌 Port: ${PORT}`);
