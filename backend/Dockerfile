@@ -24,7 +24,11 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 
+# Copy startup script
+COPY start.sh ./
+RUN chmod +x start.sh
+
 # EXPOSE 8080 (Railway handles port mapping)
 ENV NODE_ENV=production
 
-CMD ["node", "dist/index.js"]
+CMD ["./start.sh"]
