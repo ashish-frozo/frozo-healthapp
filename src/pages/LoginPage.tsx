@@ -61,10 +61,14 @@ export function LoginPage() {
             setLoading(true);
             setError(null);
             try {
+                console.log('Verifying OTP...');
                 const response = await authService.verifyOTP(`+91${phoneNumber}`, otp);
+                console.log('OTP verified, response:', response);
 
                 // Sync data from backend
+                console.log('Syncing data...');
                 await syncData();
+                console.log('Data synced successfully');
 
                 dispatch({
                     type: 'SET_AUTHENTICATED',
@@ -77,12 +81,15 @@ export function LoginPage() {
 
                 // If user has profiles, go to home, else create profile
                 if (response.user.profiles && response.user.profiles.length > 0) {
+                    console.log('Navigating to home...');
                     navigate('/');
                 } else {
+                    console.log('Navigating to create profile...');
                     navigate('/create-profile');
                 }
             } catch (err: any) {
-                setError(err.message || 'Invalid OTP');
+                console.error('Login error:', err);
+                setError(err.message || err.toString() || 'Unknown error occurred');
                 setOtp('');
             } finally {
                 setLoading(false);
