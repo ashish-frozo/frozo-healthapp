@@ -46,7 +46,7 @@ export function LoginPage() {
             setLoading(true);
             setError(null);
             try {
-                await authService.sendOTP(`+1${phoneNumber}`);
+                await authService.sendOTP(`+91${phoneNumber}`);
                 setShowOtp(true);
             } catch (err: any) {
                 setError(err.message || 'Failed to send OTP');
@@ -61,7 +61,7 @@ export function LoginPage() {
             setLoading(true);
             setError(null);
             try {
-                const response = await authService.verifyOTP(`+1${phoneNumber}`, otp);
+                const response = await authService.verifyOTP(`+91${phoneNumber}`, otp);
 
                 // Sync data from backend
                 await syncData();
@@ -70,7 +70,7 @@ export function LoginPage() {
                     type: 'SET_AUTHENTICATED',
                     payload: {
                         authenticated: true,
-                        phoneNumber: `+1${phoneNumber}`,
+                        phoneNumber: `+91${phoneNumber}`,
                         user: response.user
                     }
                 });
@@ -122,7 +122,7 @@ export function LoginPage() {
                     </h1>
                     <p className="text-text-secondary-light dark:text-text-secondary-dark text-lg font-normal leading-snug max-w-[280px]">
                         {showOtp
-                            ? `We sent a code to +1 ${formatPhoneNumber(phoneNumber)}`
+                            ? `We sent a code to +91 ${formatPhoneNumber(phoneNumber)}`
                             : "Let's log in. Enter your mobile number below."
                         }
                     </p>
@@ -161,7 +161,7 @@ export function LoginPage() {
                                 {/* Country Code */}
                                 <div className="absolute left-0 top-0 bottom-0 flex items-center pl-4 pr-3 border-r border-gray-200 dark:border-gray-600">
                                     <span className="text-2xl mr-2">🇺🇸</span>
-                                    <span className="text-text-secondary-light dark:text-text-secondary-dark font-semibold text-lg">+1</span>
+                                    <span className="text-text-secondary-light dark:text-text-secondary-dark font-semibold text-lg">+91</span>
                                 </div>
                                 {/* Input Display */}
                                 <div className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-background-light dark:bg-background-dark pl-[110px] pr-4 h-16 flex items-center text-2xl font-medium tracking-wide text-text-primary-light dark:text-text-primary-dark">
