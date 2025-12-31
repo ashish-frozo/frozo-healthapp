@@ -73,9 +73,8 @@ Expected response:
 ```json
 {
   "status": "ok",
-  "database": "ok",
-  "uptime": "0h 5m 30s",
-  "version": "1.0.0"
+  "uptime": 300.5,
+  "timestamp": "2023-10-27T10:00:00.000Z"
 }
 ```
 
