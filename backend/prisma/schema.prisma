@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(cuid())
+  phoneNumber String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  profiles    Profile[]
+}
+
+model Profile {
+  id               String           @id @default(cuid())
+  userId           String
+  user             User             @relation(fields: [userId], references: [id])
+  name             String
+  relationship     String
+  role             String           @default("dependent")
+  dateOfBirth      DateTime
+  avatarUrl        String?
+  bloodType        String?
+  allergies        String[]
+  conditions       String[]
+  medications      String[]
+  emergencyContact Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  bpReadings       BPReading[]
+  glucoseReadings  GlucoseReading[]
+  documents        Document[]
+  reminders        Reminder[]
+  symptoms         Symptom[]
+  notifications    Notification[]
+  clinicLinks      ClinicLink[]
+}
+
+model BPReading {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  systolic  Int
+  diastolic Int
+  pulse     Int?
+  status    String
+  timestamp DateTime @default(now())
+}
+
+model GlucoseReading {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  value     Float
+  context   String
+  status    String
+  timestamp DateTime @default(now())
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  profileId    String
+  profile      Profile  @relation(fields: [profileId], references: [id])
+  title        String
+  category     String
+  date         DateTime
+  fileUrl      String?
+  thumbnailUrl String?
+  tags         String[]
+  inVisitPack  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model Reminder {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id])
+  title       String
+  description String?
+  time        String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+}
+
+model Symptom {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  name      String
+  severity  String
+  notes     String?
+  timestamp DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  title     String
+  message   String
+  type      String
+  priority  String
+  isRead    Boolean  @default(false)
+  timestamp DateTime @default(now())
+  actionUrl String?
+}
+
+model ClinicLink {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  url       String   @unique
+  expiresAt DateTime
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

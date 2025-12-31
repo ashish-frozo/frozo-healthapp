@@ -1,0 +1,16 @@
+export { WelcomePage } from './WelcomePage';
+export { LoginPage } from './LoginPage';
+export { CreateProfilePage } from './CreateProfilePage';
+export { HomePage } from './HomePage';
+export { HistoryPage } from './HistoryPage';
+export { QuickAddPage } from './QuickAddPage';
+export { BPEntryPage } from './BPEntryPage';
+export { GlucoseEntryPage } from './GlucoseEntryPage';
+export { DocumentsPage } from './DocumentsPage';
+export { AddDocumentPage } from './AddDocumentPage';
+export { ExportPage } from './ExportPage';
+export { ClinicLinkPage } from './ClinicLinkPage';
+export { ProfilePage } from './ProfilePage';
+export { SymptomEntryPage } from './SymptomEntryPage';
+export { TrendsPage } from './TrendsPage';
+export { NotificationPage } from './NotificationPage';

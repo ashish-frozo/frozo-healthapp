@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: frozo_user
+      POSTGRES_PASSWORD: frozo_password
+      POSTGRES_DB: frozodb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      DATABASE_URL: postgresql://frozo_user:frozo_password@db:5432/frozodb?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      NODE_ENV: production
+    depends_on:
+      - db
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+volumes:
+  postgres_data:
