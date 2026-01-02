@@ -190,7 +190,7 @@ export function LoginPage() {
                             <div className="relative flex items-center">
                                 {/* Country Code */}
                                 <div className="absolute left-0 top-0 bottom-0 flex items-center pl-4 pr-3 border-r border-gray-200 dark:border-gray-600">
-                                    <span className="text-2xl mr-2">🇺🇸</span>
+                                    <span className="text-2xl mr-2">🇮🇳</span>
                                     <span className="text-text-secondary-light dark:text-text-secondary-dark font-semibold text-lg">+91</span>
                                 </div>
                                 {/* Input Display */}
