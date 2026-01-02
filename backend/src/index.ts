@@ -100,6 +100,10 @@ app.use('/api/profiles', profileRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/documents', documentRoutes);
+
+// Fallback routes for older frontend versions (PWA cache)
+app.use('/api/health/documents', documentRoutes);
+app.use('/api/health/reminders', reminderRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/clinic-links', clinicLinkRoutes);
 app.use('/api/family', familyRoutes);
