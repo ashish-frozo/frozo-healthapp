@@ -5,11 +5,21 @@ import path from 'path';
 
 // Initialize Firebase Admin
 let adminConfig;
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+const envConfig = process.env.FIREBASE_SERVICE_ACCOUNT;
+
+if (envConfig) {
     try {
-        adminConfig = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        // Try parsing as raw JSON first
+        adminConfig = JSON.parse(envConfig);
     } catch (e) {
-        console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT env var:', e);
+        try {
+            // If raw JSON fails, try decoding from Base64
+            const decoded = Buffer.from(envConfig, 'base64').toString('utf-8');
+            adminConfig = JSON.parse(decoded);
+            console.log('Successfully parsed FIREBASE_SERVICE_ACCOUNT from Base64');
+        } catch (base64Error) {
+            console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT env var as JSON or Base64:', e);
+        }
     }
 } else {
     try {
