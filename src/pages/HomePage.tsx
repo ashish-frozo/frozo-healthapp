@@ -101,7 +101,7 @@ export function HomePage() {
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest">Family Health</h2>
                         <button
-                            onClick={() => navigate('/profile')}
+                            onClick={() => navigate('/family-management')}
                             className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1"
                         >
                             Manage

@@ -45,6 +45,7 @@ type Action =
     | { type: 'ADD_PROFILE'; payload: Profile }
     | { type: 'SET_CURRENT_PROFILE'; payload: string }
     | { type: 'UPDATE_PROFILE'; payload: Profile }
+    | { type: 'REMOVE_PROFILE'; payload: string }
     | { type: 'ADD_BP_READING'; payload: BPReading }
     | { type: 'ADD_GLUCOSE_READING'; payload: GlucoseReading }
     | { type: 'ADD_DOCUMENT'; payload: Document }
@@ -93,6 +94,12 @@ function appReducer(state: AppState, action: Action): AppState {
                 profiles: state.profiles.map(p =>
                     p.id === action.payload.id ? action.payload : p
                 ),
+            };
+
+        case 'REMOVE_PROFILE':
+            return {
+                ...state,
+                profiles: state.profiles.filter(p => p.id !== action.payload),
             };
 
         case 'ADD_BP_READING':

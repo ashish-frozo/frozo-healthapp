@@ -14,3 +14,4 @@ export { ProfilePage } from './ProfilePage';
 export { SymptomEntryPage } from './SymptomEntryPage';
 export { TrendsPage } from './TrendsPage';
 export { NotificationPage } from './NotificationPage';
+export { FamilyManagementPage } from './FamilyManagementPage';

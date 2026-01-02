@@ -17,6 +17,7 @@ import {
   SymptomEntryPage,
   TrendsPage,
   NotificationPage,
+  FamilyManagementPage,
 } from './pages';
 
 // Protected route wrapper
@@ -132,6 +133,11 @@ function AppRoutes() {
       <Route path="/profile" element={
         <ProtectedRoute>
           <ProfilePage />
+        </ProtectedRoute>
+      } />
+      <Route path="/family-management" element={
+        <ProtectedRoute>
+          <FamilyManagementPage />
         </ProtectedRoute>
       } />
 
