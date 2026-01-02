@@ -1,0 +1,19 @@
+import { apiClient } from './api';
+
+export const authService = {
+    sendOTP: async (phoneNumber: string) => {
+        return apiClient.post('/auth/send-otp', { phoneNumber });
+    },
+
+    verifyOTP: async (idToken: string) => {
+        const response = await apiClient.post('/auth/verify-otp', { idToken });
+        if (response.token && response.user) {
+            await apiClient.setAuth(response.token, response.user.id);
+        }
+        return response;
+    },
+
+    logout: async () => {
+        await apiClient.clearAuth();
+    }
+};
