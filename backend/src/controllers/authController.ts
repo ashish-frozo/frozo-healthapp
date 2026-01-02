@@ -1,51 +1,53 @@
 import { Request, Response } from 'express';
 import { prisma } from '../index';
+import * as admin from 'firebase-admin';
+import path from 'path';
 
-// Mock OTP storage (in production, use Redis or a DB)
-const otpStore = new Map<string, string>();
+// Initialize Firebase Admin
+let adminConfig;
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+        adminConfig = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    } catch (e) {
+        console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT env var:', e);
+    }
+} else {
+    try {
+        adminConfig = require(path.join(__dirname, '../../firebase-service-account.json'));
+    } catch (e) {
+        console.warn('Firebase service account file not found, falling back to env var');
+    }
+}
+
+if (!admin.apps.length && adminConfig) {
+    admin.initializeApp({
+        credential: admin.credential.cert(adminConfig)
+    });
+} else if (!adminConfig) {
+    console.error('❌ Firebase Admin could not be initialized: No configuration found.');
+}
 
 export const sendOTP = async (req: Request, res: Response) => {
-    try {
-        const { phoneNumber } = req.body;
-
-        if (!phoneNumber) {
-            return res.status(400).json({ error: 'Phone number is required' });
-        }
-
-        // Generate a mock OTP (always 123456 for demo)
-        const otp = '123456';
-        otpStore.set(phoneNumber, otp);
-
-        console.log(`[MOCK OTP] Sent ${otp} to ${phoneNumber}`);
-
-        res.json({ message: 'OTP sent successfully (Mock: 123456)' });
-    } catch (error) {
-        console.error('Send OTP error:', error);
-        res.status(500).json({ error: 'Failed to send OTP' });
-    }
+    // With Firebase, the frontend handles sending the OTP.
+    // This endpoint can be used for logging or custom logic if needed.
+    res.json({ message: 'Firebase handles OTP sending on the frontend' });
 };
 
 export const verifyOTP = async (req: Request, res: Response) => {
     try {
-        const { phoneNumber, otp } = req.body;
+        const { idToken } = req.body;
 
-        if (!phoneNumber || !otp) {
-            return res.status(400).json({ error: 'Phone number and OTP are required' });
+        if (!idToken) {
+            return res.status(400).json({ error: 'ID Token is required' });
         }
 
-        console.log(`[VERIFY OTP] Phone: ${phoneNumber}, OTP: ${otp}`);
-        console.log(`[VERIFY OTP] Stored OTPs:`, Array.from(otpStore.entries()));
+        // Verify the ID token using Firebase Admin
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const phoneNumber = decodedToken.phone_number;
 
-        const savedOTP = otpStore.get(phoneNumber);
-        console.log(`[VERIFY OTP] Saved OTP for ${phoneNumber}:`, savedOTP);
-
-        if (savedOTP !== otp) {
-            console.log(`[VERIFY OTP] Mismatch - Expected: ${savedOTP}, Got: ${otp}`);
-            return res.status(400).json({ error: 'Invalid OTP' });
+        if (!phoneNumber) {
+            return res.status(400).json({ error: 'Phone number not found in token' });
         }
-
-        // Clear OTP after verification
-        otpStore.delete(phoneNumber);
 
         // Find or create user
         let user = await prisma.user.findUnique({
@@ -70,7 +72,9 @@ export const verifyOTP = async (req: Request, res: Response) => {
             });
         }
 
-        // In production, generate a JWT here
+        // In production, you might still want to issue your own JWT 
+        // or just use the Firebase token for subsequent requests.
+        // For now, we'll return a mock token to maintain compatibility with the existing frontend.
         const token = 'mock-jwt-token';
 
         res.json({
@@ -80,6 +84,6 @@ export const verifyOTP = async (req: Request, res: Response) => {
         });
     } catch (error) {
         console.error('Verify OTP error:', error);
-        res.status(500).json({ error: 'Failed to verify OTP' });
+        res.status(401).json({ error: 'Invalid or expired token' });
     }
 };

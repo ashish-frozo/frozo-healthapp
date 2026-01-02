@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { authService } from '../services/authService';
+import { auth } from '../config/firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 
 export function LoginPage() {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -9,8 +11,20 @@ export function LoginPage() {
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
     const navigate = useNavigate();
     const { dispatch, syncData } = useApp();
+
+    useEffect(() => {
+        if (!(window as any).recaptchaVerifier) {
+            (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': () => {
+                    console.log('Recaptcha resolved');
+                }
+            });
+        }
+    }, []);
 
     const handleKeyPress = (key: string) => {
         setError(null);
@@ -46,10 +60,20 @@ export function LoginPage() {
             setLoading(true);
             setError(null);
             try {
-                await authService.sendOTP(`+91${phoneNumber}`);
+                const appVerifier = (window as any).recaptchaVerifier;
+                const fullPhone = `+91${phoneNumber}`;
+                const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
+                setConfirmationResult(result);
                 setShowOtp(true);
             } catch (err: any) {
-                setError(err.message || 'Failed to send OTP');
+                console.error('Firebase Auth Error:', err);
+                setError(err.message || 'Failed to send OTP. Please try again.');
+                // Reset recaptcha if it fails
+                if ((window as any).recaptchaVerifier) {
+                    (window as any).recaptchaVerifier.render().then((widgetId: any) => {
+                        (window as any).grecaptcha.reset(widgetId);
+                    });
+                }
             } finally {
                 setLoading(false);
             }
@@ -57,18 +81,20 @@ export function LoginPage() {
     };
 
     const handleVerifyOtp = async () => {
-        if (otp.length === 6) {
+        if (otp.length === 6 && confirmationResult) {
             setLoading(true);
             setError(null);
             try {
-                console.log('Verifying OTP...');
-                const response = await authService.verifyOTP(`+91${phoneNumber}`, otp);
-                console.log('OTP verified, response:', response);
+                console.log('Verifying OTP with Firebase...');
+                const userCredential = await confirmationResult.confirm(otp);
+                const idToken = await userCredential.user.getIdToken();
+
+                console.log('Firebase verified, syncing with backend...');
+                const response = await authService.verifyOTP(idToken);
+                console.log('Backend sync successful:', response);
 
                 // Sync data from backend
-                console.log('Syncing data...');
                 await syncData();
-                console.log('Data synced successfully');
 
                 dispatch({
                     type: 'SET_AUTHENTICATED',
@@ -79,17 +105,14 @@ export function LoginPage() {
                     }
                 });
 
-                // If user has profiles, go to home, else create profile
                 if (response.user.profiles && response.user.profiles.length > 0) {
-                    console.log('Navigating to home...');
                     navigate('/');
                 } else {
-                    console.log('Navigating to create profile...');
                     navigate('/create-profile');
                 }
             } catch (err: any) {
                 console.error('Login error:', err);
-                setError(err.message || err.toString() || 'Unknown error occurred');
+                setError(err.message || 'Invalid verification code');
                 setOtp('');
             } finally {
                 setLoading(false);
@@ -235,6 +258,8 @@ export function LoginPage() {
                     <div className="w-32 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
                 </div>
             </div>
+            {/* Recaptcha Container */}
+            <div id="recaptcha-container"></div>
         </div>
     );
 }
