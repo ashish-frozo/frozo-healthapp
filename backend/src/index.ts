@@ -65,21 +65,30 @@ if (process.env.SENTRY_DSN) {
 }
 
 // Security Middleware
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: false, // Disable CSP for debugging network issues
+}));
 app.use(compression());
 
 // Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
+    max: 1000, // Limit each IP to 1000 requests per windowMs (increased for debugging)
     message: 'Too many requests from this IP, please try again after 15 minutes',
 });
 app.use('/api/', limiter);
 
 // CORS Configuration
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    logger.info({ origin, url: req.url, method: req.method }, 'Incoming request info');
+    next();
+});
+
 const corsOptions = {
-    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    origin: true, // Reflect the request origin
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],
 };
 app.use(cors(corsOptions));
