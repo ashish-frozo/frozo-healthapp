@@ -1,31 +1,35 @@
+version: '3.8'
+
 services:
-  db:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: frozo_user
-      POSTGRES_PASSWORD: frozo_password
-      POSTGRES_DB: frozodb
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   backend:
-    build: ./backend
-    restart: always
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - "5001:5001"
+      - "8080:8080"
     environment:
-      DATABASE_URL: postgresql://frozo_user:frozo_password@db:5432/frozodb?schema=public
-      JWT_SECRET: ${JWT_SECRET}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
-      NODE_ENV: production
-    depends_on:
-      - db
-    volumes:
-      - ./backend/uploads:/app/uploads
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+    restart: always
+  # Database is typically managed by Railway (Postgres), 
+  # but this is useful for local production testing.
+  # db:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     - POSTGRES_DB=frozo
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
 
-volumes:
-  postgres_data:
+  # volumes:
+  #   postgres_data:
