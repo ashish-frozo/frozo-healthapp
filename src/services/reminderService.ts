@@ -9,6 +9,6 @@ export const reminderService = {
         return apiClient.post('/reminders', reminder);
     },
     toggleReminder: async (id: string) => {
-        return apiClient.patch(`/reminders/${id}/toggle`);
+        return apiClient.patch(`/reminders/${id}/toggle`, {});
     }
 };
