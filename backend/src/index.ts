@@ -66,27 +66,30 @@ if (process.env.SENTRY_DSN) {
 
 // Security Middleware
 app.use(helmet({
-    contentSecurityPolicy: false, // Disable CSP for debugging network issues
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'", "https://frozo-healthapp-backend-production.up.railway.app", "wss://frozo-healthapp-backend-production.up.railway.app"],
+            imgSrc: ["'self'", "data:", "https:"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        },
+    },
 }));
 app.use(compression());
 
 // Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000, // Limit each IP to 1000 requests per windowMs (increased for debugging)
+    max: 1000, // Keep at 1000 to avoid blocking sync during high activity
     message: 'Too many requests from this IP, please try again after 15 minutes',
 });
 app.use('/api/', limiter);
 
 // CORS Configuration
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    logger.info({ origin, url: req.url, method: req.method }, 'Incoming request info');
-    next();
-});
-
 const corsOptions = {
-    origin: true, // Reflect the request origin
+    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],
