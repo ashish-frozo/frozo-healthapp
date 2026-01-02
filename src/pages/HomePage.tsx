@@ -100,7 +100,10 @@ export function HomePage() {
                 <div className="px-6 mt-6 mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest">Family Health</h2>
-                        <button className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1">
+                        <button
+                            onClick={() => navigate('/profile')}
+                            className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1"
+                        >
                             Manage
                             <span className="material-symbols-outlined text-sm">settings</span>
                         </button>
@@ -193,10 +196,10 @@ export function HomePage() {
                             {latestBP && (
                                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                                     <div className={`flex items-center px-2 py-0.5 rounded text-sm font-medium ${latestBP.status === 'normal'
-                                            ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
-                                            : latestBP.status === 'elevated'
-                                                ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
-                                                : 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
+                                        ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
+                                        : latestBP.status === 'elevated'
+                                            ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
+                                            : 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
                                         }`}>
                                         <span className="material-symbols-outlined text-base mr-1">
                                             {latestBP.status === 'normal' ? 'trending_flat' : 'trending_up'}
@@ -232,8 +235,8 @@ export function HomePage() {
                             {latestGlucose && (
                                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                                     <div className={`flex items-center px-2 py-0.5 rounded text-sm font-medium ${latestGlucose.status === 'normal'
-                                            ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
-                                            : 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
+                                        ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
+                                        : 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
                                         }`}>
                                         <span className="material-symbols-outlined text-base mr-1">check</span>
                                         {latestGlucose.status.charAt(0).toUpperCase() + latestGlucose.status.slice(1)}
@@ -264,8 +267,8 @@ export function HomePage() {
                                     }`}
                             >
                                 <div className={`flex items-center justify-center size-8 rounded-full shrink-0 ${reminder.completed
-                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                                        : 'border-2 border-primary bg-transparent'
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                                    : 'border-2 border-primary bg-transparent'
                                     }`}>
                                     {reminder.completed && <span className="material-symbols-outlined text-xl">check</span>}
                                 </div>
@@ -275,8 +278,8 @@ export function HomePage() {
                                         {reminder.title}
                                     </p>
                                     <p className={`text-sm font-medium ${reminder.completed
-                                            ? 'text-text-secondary-light dark:text-text-secondary-dark'
-                                            : 'text-red-500 dark:text-red-400'
+                                        ? 'text-text-secondary-light dark:text-text-secondary-dark'
+                                        : 'text-red-500 dark:text-red-400'
                                         }`}>
                                         {reminder.completed
                                             ? `${reminder.time} • Completed`
