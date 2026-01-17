@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { TopBar, BottomNav } from '../components/ui';
+import { TopBar } from '../components/ui';
 
 export function FamilyManagementPage() {
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ export function FamilyManagementPage() {
         <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col">
             <TopBar title="Family Management" showBack />
 
-            <main className="flex-1 px-4 py-6 pb-32 max-w-md mx-auto w-full">
+            <main className="flex-1 px-4 py-6 pb-32 md:pb-8 max-w-5xl mx-auto w-full">
                 {/* Header Section */}
                 <div className="mb-8">
                     <h1 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
@@ -118,8 +118,6 @@ export function FamilyManagementPage() {
                     </p>
                 </div>
             </main>
-
-            <BottomNav />
         </div>
     );
 }

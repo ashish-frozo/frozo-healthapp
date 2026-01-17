@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useHealthInsights } from '../hooks';
-import { BottomNav } from '../components/ui';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -158,8 +157,8 @@ export function TrendsPage() {
                             key={range}
                             onClick={() => setTimeRange(range)}
                             className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${timeRange === range
-                                    ? 'bg-primary text-white shadow-md'
-                                    : 'text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
+                                ? 'bg-primary text-white shadow-md'
+                                : 'text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
                         >
                             {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
@@ -262,8 +261,6 @@ export function TrendsPage() {
                     </div>
                 </section>
             </main>
-
-            <BottomNav />
         </div>
     );
 }

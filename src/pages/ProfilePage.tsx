@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { BottomNav, ToggleSwitch, MedicalIDModal } from '../components/ui';
+import { ToggleSwitch, MedicalIDModal } from '../components/ui';
 
 export function ProfilePage() {
     const navigate = useNavigate();
@@ -55,7 +55,7 @@ export function ProfilePage() {
     ];
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8">
             {/* Top Bar */}
             <div className="sticky top-0 z-10 flex items-center bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md p-4 pb-2 justify-center border-b border-gray-200 dark:border-gray-800">
                 <h2 className="text-text-primary-light dark:text-text-primary-dark text-xl font-bold leading-tight tracking-tight">Profile</h2>
@@ -271,8 +271,6 @@ export function ProfilePage() {
                     <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs">Version 2.4.0 (Build 102)</p>
                 </div>
             </div>
-
-            <BottomNav />
         </div>
     );
 }
