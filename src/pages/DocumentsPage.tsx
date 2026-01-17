@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { BottomNav, Modal, ToggleSwitch, LabTranslationModal } from '../components/ui';
+import { Modal, ToggleSwitch, LabTranslationModal } from '../components/ui';
 import { useLabTranslator } from '../hooks';
 import { Document } from '../types';
 
@@ -273,8 +273,6 @@ export function DocumentsPage() {
                 error={error}
                 translation={translation}
             />
-
-            <BottomNav />
         </div>
     );
 }

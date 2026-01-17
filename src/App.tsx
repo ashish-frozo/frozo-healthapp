@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
+import { ResponsiveLayout } from './components/ui';
 import {
   WelcomePage,
   LoginPage,
@@ -21,7 +22,7 @@ import {
 } from './pages';
 
 // Protected route wrapper
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children, hideNav = false }: { children: React.ReactNode; hideNav?: boolean }) {
   const { state } = useApp();
 
   if (!state.isAuthenticated) {
@@ -32,7 +33,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/create-profile" replace />;
   }
 
-  return <>{children}</>;
+  return <ResponsiveLayout hideNav={hideNav}>{children}</ResponsiveLayout>;
 }
 
 // Auth route wrapper (redirect if already authenticated)
@@ -69,7 +70,7 @@ function AppRoutes() {
         state.isAuthenticated ? <CreateProfilePage /> : <Navigate to="/welcome" replace />
       } />
 
-      {/* Protected Routes */}
+      {/* Protected Routes - Full Layout */}
       <Route path="/" element={
         <ProtectedRoute>
           <HomePage />
@@ -78,26 +79,6 @@ function AppRoutes() {
       <Route path="/history" element={
         <ProtectedRoute>
           <HistoryPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/quick-add" element={
-        <ProtectedRoute>
-          <QuickAddPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/bp-entry" element={
-        <ProtectedRoute>
-          <BPEntryPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/glucose-entry" element={
-        <ProtectedRoute>
-          <GlucoseEntryPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/symptom-entry" element={
-        <ProtectedRoute>
-          <SymptomEntryPage />
         </ProtectedRoute>
       } />
       <Route path="/trends" element={
@@ -115,19 +96,9 @@ function AppRoutes() {
           <DocumentsPage />
         </ProtectedRoute>
       } />
-      <Route path="/add-document" element={
-        <ProtectedRoute>
-          <AddDocumentPage />
-        </ProtectedRoute>
-      } />
       <Route path="/export" element={
         <ProtectedRoute>
           <ExportPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/clinic-link" element={
-        <ProtectedRoute>
-          <ClinicLinkPage />
         </ProtectedRoute>
       } />
       <Route path="/profile" element={
@@ -138,6 +109,38 @@ function AppRoutes() {
       <Route path="/family-management" element={
         <ProtectedRoute>
           <FamilyManagementPage />
+        </ProtectedRoute>
+      } />
+
+      {/* Protected Routes - Modal-like (hide nav) */}
+      <Route path="/quick-add" element={
+        <ProtectedRoute hideNav>
+          <QuickAddPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/bp-entry" element={
+        <ProtectedRoute hideNav>
+          <BPEntryPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/glucose-entry" element={
+        <ProtectedRoute hideNav>
+          <GlucoseEntryPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/symptom-entry" element={
+        <ProtectedRoute hideNav>
+          <SymptomEntryPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/add-document" element={
+        <ProtectedRoute hideNav>
+          <AddDocumentPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/clinic-link" element={
+        <ProtectedRoute hideNav>
+          <ClinicLinkPage />
         </ProtectedRoute>
       } />
 

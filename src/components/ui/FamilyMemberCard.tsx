@@ -6,9 +6,10 @@ import { useApp } from '../../context/AppContext';
 
 interface FamilyMemberCardProps {
     profile: Profile;
+    compact?: boolean;
 }
 
-export function FamilyMemberCard({ profile }: FamilyMemberCardProps) {
+export function FamilyMemberCard({ profile, compact = false }: FamilyMemberCardProps) {
     const { state, dispatch } = useApp();
     const [showNudge, setShowNudge] = useState(false);
     const [showMedicalID, setShowMedicalID] = useState(false);
@@ -28,6 +29,48 @@ export function FamilyMemberCard({ profile }: FamilyMemberCardProps) {
     const handleSwitchProfile = () => {
         dispatch({ type: 'SET_CURRENT_PROFILE', payload: profile.id });
     };
+
+    // Compact version for desktop sidebar
+    if (compact) {
+        return (
+            <>
+                <div
+                    onClick={handleSwitchProfile}
+                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                >
+                    <div className="relative">
+                        <img
+                            src={profile.avatarUrl || '/placeholder-avatar.png'}
+                            alt={profile.name}
+                            className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-gray-800"
+                        />
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900 ${isDependent ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-text-primary-light dark:text-text-primary-dark truncate">{profile.name.split(' ')[0]}</p>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wider">{profile.relationship}</p>
+                    </div>
+                    <div className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${statusColor}`}>
+                        {status === 'Attention Needed' ? 'Attn' : 'OK'}
+                    </div>
+                </div>
+
+                {showNudge && (
+                    <NudgeModal
+                        profile={profile}
+                        onClose={() => setShowNudge(false)}
+                    />
+                )}
+
+                {showMedicalID && (
+                    <MedicalIDModal
+                        profile={profile}
+                        onClose={() => setShowMedicalID(false)}
+                    />
+                )}
+            </>
+        );
+    }
 
     return (
         <>

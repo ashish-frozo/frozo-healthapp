@@ -5,6 +5,8 @@ export { ToggleSwitch } from './ToggleSwitch';
 export { Modal } from './Modal';
 export { ImageCaptureModal } from './ImageCaptureModal';
 export { ReportPreviewModal } from './ReportPreviewModal';
+export { Sidebar } from './Sidebar';
+export { ResponsiveLayout } from './ResponsiveLayout';
 export * from './LabTranslationModal';
 export * from './FamilyMemberCard';
 export * from './NudgeModal';

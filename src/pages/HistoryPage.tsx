@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { BottomNav, TopBar } from '../components/ui';
 import { ReadingType, DateRange } from '../types';
 import { formatTime, getDateLabel } from '../data/mockData';
 
@@ -60,7 +59,7 @@ export function HistoryPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8">
             {/* Header */}
             <header className="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 sticky top-0 z-20">
                 <h2 className="text-text-primary-light dark:text-text-primary-dark text-3xl font-bold leading-tight tracking-tight flex-1">
@@ -72,7 +71,7 @@ export function HistoryPage() {
             </header>
 
             {/* Main Content */}
-            <main className="max-w-md mx-auto flex flex-col w-full px-4">
+            <main className="max-w-5xl mx-auto flex flex-col w-full px-4 md:px-6">
                 {/* Type Filter */}
                 <div className="flex py-2 w-full">
                     <div className="flex h-12 w-full items-center justify-center rounded-xl bg-surface-light dark:bg-surface-dark p-1 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -81,8 +80,8 @@ export function HistoryPage() {
                                 key={type}
                                 onClick={() => setTypeFilter(type)}
                                 className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 transition-all duration-200 font-medium ${typeFilter === type
-                                        ? 'bg-primary text-white'
-                                        : 'text-text-secondary-light dark:text-text-secondary-dark'
+                                    ? 'bg-primary text-white'
+                                    : 'text-text-secondary-light dark:text-text-secondary-dark'
                                     }`}
                             >
                                 <span className="truncate text-base">
@@ -100,8 +99,8 @@ export function HistoryPage() {
                             key={range.value}
                             onClick={() => setDateRange(range.value)}
                             className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full pl-5 pr-5 shadow-sm transition-transform active:scale-95 ${dateRange === range.value
-                                    ? 'bg-primary text-white'
-                                    : 'bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-secondary-light dark:text-text-secondary-dark'
+                                ? 'bg-primary text-white'
+                                : 'bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-secondary-light dark:text-text-secondary-dark'
                                 }`}
                         >
                             <span className={`text-sm leading-normal ${dateRange === range.value ? 'font-bold' : 'font-medium'}`}>
@@ -154,8 +153,8 @@ export function HistoryPage() {
                                     >
                                         <div className="flex items-center p-4 gap-4">
                                             <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${reading.type === 'bp'
-                                                    ? 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400'
-                                                    : 'bg-blue-50 dark:bg-blue-900/20 text-primary'
+                                                ? 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400'
+                                                : 'bg-blue-50 dark:bg-blue-900/20 text-primary'
                                                 }`}>
                                                 <span className="material-symbols-outlined filled">
                                                     {reading.type === 'bp' ? 'favorite' : 'water_drop'}
@@ -175,10 +174,10 @@ export function HistoryPage() {
                                                 </div>
                                                 <div className="flex items-center gap-2 mt-1">
                                                     <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ring-1 ring-inset ${reading.status === 'normal'
-                                                            ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-600/20'
-                                                            : reading.status === 'elevated'
-                                                                ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 ring-orange-600/20'
-                                                                : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-600/20'
+                                                        ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-600/20'
+                                                        : reading.status === 'elevated'
+                                                            ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 ring-orange-600/20'
+                                                            : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-600/20'
                                                         }`}>
                                                         {reading.status.charAt(0).toUpperCase() + reading.status.slice(1)}
                                                     </span>
@@ -214,13 +213,11 @@ export function HistoryPage() {
             {/* FAB */}
             <button
                 onClick={() => navigate('/quick-add')}
-                className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 transition-transform active:scale-90 hover:scale-105"
+                className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 transition-transform active:scale-90 hover:scale-105 md:hidden"
                 style={{ right: 'max(1rem, calc((100vw - 28rem) / 2 + 1rem))' }}
             >
                 <span className="material-symbols-outlined text-[28px]">add</span>
             </button>
-
-            <BottomNav />
         </div>
     );
 }
