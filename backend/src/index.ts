@@ -14,6 +14,8 @@ import clinicLinkRoutes from './routes/clinicLinkRoutes';
 import familyRoutes from './routes/familyRoutes';
 import aiRoutes from './routes/aiRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
+import householdRoutes from './routes/householdRoutes';
+import whatsappRoutes from './routes/whatsappRoutes';
 import path from 'path';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -121,6 +123,8 @@ app.use('/api/clinic-links', clinicLinkRoutes);
 app.use('/api/family', familyRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/households', householdRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 // Serve uploads as static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
