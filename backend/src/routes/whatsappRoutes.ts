@@ -166,7 +166,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
 
         console.log(`[Gemini Parse] Type: ${parsed.type}, Confidence: ${parsed.confidence}, Interpretation: ${parsed.interpretation}`);
 
-        const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
 
         if (parsed.type === 'bp' && parsed.systolic && parsed.diastolic) {
             const { status, emoji, alert } = getBPStatus(parsed.systolic, parsed.diastolic);
@@ -285,7 +285,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
             if (bpReadings.length > 0) {
                 statusMsg += `*Blood Pressure:*\n`;
                 bpReadings.forEach(r => {
-                    const rTime = new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                    const rTime = new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
                     statusMsg += `• ${r.systolic}/${r.diastolic} - ${rTime}\n`;
                 });
                 statusMsg += '\n';
@@ -296,7 +296,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
             if (glucoseReadings.length > 0) {
                 statusMsg += `*Sugar:*\n`;
                 glucoseReadings.forEach(r => {
-                    const rTime = new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                    const rTime = new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
                     statusMsg += `• ${r.value} mg/dL - ${rTime}\n`;
                 });
             } else {
