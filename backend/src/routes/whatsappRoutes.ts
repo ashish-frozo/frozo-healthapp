@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import twilio from 'twilio';
+import { parseHealthMessage, ParsedHealthMessage } from '../services/geminiParser';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -12,52 +13,6 @@ const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_T
 
 const WHATSAPP_NUMBER = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886';
 
-// Parse health messages from WhatsApp
-const parseHealthMessage = (message: string): {
-    type: 'bp' | 'glucose' | 'symptom' | 'status' | 'unknown';
-    systolic?: number;
-    diastolic?: number;
-    value?: number;
-    context?: string;
-    symptom?: string;
-} => {
-    const text = message.trim().toLowerCase();
-
-    // BP: "bp 130/85" or "130/85" or "bp 130 85"
-    const bpMatch = text.match(/(?:bp\s*)?(\d{2,3})[\/\s](\d{2,3})/);
-    if (bpMatch) {
-        return {
-            type: 'bp',
-            systolic: parseInt(bpMatch[1]),
-            diastolic: parseInt(bpMatch[2]),
-        };
-    }
-
-    // Glucose: "sugar 110" or "glucose 140 after food"
-    const glucoseMatch = text.match(/(?:sugar|glucose)\s*(\d{2,3})(?:\s*(fasting|after food|before food|random))?/);
-    if (glucoseMatch) {
-        return {
-            type: 'glucose',
-            value: parseInt(glucoseMatch[1]),
-            context: glucoseMatch[2] || 'fasting',
-        };
-    }
-
-    // Status check
-    if (text === 'status' || text === 'summary' || text === 'today') {
-        return { type: 'status' };
-    }
-
-    // Symptom (general text)
-    if (text.includes('feeling') || text.includes('pain') || text.includes('headache') || text.includes('dizzy')) {
-        return {
-            type: 'symptom',
-            symptom: message.trim(),
-        };
-    }
-
-    return { type: 'unknown' };
-};
 
 // Get BP status
 const getBPStatus = (systolic: number, diastolic: number): { status: string; emoji: string; alert: boolean } => {
@@ -78,7 +33,7 @@ const getBPStatus = (systolic: number, diastolic: number): { status: string; emo
 
 // Get Glucose status
 const getGlucoseStatus = (value: number, context: string): { status: string; emoji: string; alert: boolean } => {
-    const isFasting = context === 'fasting' || context === 'before food';
+    const isFasting = context === 'fasting' || context === 'before_food';
 
     if (isFasting) {
         if (value < 70) return { status: 'Low', emoji: '⚠️', alert: true };
@@ -129,10 +84,36 @@ const notifyAdmins = async (householdId: string, message: string, excludeUserId?
     }
 };
 
+// Get help message
+const getHelpMessage = () => `
+🏥 *Frozo Health Bot*
+
+मैं आपकी health readings track करने में मदद करता हूं!
+
+*BP log करें:*
+• "BP 130/85"
+• "mera bp 140 over 90 hai"
+• "blood pressure 135/88"
+
+*Sugar log करें:*
+• "sugar 110 fasting"
+• "khali pet sugar 95"
+• "khana khane ke baad sugar 140"
+
+*Symptoms बताएं:*
+• "feeling dizzy"
+• "sir dard ho raha hai"
+
+*Status देखें:*
+• "status" या "aaj ka summary"
+
+बस message भेजें, मैं समझ जाऊंगा! 😊
+`.trim();
+
 // Twilio webhook endpoint
 router.post('/webhook', async (req: Request, res: Response) => {
     try {
-        const { From, Body, ProfileName } = req.body;
+        const { From, Body } = req.body;
 
         if (!From || !Body) {
             return res.status(400).send('Missing From or Body');
@@ -166,7 +147,10 @@ router.post('/webhook', async (req: Request, res: Response) => {
 
         if (!user) {
             await sendReply(From,
-                `👋 Welcome to Frozo Health!\n\nYour phone number is not registered yet.\n\nPlease download the app and create an account first:\nhttps://frozo.health\n\nAfter registering, you can log readings directly via WhatsApp!`
+                `👋 *Frozo Health में आपका स्वागत है!*\n\n` +
+                `आपका phone number registered नहीं है।\n\n` +
+                `पहले app में register करें:\nhttps://frozo.health\n\n` +
+                `Register करने के बाद, आप WhatsApp से readings log कर सकते हैं!`
             );
             return res.status(200).send('OK');
         }
@@ -177,7 +161,12 @@ router.post('/webhook', async (req: Request, res: Response) => {
             return res.status(200).send('OK');
         }
 
-        const parsed = parseHealthMessage(Body);
+        // Parse message using Gemini AI
+        const parsed: ParsedHealthMessage = await parseHealthMessage(Body);
+
+        console.log(`[Gemini Parse] Type: ${parsed.type}, Confidence: ${parsed.confidence}, Interpretation: ${parsed.interpretation}`);
+
+        const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
         if (parsed.type === 'bp' && parsed.systolic && parsed.diastolic) {
             const { status, emoji, alert } = getBPStatus(parsed.systolic, parsed.diastolic);
@@ -188,58 +177,65 @@ router.post('/webhook', async (req: Request, res: Response) => {
                     profileId: profile.id,
                     systolic: parsed.systolic,
                     diastolic: parsed.diastolic,
+                    pulse: parsed.pulse,
                     status: status.toLowerCase(),
                 },
             });
 
-            const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-
             await sendReply(From,
                 `${emoji} *Blood Pressure Saved!*\n\n` +
-                `📊 ${parsed.systolic}/${parsed.diastolic} mmHg\n` +
+                `📊 ${parsed.systolic}/${parsed.diastolic}${parsed.pulse ? ` (Pulse: ${parsed.pulse})` : ''} mmHg\n` +
                 `📈 Status: ${status}\n` +
                 `🕐 Time: ${time}\n\n` +
-                (alert ? `_Your family has been notified._` : `Keep up the good work! 💪`)
+                (parsed.interpretation ? `_"${parsed.interpretation}"_\n\n` : '') +
+                (alert ? `⚡ _आपके परिवार को notify किया गया है।_` : `बहुत बढ़िया! 💪`)
             );
 
             // Alert admins if concerning
             if (alert && user.householdMemberships[0]) {
                 await notifyAdmins(
                     user.householdMemberships[0].householdId,
-                    `🚨 *Health Alert*\n\n${profile.name} just recorded:\nBP: ${parsed.systolic}/${parsed.diastolic} mmHg (${status})\n\nTime: ${time}`,
+                    `🚨 *Health Alert*\n\n${profile.name} ने record किया:\nBP: ${parsed.systolic}/${parsed.diastolic} mmHg\nStatus: ${status}\n\nTime: ${time}`,
                     user.id
                 );
             }
 
-        } else if (parsed.type === 'glucose' && parsed.value) {
-            const context = parsed.context || 'fasting';
-            const { status, emoji, alert } = getGlucoseStatus(parsed.value, context);
+        } else if (parsed.type === 'glucose' && parsed.glucoseValue) {
+            const context = parsed.glucoseContext || 'fasting';
+            const { status, emoji, alert } = getGlucoseStatus(parsed.glucoseValue, context);
+
+            const contextLabels: Record<string, string> = {
+                'fasting': 'खाली पेट (Fasting)',
+                'after_food': 'खाने के बाद (After Food)',
+                'before_food': 'खाने से पहले (Before Food)',
+                'random': 'Random',
+            };
 
             // Save reading
             await prisma.glucoseReading.create({
                 data: {
                     profileId: profile.id,
-                    value: parsed.value,
-                    context,
+                    value: parsed.glucoseValue,
+                    context: context.replace('_', ' '),
                     status: status.toLowerCase(),
                 },
             });
 
-            const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-
             await sendReply(From,
-                `${emoji} *Glucose Saved!*\n\n` +
-                `📊 ${parsed.value} mg/dL\n` +
-                `🍽️ Context: ${context}\n` +
+                `${emoji} *Sugar Level Saved!*\n\n` +
+                `📊 ${parsed.glucoseValue} mg/dL\n` +
+                `🍽️ ${contextLabels[context] || context}\n` +
                 `📈 Status: ${status}\n` +
-                `🕐 Time: ${time}`
+                `🕐 Time: ${time}\n\n` +
+                (parsed.interpretation ? `_"${parsed.interpretation}"_\n\n` : '') +
+                (alert ? `⚡ _आपके परिवार को notify किया गया है।_` : `👍`)
             );
 
             // Alert admins if concerning
             if (alert && user.householdMemberships[0]) {
                 await notifyAdmins(
                     user.householdMemberships[0].householdId,
-                    `🚨 *Health Alert*\n\n${profile.name} just recorded:\nGlucose: ${parsed.value} mg/dL (${status})\nContext: ${context}\n\nTime: ${time}`,
+                    `🚨 *Health Alert*\n\n${profile.name} ने record किया:\nSugar: ${parsed.glucoseValue} mg/dL (${context})\nStatus: ${status}\n\nTime: ${time}`,
                     user.id
                 );
             }
@@ -250,12 +246,15 @@ router.post('/webhook', async (req: Request, res: Response) => {
                 data: {
                     profileId: profile.id,
                     name: parsed.symptom,
-                    severity: 'moderate',
+                    severity: parsed.severity || 'moderate',
                 },
             });
 
             await sendReply(From,
-                `📝 *Symptom Logged*\n\n"${parsed.symptom}"\n\nIf symptoms persist or worsen, please consult a doctor.`
+                `📝 *Symptom Log हो गया*\n\n` +
+                `"${parsed.symptom}"\n` +
+                `Severity: ${parsed.severity || 'moderate'}\n\n` +
+                `अगर symptoms बढ़ें, तो doctor से मिलें। 🏥`
             );
 
         } else if (parsed.type === 'status') {
@@ -281,40 +280,45 @@ router.post('/webhook', async (req: Request, res: Response) => {
                 take: 3,
             });
 
-            let statusMsg = `📊 *Today's Summary*\n\n*${profile.name}*\n\n`;
+            let statusMsg = `📊 *आज का Summary*\n\n*${profile.name}*\n\n`;
 
             if (bpReadings.length > 0) {
                 statusMsg += `*Blood Pressure:*\n`;
                 bpReadings.forEach(r => {
-                    const time = new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-                    statusMsg += `• ${r.systolic}/${r.diastolic} at ${time}\n`;
+                    const rTime = new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                    statusMsg += `• ${r.systolic}/${r.diastolic} - ${rTime}\n`;
                 });
                 statusMsg += '\n';
             } else {
-                statusMsg += `*Blood Pressure:* No readings today\n\n`;
+                statusMsg += `*Blood Pressure:* आज कोई reading नहीं\n\n`;
             }
 
             if (glucoseReadings.length > 0) {
-                statusMsg += `*Glucose:*\n`;
+                statusMsg += `*Sugar:*\n`;
                 glucoseReadings.forEach(r => {
-                    const time = new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-                    statusMsg += `• ${r.value} mg/dL at ${time}\n`;
+                    const rTime = new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                    statusMsg += `• ${r.value} mg/dL - ${rTime}\n`;
                 });
             } else {
-                statusMsg += `*Glucose:* No readings today`;
+                statusMsg += `*Sugar:* आज कोई reading नहीं`;
             }
 
             await sendReply(From, statusMsg);
 
+        } else if (parsed.type === 'help') {
+            await sendReply(From, getHelpMessage());
+
         } else {
+            // Unknown - show help with encouragement
             await sendReply(From,
-                `🤔 I didn't understand that.\n\n` +
-                `*Try these formats:*\n` +
-                `• \`BP 130/85\` - Log blood pressure\n` +
-                `• \`Sugar 110\` - Log fasting glucose\n` +
-                `• \`Sugar 140 after food\` - Log post-meal glucose\n` +
-                `• \`Status\` - See today's readings\n\n` +
-                `Or describe any symptoms you're experiencing.`
+                `🤔 मैं समझ नहीं पाया...\n\n` +
+                `आपने भेजा: "${Body}"\n\n` +
+                `*इस तरह try करें:*\n` +
+                `• "BP 130/85"\n` +
+                `• "sugar 110 fasting"\n` +
+                `• "khali pet sugar 95"\n` +
+                `• "status"\n\n` +
+                `_"help" लिखें full guide के लिए_`
             );
         }
 
