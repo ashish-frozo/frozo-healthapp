@@ -306,11 +306,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
     }, [state.darkMode]);
 
-    // Socket Connection & Real-time Nudges
+    // Socket Connection & Real-time Updates
     useEffect(() => {
         if (state.isAuthenticated && state.user?.id) {
             socketService.connect(state.user.id);
 
+            // Listen for new nudges
             socketService.on('new_nudge', (data: any) => {
                 dispatch({ type: 'ADD_NOTIFICATION', payload: data.notification });
 
@@ -321,7 +322,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 });
             });
 
+            // Listen for new BP readings (from WhatsApp or other sources)
+            socketService.on('bp:new', (data: any) => {
+                console.log('🔄 Real-time BP reading received:', data);
+                dispatch({ type: 'ADD_BP_READING', payload: data });
+
+                // Show notification
+                notificationService.sendPush('New BP Reading', {
+                    body: `${data.systolic}/${data.diastolic} mmHg - ${data.status}`,
+                    tag: 'bp-reading'
+                });
+            });
+
+            // Listen for new Glucose readings
+            socketService.on('glucose:new', (data: any) => {
+                console.log('🔄 Real-time Glucose reading received:', data);
+                dispatch({ type: 'ADD_GLUCOSE_READING', payload: data });
+
+                // Show notification
+                notificationService.sendPush('New Glucose Reading', {
+                    body: `${data.value} mg/dL - ${data.status}`,
+                    tag: 'glucose-reading'
+                });
+            });
+
+            // Listen for new Symptoms
+            socketService.on('symptom:new', (data: any) => {
+                console.log('🔄 Real-time Symptom received:', data);
+                dispatch({ type: 'ADD_SYMPTOM', payload: data });
+            });
+
             return () => {
+                socketService.off('new_nudge');
+                socketService.off('bp:new');
+                socketService.off('glucose:new');
+                socketService.off('symptom:new');
                 socketService.disconnect();
             };
         }

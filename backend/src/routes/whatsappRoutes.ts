@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import twilio from 'twilio';
 import { parseHealthMessage, ParsedHealthMessage } from '../services/geminiParser';
+import { socketService } from '../services/socketService';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -172,7 +173,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
             const { status, emoji, alert } = getBPStatus(parsed.systolic, parsed.diastolic);
 
             // Save reading
-            await prisma.bPReading.create({
+            const bpReading = await prisma.bPReading.create({
                 data: {
                     profileId: profile.id,
                     systolic: parsed.systolic,
@@ -180,6 +181,12 @@ router.post('/webhook', async (req: Request, res: Response) => {
                     pulse: parsed.pulse,
                     status: status.toLowerCase(),
                 },
+            });
+
+            // Emit real-time event to frontend
+            socketService.sendToUser(user.id, 'bp:new', {
+                ...bpReading,
+                type: 'bp',
             });
 
             await sendReply(From,
@@ -212,13 +219,19 @@ router.post('/webhook', async (req: Request, res: Response) => {
             };
 
             // Save reading
-            await prisma.glucoseReading.create({
+            const glucoseReading = await prisma.glucoseReading.create({
                 data: {
                     profileId: profile.id,
                     value: parsed.glucoseValue,
                     context: context.replace('_', ' '),
                     status: status.toLowerCase(),
                 },
+            });
+
+            // Emit real-time event to frontend
+            socketService.sendToUser(user.id, 'glucose:new', {
+                ...glucoseReading,
+                type: 'glucose',
             });
 
             await sendReply(From,
