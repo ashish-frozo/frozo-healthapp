@@ -536,19 +536,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const syncData = async () => {
         try {
+            console.log('🔄 syncData: Starting sync...');
+
             // 1. Fetch profiles from backend
             const profiles = await profileService.getProfiles();
+            console.log('🔄 syncData: Fetched profiles:', profiles.length, profiles.map((p: Profile) => ({ id: p.id, name: p.name })));
 
             // 2. Fetch all data for the current profile (or first profile)
             const currentProfileId = profiles.length > 0 ? profiles[0].id : null;
+            console.log('🔄 syncData: Using profileId:', currentProfileId);
 
-            let bpReadings = [];
-            let glucoseReadings = [];
-            let symptoms = [];
-            let documents = [];
-            let reminders = [];
+            let bpReadings: any[] = [];
+            let glucoseReadings: any[] = [];
+            let symptoms: any[] = [];
+            let documents: any[] = [];
+            let reminders: any[] = [];
 
             if (currentProfileId) {
+                console.log('🔄 syncData: Fetching health data for profile:', currentProfileId);
                 const [bp, glucose, symp, docs, rems] = await Promise.all([
                     healthService.getBPReadings(currentProfileId),
                     healthService.getGlucoseReadings(currentProfileId),
@@ -556,14 +561,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
                     healthService.getDocuments(currentProfileId),
                     reminderService.getReminders(currentProfileId),
                 ]);
-                bpReadings = bp;
-                glucoseReadings = glucose;
-                symptoms = symp;
-                documents = docs;
-                reminders = rems;
+                bpReadings = bp || [];
+                glucoseReadings = glucose || [];
+                symptoms = symp || [];
+                documents = docs || [];
+                reminders = rems || [];
+
+                console.log('🔄 syncData: Fetched BP readings:', bpReadings.length);
+                console.log('🔄 syncData: Fetched Glucose readings:', glucoseReadings.length, glucoseReadings);
+                console.log('🔄 syncData: Fetched Symptoms:', symptoms.length);
             }
 
             const familyOverview = await profileService.getFamilyOverview();
+            console.log('🔄 syncData: Fetched family overview:', familyOverview.length);
 
             dispatch({
                 type: 'SYNC_DATA',
@@ -579,8 +589,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
                     familyOverview,
                 }
             });
+
+            console.log('🔄 syncData: Complete! State updated.');
         } catch (error) {
-            console.error('Sync error:', error);
+            console.error('🔄 syncData: ERROR:', error);
             throw error;
         }
     };
