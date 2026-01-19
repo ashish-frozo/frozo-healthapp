@@ -1,12 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { ToggleSwitch, MedicalIDModal } from '../components/ui';
+import { settingsService, UserSettings } from '../services/settingsService';
 
 export function ProfilePage() {
     const navigate = useNavigate();
     const { state, dispatch, currentProfile, addNotification, updateMedicalID } = useApp();
     const [showMedicalID, setShowMedicalID] = useState(false);
+    const [preferredLanguage, setPreferredLanguage] = useState<'english' | 'hindi' | 'hinglish'>('hinglish');
+    const [savingLanguage, setSavingLanguage] = useState(false);
+
+    // Fetch user settings on mount
+    useEffect(() => {
+        if (state.isAuthenticated) {
+            settingsService.getSettings()
+                .then((settings) => setPreferredLanguage(settings.preferredLanguage))
+                .catch((err) => console.error('Failed to load settings:', err));
+        }
+    }, [state.isAuthenticated]);
+
+    const handleLanguageChange = async (lang: 'english' | 'hindi' | 'hinglish') => {
+        setSavingLanguage(true);
+        try {
+            await settingsService.updateSettings({ preferredLanguage: lang });
+            setPreferredLanguage(lang);
+            addNotification('Settings Updated', `WhatsApp replies will now be in ${lang === 'english' ? 'English' : lang === 'hindi' ? 'Hindi' : 'Hinglish'}`, 'system', 'low');
+        } catch (error) {
+            console.error('Failed to update language:', error);
+        } finally {
+            setSavingLanguage(false);
+        }
+    };
 
     const handleLogout = () => {
         dispatch({ type: 'LOGOUT' });
@@ -160,6 +185,40 @@ export function ProfilePage() {
                         </div>
                     </div>
                 ))}
+                {/* WhatsApp Language Setting */}
+                <div className="mb-6">
+                    <h3 className="px-1 text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium mb-2 uppercase tracking-wider">
+                        WhatsApp Settings
+                    </h3>
+                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center gap-4 p-4">
+                            <div className="flex items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/20 shrink-0 size-10">
+                                <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-[24px]">translate</span>
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">Reply Language</p>
+                                <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">Choose language for WhatsApp replies</p>
+                            </div>
+                        </div>
+                        <div className="px-4 pb-4">
+                            <div className="flex gap-2">
+                                {(['english', 'hinglish', 'hindi'] as const).map((lang) => (
+                                    <button
+                                        key={lang}
+                                        onClick={() => handleLanguageChange(lang)}
+                                        disabled={savingLanguage}
+                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${preferredLanguage === lang
+                                                ? 'bg-primary text-white shadow-md'
+                                                : 'bg-gray-100 dark:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-200 dark:hover:bg-gray-700'
+                                            } ${savingLanguage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        {lang === 'english' ? 'English' : lang === 'hindi' ? 'हिंदी' : 'Hinglish'}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Premium Card */}
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl overflow-hidden shadow-md text-white p-5 relative">

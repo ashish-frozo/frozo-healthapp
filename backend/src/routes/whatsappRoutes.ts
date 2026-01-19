@@ -49,6 +49,46 @@ const getGlucoseStatus = (value: number, context: string): { status: string; emo
     }
 };
 
+// Localized messages based on user preference
+type Language = 'english' | 'hindi' | 'hinglish';
+
+const messages = {
+    bpSaved: {
+        english: (emoji: string, sys: number, dia: number, pulse: number | undefined, status: string, time: string, alert: boolean) =>
+            `${emoji} *Blood Pressure Saved!*\n\n📊 ${sys}/${dia}${pulse ? ` (Pulse: ${pulse})` : ''} mmHg\n📈 Status: ${status}\n🕐 Time: ${time}\n\n${alert ? `⚡ _Your family has been notified._` : `Great job! 💪`}`,
+        hindi: (emoji: string, sys: number, dia: number, pulse: number | undefined, status: string, time: string, alert: boolean) =>
+            `${emoji} *ब्लड प्रेशर सेव हो गया!*\n\n📊 ${sys}/${dia}${pulse ? ` (पल्स: ${pulse})` : ''} mmHg\n📈 स्थिति: ${status}\n🕐 समय: ${time}\n\n${alert ? `⚡ _आपके परिवार को सूचित कर दिया गया है।_` : `बहुत अच्छे! 💪`}`,
+        hinglish: (emoji: string, sys: number, dia: number, pulse: number | undefined, status: string, time: string, alert: boolean) =>
+            `${emoji} *Blood Pressure Saved!*\n\n📊 ${sys}/${dia}${pulse ? ` (Pulse: ${pulse})` : ''} mmHg\n📈 Status: ${status}\n🕐 Time: ${time}\n\n${alert ? `⚡ _आपके परिवार को notify किया गया है।_` : `बहुत बढ़िया! 💪`}`,
+    },
+    glucoseSaved: {
+        english: (emoji: string, value: number, contextLabel: string, status: string, time: string, alert: boolean) =>
+            `${emoji} *Sugar Level Saved!*\n\n📊 ${value} mg/dL\n🍽️ ${contextLabel}\n📈 Status: ${status}\n🕐 Time: ${time}\n\n${alert ? `⚡ _Your family has been notified._` : `👍`}`,
+        hindi: (emoji: string, value: number, contextLabel: string, status: string, time: string, alert: boolean) =>
+            `${emoji} *शुगर लेवल सेव हो गया!*\n\n📊 ${value} mg/dL\n🍽️ ${contextLabel}\n📈 स्थिति: ${status}\n🕐 समय: ${time}\n\n${alert ? `⚡ _आपके परिवार को सूचित कर दिया गया है।_` : `👍`}`,
+        hinglish: (emoji: string, value: number, contextLabel: string, status: string, time: string, alert: boolean) =>
+            `${emoji} *Sugar Level Saved!*\n\n📊 ${value} mg/dL\n🍽️ ${contextLabel}\n📈 Status: ${status}\n🕐 Time: ${time}\n\n${alert ? `⚡ _आपके परिवार को notify किया गया है।_` : `👍`}`,
+    },
+    symptomSaved: {
+        english: (symptom: string, severity: string, time: string) =>
+            `📝 *Symptom Logged!*\n\n🩺 ${symptom}\n📈 Severity: ${severity}\n🕐 Time: ${time}\n\nTake care! 🙏`,
+        hindi: (symptom: string, severity: string, time: string) =>
+            `📝 *लक्षण दर्ज हो गया!*\n\n🩺 ${symptom}\n📈 गंभीरता: ${severity}\n🕐 समय: ${time}\n\nअपना ख्याल रखें! 🙏`,
+        hinglish: (symptom: string, severity: string, time: string) =>
+            `📝 *Symptom Logged!*\n\n🩺 ${symptom}\n📈 Severity: ${severity}\n🕐 Time: ${time}\n\nApna khayal rakhein! 🙏`,
+    },
+    contextLabels: {
+        english: { fasting: 'Fasting', after_food: 'After Meal', before_food: 'Before Meal', random: 'Random' },
+        hindi: { fasting: 'खाली पेट', after_food: 'खाने के बाद', before_food: 'खाने से पहले', random: 'रैंडम' },
+        hinglish: { fasting: 'खाली पेट (Fasting)', after_food: 'खाने के बाद (After Food)', before_food: 'खाने से पहले (Before Food)', random: 'Random' },
+    },
+    notRegistered: {
+        english: `👋 *Welcome to Frozo Health!*\n\nYour phone number is not registered.\n\nPlease register in the app first:\nhttps://frozo.health\n\nAfter registering, you can log readings via WhatsApp!`,
+        hindi: `👋 *Frozo Health में आपका स्वागत है!*\n\nआपका फोन नंबर रजिस्टर्ड नहीं है।\n\nकृपया पहले ऐप में रजिस्टर करें:\nhttps://frozo.health\n\nरजिस्टर करने के बाद, आप WhatsApp से रीडिंग्स लॉग कर सकते हैं!`,
+        hinglish: `👋 *Frozo Health में आपका स्वागत है!*\n\nआपका phone number registered नहीं है।\n\nपहले app में register करें:\nhttps://frozo.health\n\nRegister करने के बाद, आप WhatsApp से readings log कर सकते हैं!`,
+    },
+};
+
 // Send WhatsApp reply
 const sendReply = async (to: string, message: string) => {
     if (!twilioClient) {
@@ -147,16 +187,14 @@ router.post('/webhook', async (req: Request, res: Response) => {
         });
 
         if (!user) {
-            await sendReply(From,
-                `👋 *Frozo Health में आपका स्वागत है!*\n\n` +
-                `आपका phone number registered नहीं है।\n\n` +
-                `पहले app में register करें:\nhttps://frozo.health\n\n` +
-                `Register करने के बाद, आप WhatsApp से readings log कर सकते हैं!`
-            );
+            // Default to hinglish for unregistered users
+            await sendReply(From, messages.notRegistered.hinglish);
             return res.status(200).send('OK');
         }
 
         const profile = user.profiles[0];
+        const lang = (user.preferredLanguage || 'hinglish') as Language;
+
         if (!profile) {
             await sendReply(From, `Please complete your profile setup in the Frozo app first.`);
             return res.status(200).send('OK');
@@ -189,14 +227,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
                 type: 'bp',
             });
 
-            await sendReply(From,
-                `${emoji} *Blood Pressure Saved!*\n\n` +
-                `📊 ${parsed.systolic}/${parsed.diastolic}${parsed.pulse ? ` (Pulse: ${parsed.pulse})` : ''} mmHg\n` +
-                `📈 Status: ${status}\n` +
-                `🕐 Time: ${time}\n\n` +
-                (parsed.interpretation ? `_"${parsed.interpretation}"_\n\n` : '') +
-                (alert ? `⚡ _आपके परिवार को notify किया गया है।_` : `बहुत बढ़िया! 💪`)
-            );
+            await sendReply(From, messages.bpSaved[lang](emoji, parsed.systolic, parsed.diastolic, parsed.pulse, status, time, alert));
 
             // Alert admins if concerning
             if (alert && user.householdMemberships[0]) {
@@ -211,12 +242,8 @@ router.post('/webhook', async (req: Request, res: Response) => {
             const context = parsed.glucoseContext || 'fasting';
             const { status, emoji, alert } = getGlucoseStatus(parsed.glucoseValue, context);
 
-            const contextLabels: Record<string, string> = {
-                'fasting': 'खाली पेट (Fasting)',
-                'after_food': 'खाने के बाद (After Food)',
-                'before_food': 'खाने से पहले (Before Food)',
-                'random': 'Random',
-            };
+            // Use localized context labels
+            const contextLabel = messages.contextLabels[lang][context as keyof typeof messages.contextLabels.english] || context;
 
             // Save reading
             const glucoseReading = await prisma.glucoseReading.create({
@@ -234,15 +261,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
                 type: 'glucose',
             });
 
-            await sendReply(From,
-                `${emoji} *Sugar Level Saved!*\n\n` +
-                `📊 ${parsed.glucoseValue} mg/dL\n` +
-                `🍽️ ${contextLabels[context] || context}\n` +
-                `📈 Status: ${status}\n` +
-                `🕐 Time: ${time}\n\n` +
-                (parsed.interpretation ? `_"${parsed.interpretation}"_\n\n` : '') +
-                (alert ? `⚡ _आपके परिवार को notify किया गया है।_` : `👍`)
-            );
+            await sendReply(From, messages.glucoseSaved[lang](emoji, parsed.glucoseValue, contextLabel, status, time, alert));
 
             // Alert admins if concerning
             if (alert && user.householdMemberships[0]) {
@@ -263,12 +282,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
                 },
             });
 
-            await sendReply(From,
-                `📝 *Symptom Log हो गया*\n\n` +
-                `"${parsed.symptom}"\n` +
-                `Severity: ${parsed.severity || 'moderate'}\n\n` +
-                `अगर symptoms बढ़ें, तो doctor से मिलें। 🏥`
-            );
+            await sendReply(From, messages.symptomSaved[lang](parsed.symptom, parsed.severity || 'moderate', time));
 
         } else if (parsed.type === 'status') {
             // Get today's readings

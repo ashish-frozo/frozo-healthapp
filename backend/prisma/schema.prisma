@@ -9,14 +9,15 @@ datasource db {
 }
 
 model User {
-  id                  String            @id @default(cuid())
-  phoneNumber         String            @unique
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  profiles            Profile[]
+  id                   String            @id @default(cuid())
+  phoneNumber          String            @unique
+  preferredLanguage    String            @default("hinglish") // english, hindi, hinglish
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  profiles             Profile[]
   householdMemberships HouseholdMember[]
-  createdHouseholds   Household[]       @relation("HouseholdCreator")
-  sentInvites         HouseholdInvite[] @relation("InviteSender")
+  createdHouseholds    Household[]       @relation("HouseholdCreator")
+  sentInvites          HouseholdInvite[] @relation("InviteSender")
 }
 
 model Household {

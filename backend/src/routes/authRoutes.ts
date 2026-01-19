@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { sendOTP, verifyOTP } from '../controllers/authController';
+import { getUserSettings, updateUserSettings } from '../controllers/userSettingsController';
 
 const router = Router();
 
@@ -68,4 +69,33 @@ router.post('/send-otp', sendOTP);
  */
 router.post('/verify-otp', verifyOTP);
 
+/**
+ * @swagger
+ * /auth/settings:
+ *   get:
+ *     summary: Get user settings
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: User settings
+ *   patch:
+ *     summary: Update user settings
+ *     tags: [Auth]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               preferredLanguage:
+ *                 type: string
+ *                 enum: [english, hindi, hinglish]
+ *     responses:
+ *       200:
+ *         description: Settings updated
+ */
+router.get('/settings', getUserSettings);
+router.patch('/settings', updateUserSettings);
+
 export default router;
+
