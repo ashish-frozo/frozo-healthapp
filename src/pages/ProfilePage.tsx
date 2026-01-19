@@ -48,6 +48,8 @@ export function ProfilePage() {
         subtitle?: string;
         toggle?: boolean;
         danger?: boolean;
+        onClick?: () => void;
+        comingSoon?: boolean;
     }
 
     interface SettingsSection {
@@ -55,26 +57,74 @@ export function ProfilePage() {
         items: SettingsItem[];
     }
 
+    const handleDeleteAccount = () => {
+        if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+            // TODO: Implement actual delete
+            addNotification('Account Deletion', 'Please contact support to delete your account.', 'system', 'high');
+        }
+    };
+
+    const showComingSoon = (feature: string) => {
+        addNotification('Coming Soon', `${feature} will be available in a future update!`, 'system', 'low');
+    };
+
     const settingsSections: SettingsSection[] = [
         {
             title: 'Health Preferences',
             items: [
-                { icon: 'vital_signs', iconBg: 'bg-red-50 dark:bg-red-900/20', iconColor: 'text-red-500', title: 'Thresholds', subtitle: 'Set limits for BP, Sugar, etc.' },
-                { icon: 'notifications', iconBg: 'bg-orange-50 dark:bg-orange-900/20', iconColor: 'text-orange-500', title: 'Reminders', subtitle: 'Meds & Appointments' },
+                {
+                    icon: 'vital_signs',
+                    iconBg: 'bg-red-50 dark:bg-red-900/20',
+                    iconColor: 'text-red-500',
+                    title: 'Thresholds',
+                    subtitle: 'Coming Soon',
+                    comingSoon: true,
+                    onClick: () => showComingSoon('Health Thresholds'),
+                },
+                {
+                    icon: 'notifications',
+                    iconBg: 'bg-orange-50 dark:bg-orange-900/20',
+                    iconColor: 'text-orange-500',
+                    title: 'Reminders',
+                    subtitle: 'Coming Soon',
+                    comingSoon: true,
+                    onClick: () => showComingSoon('Reminders'),
+                },
             ],
         },
         {
             title: 'Security & Access',
             items: [
-                { icon: 'face', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-primary', title: 'App Lock (FaceID)', toggle: true },
-                { icon: 'lock_reset', iconBg: 'bg-gray-100 dark:bg-gray-800', iconColor: 'text-gray-600 dark:text-gray-300', title: 'Change Password' },
+                {
+                    icon: 'face',
+                    iconBg: 'bg-blue-50 dark:bg-blue-900/20',
+                    iconColor: 'text-primary',
+                    title: 'App Lock',
+                    subtitle: 'Coming Soon',
+                    comingSoon: true,
+                    onClick: () => showComingSoon('App Lock'),
+                },
             ],
         },
         {
             title: 'Data Management',
             items: [
-                { icon: 'download', iconBg: 'bg-gray-100 dark:bg-gray-800', iconColor: 'text-gray-700 dark:text-gray-300', title: 'Export Health Data', subtitle: 'PDF or CSV format' },
-                { icon: 'delete', iconBg: 'bg-red-50 dark:bg-red-900/20', iconColor: 'text-red-600', title: 'Delete Account', danger: true },
+                {
+                    icon: 'download',
+                    iconBg: 'bg-gray-100 dark:bg-gray-800',
+                    iconColor: 'text-gray-700 dark:text-gray-300',
+                    title: 'Export Health Data',
+                    subtitle: 'PDF or CSV format',
+                    onClick: () => navigate('/export'),
+                },
+                {
+                    icon: 'delete',
+                    iconBg: 'bg-red-50 dark:bg-red-900/20',
+                    iconColor: 'text-red-600',
+                    title: 'Delete Account',
+                    danger: true,
+                    onClick: handleDeleteAccount,
+                },
             ],
         },
     ];
@@ -157,30 +207,34 @@ export function ProfilePage() {
                         </h3>
                         <div className="bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
                             {section.items.map((item, j) => (
-                                <div
+                                <button
                                     key={j}
-                                    className={`flex items-center gap-4 p-4 cursor-pointer transition-colors ${j < section.items.length - 1 ? 'border-b border-gray-100 dark:border-gray-700/50' : ''
-                                        } ${item.danger ? 'active:bg-red-50 dark:active:bg-red-900/10' : 'active:bg-gray-50 dark:active:bg-gray-700/50'}`}
+                                    onClick={item.onClick}
+                                    className={`flex items-center gap-4 p-4 w-full text-left transition-colors ${j < section.items.length - 1 ? 'border-b border-gray-100 dark:border-gray-700/50' : ''
+                                        } ${item.danger ? 'active:bg-red-50 dark:active:bg-red-900/10' : 'active:bg-gray-50 dark:active:bg-gray-700/50'} ${item.comingSoon ? 'opacity-70' : ''}`}
                                 >
                                     <div className={`flex items-center justify-center rounded-lg ${item.iconBg} shrink-0 size-10`}>
                                         <span className={`material-symbols-outlined ${item.iconColor} text-[24px]`}>{item.icon}</span>
                                     </div>
                                     <div className="flex-1">
-                                        <p className={`text-base font-semibold ${item.danger ? 'text-red-600 dark:text-red-400' : 'text-text-primary-light dark:text-text-primary-dark'}`}>
-                                            {item.title}
-                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <p className={`text-base font-semibold ${item.danger ? 'text-red-600 dark:text-red-400' : 'text-text-primary-light dark:text-text-primary-dark'}`}>
+                                                {item.title}
+                                            </p>
+                                            {item.comingSoon && (
+                                                <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-1.5 py-0.5 rounded">
+                                                    Soon
+                                                </span>
+                                            )}
+                                        </div>
                                         {item.subtitle && (
                                             <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">{item.subtitle}</p>
                                         )}
                                     </div>
-                                    {item.toggle ? (
-                                        <ToggleSwitch checked={true} onChange={() => { }} />
-                                    ) : (
-                                        <span className={`material-symbols-outlined ${item.danger ? 'text-red-300 dark:text-red-800' : 'text-gray-400 dark:text-gray-500'}`}>
-                                            chevron_right
-                                        </span>
-                                    )}
-                                </div>
+                                    <span className={`material-symbols-outlined ${item.danger ? 'text-red-300 dark:text-red-800' : 'text-gray-400 dark:text-gray-500'}`}>
+                                        chevron_right
+                                    </span>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -208,8 +262,8 @@ export function ProfilePage() {
                                         onClick={() => handleLanguageChange(lang)}
                                         disabled={savingLanguage}
                                         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${preferredLanguage === lang
-                                                ? 'bg-primary text-white shadow-md'
-                                                : 'bg-gray-100 dark:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-200 dark:hover:bg-gray-700'
+                                            ? 'bg-primary text-white shadow-md'
+                                            : 'bg-gray-100 dark:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-200 dark:hover:bg-gray-700'
                                             } ${savingLanguage ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
                                         {lang === 'english' ? 'English' : lang === 'hindi' ? 'हिंदी' : 'Hinglish'}
@@ -330,6 +384,6 @@ export function ProfilePage() {
                     <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs">Version 2.4.0 (Build 102)</p>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

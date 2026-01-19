@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
@@ -12,6 +12,12 @@ export function HomePage() {
     const { state, currentProfile, dispatch } = useApp();
     const unreadCount = state.notifications.filter(n => !n.isRead).length;
     const isDesktop = useIsDesktop();
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+    const handleSwitchProfile = (profileId: string) => {
+        dispatch({ type: 'SET_CURRENT_PROFILE', payload: profileId });
+        setShowProfileMenu(false);
+    };
 
     // Get latest readings for current profile
     const latestBP = state.bpReadings
@@ -35,28 +41,77 @@ export function HomePage() {
             <header className="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-4 pt-12 md:pt-6 pb-2 border-b border-gray-200 dark:border-gray-800 md:border-none">
                 <div className="flex items-center justify-between max-w-5xl mx-auto">
                     {/* Profile Switcher */}
-                    <button className="flex items-center gap-3 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                        <div className="relative">
-                            <div
-                                className="rounded-full size-10 border-2 border-primary bg-cover bg-center bg-gray-200 dark:bg-gray-700"
-                                style={currentProfile?.avatarUrl ? { backgroundImage: `url(${currentProfile.avatarUrl})` } : {}}
-                            >
-                                {!currentProfile?.avatarUrl && (
-                                    <span className="material-symbols-outlined text-gray-400 text-2xl flex items-center justify-center h-full">person</span>
-                                )}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowProfileMenu(!showProfileMenu)}
+                            className="flex items-center gap-3 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            <div className="relative">
+                                <div
+                                    className="rounded-full size-10 border-2 border-primary bg-cover bg-center bg-gray-200 dark:bg-gray-700"
+                                    style={currentProfile?.avatarUrl ? { backgroundImage: `url(${currentProfile.avatarUrl})` } : {}}
+                                >
+                                    {!currentProfile?.avatarUrl && (
+                                        <span className="material-symbols-outlined text-gray-400 text-2xl flex items-center justify-center h-full">person</span>
+                                    )}
+                                </div>
+                                <div className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-white dark:border-background-dark rounded-full" />
                             </div>
-                            <div className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-white dark:border-background-dark rounded-full" />
-                        </div>
-                        <div className="text-left">
-                            <h2 className="text-text-primary-light dark:text-text-primary-dark text-base font-bold leading-tight">
-                                {currentProfile?.relationship === 'myself' ? 'My Health' : `${currentProfile?.name.split(' ')[0]}'s Health`}
-                            </h2>
-                            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium">
-                                {currentProfile?.name}
-                            </p>
-                        </div>
-                        <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark text-xl">expand_more</span>
-                    </button>
+                            <div className="text-left">
+                                <h2 className="text-text-primary-light dark:text-text-primary-dark text-base font-bold leading-tight">
+                                    {currentProfile?.relationship === 'myself' ? 'My Health' : `${currentProfile?.name.split(' ')[0]}'s Health`}
+                                </h2>
+                                <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium">
+                                    {currentProfile?.name}
+                                </p>
+                            </div>
+                            <span className={`material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark text-xl transition-transform ${showProfileMenu ? 'rotate-180' : ''}`}>expand_more</span>
+                        </button>
+
+                        {/* Profile Dropdown */}
+                        {showProfileMenu && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-30"
+                                    onClick={() => setShowProfileMenu(false)}
+                                />
+                                <div className="absolute left-0 top-full mt-2 z-40 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 min-w-[220px]">
+                                    <p className="px-4 py-1 text-xs font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">Switch Profile</p>
+                                    {state.profiles.map((profile) => (
+                                        <button
+                                            key={profile.id}
+                                            onClick={() => handleSwitchProfile(profile.id)}
+                                            className={`w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${profile.id === state.currentProfileId ? 'bg-primary/10' : ''}`}
+                                        >
+                                            <div
+                                                className="rounded-full size-8 bg-cover bg-center bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
+                                                style={profile.avatarUrl ? { backgroundImage: `url(${profile.avatarUrl})` } : {}}
+                                            >
+                                                {!profile.avatarUrl && (
+                                                    <span className="material-symbols-outlined text-gray-400 text-lg">person</span>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 text-left">
+                                                <p className="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">{profile.name}</p>
+                                                <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark capitalize">{profile.relationship}</p>
+                                            </div>
+                                            {profile.id === state.currentProfileId && (
+                                                <span className="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                            )}
+                                        </button>
+                                    ))}
+                                    <div className="border-t border-gray-200 dark:border-gray-700 my-2" />
+                                    <button
+                                        onClick={() => { setShowProfileMenu(false); navigate('/family'); }}
+                                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-primary"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">group_add</span>
+                                        <span className="text-sm font-medium">Manage Family</span>
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
 
                     {/* Header Actions */}
                     <div className="flex items-center gap-3">

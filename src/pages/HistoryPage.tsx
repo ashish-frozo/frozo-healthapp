@@ -1,8 +1,33 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { ReadingType, DateRange } from '../types';
 import { formatTime, getDateLabel } from '../data/mockData';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+import { format, parseISO } from 'date-fns';
+
+// Register ChartJS components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+);
 
 export function HistoryPage() {
     const [typeFilter, setTypeFilter] = useState<ReadingType>('all');
@@ -55,8 +80,77 @@ export function HistoryPage() {
         { value: '7d', label: '7 Days' },
         { value: '30d', label: '30 Days' },
         { value: '90d', label: '90 Days' },
-        { value: 'custom', label: 'Custom' },
     ];
+
+    // Chart data for BP
+    const bpChartData = useMemo(() => {
+        const sortedBP = [...bpReadings].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        return {
+            labels: sortedBP.map(r => format(parseISO(r.timestamp), 'MMM d')),
+            datasets: [
+                {
+                    label: 'Systolic',
+                    data: sortedBP.map(r => r.systolic),
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ef4444',
+                },
+                {
+                    label: 'Diastolic',
+                    data: sortedBP.map(r => r.diastolic),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#3b82f6',
+                },
+            ],
+        };
+    }, [bpReadings]);
+
+    // Chart data for Glucose
+    const glucoseChartData = useMemo(() => {
+        const sortedGlucose = [...glucoseReadings].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        return {
+            labels: sortedGlucose.map(r => format(parseISO(r.timestamp), 'MMM d')),
+            datasets: [
+                {
+                    label: 'Glucose',
+                    data: sortedGlucose.map(r => r.value),
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#14b8a6',
+                },
+            ],
+        };
+    }, [glucoseReadings]);
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom' as const,
+                labels: { usePointStyle: true },
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+            },
+            x: {
+                grid: { display: false },
+            },
+        },
+    };
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8">
@@ -125,15 +219,33 @@ export function HistoryPage() {
                     </button>
                 </div>
 
-                {/* Chart View (Placeholder) */}
+                {/* Chart View */}
                 {showChart && (
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 mt-4 border border-gray-100 dark:border-gray-700">
-                        <div className="h-48 flex items-center justify-center text-text-secondary-light dark:text-text-secondary-dark">
-                            <div className="text-center">
-                                <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600">bar_chart</span>
-                                <p className="mt-2 text-sm">Chart visualization</p>
+                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-4 mt-4 border border-gray-100 dark:border-gray-700">
+                        {(typeFilter === 'all' || typeFilter === 'bp') && bpReadings.length > 0 && (
+                            <div className="mb-4">
+                                <h4 className="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark mb-2">Blood Pressure</h4>
+                                <div className="h-48">
+                                    <Line data={bpChartData} options={chartOptions} />
+                                </div>
                             </div>
-                        </div>
+                        )}
+                        {(typeFilter === 'all' || typeFilter === 'glucose') && glucoseReadings.length > 0 && (
+                            <div>
+                                <h4 className="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark mb-2">Glucose</h4>
+                                <div className="h-48">
+                                    <Line data={glucoseChartData} options={chartOptions} />
+                                </div>
+                            </div>
+                        )}
+                        {allReadings.length === 0 && (
+                            <div className="h-48 flex items-center justify-center text-text-secondary-light dark:text-text-secondary-dark">
+                                <div className="text-center">
+                                    <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600">bar_chart</span>
+                                    <p className="mt-2 text-sm">No data for this period</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
