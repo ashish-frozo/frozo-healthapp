@@ -19,6 +19,7 @@ import {
   TrendsPage,
   NotificationPage,
   FamilyManagementPage,
+  FamilyDashboardPage,
 } from './pages';
 
 // Protected route wrapper
@@ -109,6 +110,11 @@ function AppRoutes() {
       <Route path="/family-management" element={
         <ProtectedRoute>
           <FamilyManagementPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/family-dashboard" element={
+        <ProtectedRoute>
+          <FamilyDashboardPage />
         </ProtectedRoute>
       } />
 

@@ -4,3 +4,4 @@ export { useHealthInsights } from './useHealthInsights';
 export type { HealthInsight } from './useHealthInsights';
 export { useLabTranslator } from './useLabTranslator';
 export type { LabTranslation, LabBiomarker } from './useLabTranslator';
+export { useElderMode } from './useElderMode';

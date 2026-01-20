@@ -6,12 +6,15 @@ import {
 } from '../components/ui';
 import { formatTime, isToday } from '../data/mockData';
 import { useIsDesktop } from '../hooks/useMediaQuery';
+import { useElderMode } from '../hooks/useElderMode';
+import { SOSButton } from '../components/SOSButton';
 
 export function HomePage() {
     const navigate = useNavigate();
     const { state, currentProfile, dispatch } = useApp();
     const unreadCount = state.notifications.filter(n => !n.isRead).length;
     const isDesktop = useIsDesktop();
+    const { isElderMode } = useElderMode();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
 
     const handleSwitchProfile = (profileId: string) => {
@@ -36,7 +39,7 @@ export function HomePage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8">
+        <div className={`min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8 ${isElderMode ? 'elder-mode' : ''}`}>
             {/* Top App Bar - Hidden on desktop (sidebar has branding) */}
             <header className="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-4 pt-12 md:pt-6 pb-2 border-b border-gray-200 dark:border-gray-800 md:border-none">
                 <div className="flex items-center justify-between max-w-5xl mx-auto">
@@ -292,11 +295,11 @@ export function HomePage() {
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest">Family Health</h2>
                                 <button
-                                    onClick={() => navigate('/family-management')}
+                                    onClick={() => navigate('/family-dashboard')}
                                     className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1"
                                 >
-                                    Manage
-                                    <span className="material-symbols-outlined text-sm">settings</span>
+                                    Dashboard
+                                    <span className="material-symbols-outlined text-sm">dashboard</span>
                                 </button>
                             </div>
                             <div className="flex flex-col gap-3">
@@ -357,14 +360,21 @@ export function HomePage() {
                 </div>
             </main>
 
+            {/* SOS Button - Fixed position on mobile */}
+            {!isDesktop && (
+                <div className="fixed bottom-24 left-5 z-30">
+                    <SOSButton size={isElderMode ? 'large' : 'normal'} />
+                </div>
+            )}
+
             {/* Floating Action Button - Mobile only */}
             {!isDesktop && (
                 <button
                     onClick={() => navigate('/quick-add')}
-                    className="fixed bottom-24 right-5 z-30 flex items-center gap-2 bg-primary hover:bg-primary-dark text-white shadow-lg hover:shadow-xl rounded-2xl px-5 py-4 transition-all active:scale-95"
+                    className={`fixed bottom-24 right-5 z-30 flex items-center gap-2 bg-primary hover:bg-primary-dark text-white shadow-lg hover:shadow-xl rounded-2xl px-5 py-4 transition-all active:scale-95 ${isElderMode ? 'py-5 px-6' : ''}`}
                 >
-                    <span className="material-symbols-outlined text-[28px]">add</span>
-                    <span className="font-bold text-base tracking-wide">Quick Add</span>
+                    <span className={`material-symbols-outlined ${isElderMode ? 'text-[32px]' : 'text-[28px]'}`}>add</span>
+                    <span className={`font-bold tracking-wide ${isElderMode ? 'text-lg' : 'text-base'}`}>Quick Add</span>
                 </button>
             )}
         </div>

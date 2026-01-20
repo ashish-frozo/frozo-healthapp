@@ -86,6 +86,8 @@ model Profile {
   symptoms         Symptom[]
   notifications    Notification[]
   clinicLinks      ClinicLink[]
+  emergencyAlerts  EmergencyAlert[]
+  alertSettings    AlertSettings?
 }
 
 model BPReading {
@@ -167,3 +169,37 @@ model ClinicLink {
   createdAt DateTime @default(now())
 }
 
+// Emergency Alert - SOS and abnormal reading alerts
+model EmergencyAlert {
+  id         String    @id @default(cuid())
+  profileId  String
+  profile    Profile   @relation(fields: [profileId], references: [id])
+  type       String    // 'sos', 'high_bp', 'low_bp', 'high_glucose', 'low_glucose'
+  message    String
+  latitude   Float?
+  longitude  Float?
+  resolved   Boolean   @default(false)
+  resolvedBy String?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+// Alert Settings per profile for caregiver notifications
+model AlertSettings {
+  id                   String   @id @default(cuid())
+  profileId            String   @unique
+  profile              Profile  @relation(fields: [profileId], references: [id])
+  notifyOnHighBP       Boolean  @default(true)
+  notifyOnLowBP        Boolean  @default(true)
+  notifyOnHighGlucose  Boolean  @default(true)
+  notifyOnLowGlucose   Boolean  @default(true)
+  bpHighSystolic       Int      @default(140)
+  bpHighDiastolic      Int      @default(90)
+  bpLowSystolic        Int      @default(90)
+  bpLowDiastolic       Int      @default(60)
+  glucoseHighThreshold Float    @default(180)
+  glucoseLowThreshold  Float    @default(70)
+  emergencyContacts    Json     @default("[]") // [{name, phone, relationship}]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}

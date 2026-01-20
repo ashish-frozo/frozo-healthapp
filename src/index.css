@@ -110,3 +110,43 @@ body {
 .animate-slide-up {
   animation: slide-up 0.3s ease-out forwards;
 }
+
+/* Elder Mode - Larger fonts and touch targets for elderly users */
+.elder-mode {
+  --elder-font-scale: 1.15;
+  --elder-touch-target: 56px;
+}
+
+.elder-mode .text-base {
+  font-size: calc(1rem * 1.15);
+}
+
+.elder-mode .text-lg {
+  font-size: calc(1.125rem * 1.15);
+}
+
+.elder-mode .text-xl {
+  font-size: calc(1.25rem * 1.15);
+}
+
+.elder-mode .text-2xl {
+  font-size: calc(1.5rem * 1.15);
+}
+
+.elder-mode .text-3xl {
+  font-size: calc(1.875rem * 1.15);
+}
+
+.elder-mode button {
+  min-height: 48px;
+}
+
+.elder-mode .size-10 {
+  width: 3rem;
+  height: 3rem;
+}
+
+.elder-mode .rounded-full.bg-primary,
+.elder-mode .rounded-full.bg-red-600 {
+  transform: scale(1.1);
+}
