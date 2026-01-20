@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { formatTime } from '../data/mockData';
@@ -6,8 +6,15 @@ import { useElderMode } from '../hooks/useElderMode';
 
 export function FamilyDashboardPage() {
     const navigate = useNavigate();
-    const { state, dispatch } = useApp();
+    const { state, dispatch, syncData } = useApp();
     const { isElderMode } = useElderMode();
+
+    // Sync data on mount if not already loaded
+    useEffect(() => {
+        if (state.isAuthenticated && state.profiles.length === 0) {
+            syncData();
+        }
+    }, [state.isAuthenticated]);
 
     // Get latest readings for each profile
     const getProfileData = (profileId: string) => {
