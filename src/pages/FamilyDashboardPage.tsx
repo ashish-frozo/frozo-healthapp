@@ -19,7 +19,7 @@ export function FamilyDashboardPage() {
         let status: 'OK' | 'Attention' = 'OK';
         const alerts: string[] = [];
 
-        if (latestBP && (latestBP.status === 'high' || latestBP.status === 'very_high')) {
+        if (latestBP && latestBP.status === 'high') {
             status = 'Attention';
             alerts.push(`High BP: ${latestBP.systolic}/${latestBP.diastolic}`);
         }
@@ -93,8 +93,8 @@ export function FamilyDashboardPage() {
                                 key={member.id}
                                 onClick={() => handleSelectProfile(member.id)}
                                 className={`bg-surface-light dark:bg-surface-dark rounded-xl p-4 border text-left transition-all hover:shadow-md active:scale-[0.99] ${member.id === state.currentProfileId
-                                        ? 'border-primary border-2'
-                                        : 'border-gray-200 dark:border-gray-700'
+                                    ? 'border-primary border-2'
+                                    : 'border-gray-200 dark:border-gray-700'
                                     }`}
                             >
                                 {/* Member Header */}
