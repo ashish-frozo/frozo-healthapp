@@ -5,20 +5,42 @@ import { emergencyService, AlertSettings, EmergencyContact } from '../services/e
 
 export function EmergencySettingsPage() {
     const navigate = useNavigate();
-    const { state } = useApp();
+    const { state, syncData } = useApp();
     const [settings, setSettings] = useState<AlertSettings | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [contacts, setContacts] = useState<EmergencyContact[]>([]);
     const [newContact, setNewContact] = useState({ name: '', phone: '' });
     const [showAddForm, setShowAddForm] = useState(false);
+    const [syncError, setSyncError] = useState(false);
+
+    // Check if profile ID looks like a mock ID (starts with 'profile-')
+    const isMockProfileId = state.currentProfileId?.startsWith('profile-');
 
     useEffect(() => {
-        loadSettings();
+        // If we have a mock profile ID, sync to get real IDs
+        if (isMockProfileId && state.isAuthenticated) {
+            console.log('Mock profile ID detected, syncing...');
+            syncData().then(() => {
+                console.log('Sync complete');
+            }).catch(err => {
+                console.error('Sync failed:', err);
+                setSyncError(true);
+            });
+        } else {
+            loadSettings();
+        }
+    }, [state.currentProfileId, state.isAuthenticated]);
+
+    // Reload settings when profile ID changes (after sync)
+    useEffect(() => {
+        if (!isMockProfileId && state.currentProfileId) {
+            loadSettings();
+        }
     }, [state.currentProfileId]);
 
     const loadSettings = async () => {
-        if (!state.currentProfileId) return;
+        if (!state.currentProfileId || isMockProfileId) return;
         try {
             setLoading(true);
             const data = await emergencyService.getAlertSettings(state.currentProfileId);
@@ -32,11 +54,15 @@ export function EmergencySettingsPage() {
     };
 
     const saveSettings = async (updates: Partial<AlertSettings>) => {
-        if (!state.currentProfileId) return;
+        if (!state.currentProfileId || isMockProfileId) {
+            alert('Please wait for data to sync');
+            return;
+        }
         try {
             setSaving(true);
             const updated = await emergencyService.updateAlertSettings(state.currentProfileId, updates);
             setSettings(updated);
+            setContacts(updated.emergencyContacts || []);
         } catch (err) {
             console.error('Failed to save settings:', err);
             alert('Failed to save settings');
