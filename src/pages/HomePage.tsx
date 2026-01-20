@@ -360,12 +360,10 @@ export function HomePage() {
                 </div>
             </main>
 
-            {/* SOS Button - Fixed position on mobile */}
-            {!isDesktop && (
-                <div className="fixed bottom-24 left-5 z-30">
-                    <SOSButton size={isElderMode ? 'large' : 'normal'} />
-                </div>
-            )}
+            {/* SOS Button - Fixed position */}
+            <div className={`fixed z-30 ${isDesktop ? 'bottom-8 left-8' : 'bottom-24 left-5'}`}>
+                <SOSButton size={isElderMode ? 'large' : 'normal'} />
+            </div>
 
             {/* Floating Action Button - Mobile only */}
             {!isDesktop && (
