@@ -360,8 +360,8 @@ export function HomePage() {
                 </div>
             </main>
 
-            {/* SOS Button - Fixed position */}
-            <div className={`fixed z-30 ${isDesktop ? 'bottom-8 left-8' : 'bottom-24 left-5'}`}>
+            {/* SOS Button - Fixed position (accounting for sidebar on desktop) */}
+            <div className={`fixed z-30 ${isDesktop ? 'bottom-8 left-[200px]' : 'bottom-24 left-5'}`}>
                 <SOSButton size={isElderMode ? 'large' : 'normal'} />
             </div>
 
