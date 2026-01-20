@@ -16,7 +16,19 @@ export function LoginPage() {
     const { dispatch, syncData } = useApp();
 
     useEffect(() => {
-        if (!(window as any).recaptchaVerifier) {
+        // Clear any existing stale verifier
+        if ((window as any).recaptchaVerifier) {
+            try {
+                (window as any).recaptchaVerifier.clear();
+            } catch (e) {
+                // Ignore errors from clearing
+            }
+            (window as any).recaptchaVerifier = null;
+        }
+
+        // Create fresh verifier
+        const container = document.getElementById('recaptcha-container');
+        if (container) {
             (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'invisible',
                 'callback': () => {
@@ -24,6 +36,18 @@ export function LoginPage() {
                 }
             });
         }
+
+        // Cleanup on unmount
+        return () => {
+            if ((window as any).recaptchaVerifier) {
+                try {
+                    (window as any).recaptchaVerifier.clear();
+                } catch (e) {
+                    // Ignore errors from clearing
+                }
+                (window as any).recaptchaVerifier = null;
+            }
+        };
     }, []);
 
     const handleKeyPress = (key: string) => {
