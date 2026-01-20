@@ -1,46 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { householdService, HouseholdDashboard, DashboardMember } from '../services/householdService';
 import { formatTime } from '../data/mockData';
 import { useElderMode } from '../hooks/useElderMode';
 
 export function FamilyDashboardPage() {
     const navigate = useNavigate();
-    const { state } = useApp();
+    const { state, dispatch } = useApp();
     const { isElderMode } = useElderMode();
-    const [dashboard, setDashboard] = useState<HouseholdDashboard | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        loadDashboard();
-    }, []);
+    // Get latest readings for each profile
+    const getProfileData = (profileId: string) => {
+        const latestBP = state.bpReadings.find(r => r.profileId === profileId);
+        const latestGlucose = state.glucoseReadings.find(r => r.profileId === profileId);
+        const recentSymptoms = state.symptoms.filter(s => s.profileId === profileId).slice(0, 3);
 
-    const loadDashboard = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            // Get user's households first
-            const households = await householdService.getHouseholds();
-            if (households && households.length > 0) {
-                const data = await householdService.getDashboard(households[0].id);
-                setDashboard(data);
-            } else {
-                // No household - not an error, just empty state
-                setDashboard({
-                    householdId: '',
-                    members: [],
-                    summary: { total: 0, needsAttention: 0 }
-                });
-            }
-        } catch (err: any) {
-            console.error('Failed to load dashboard:', err);
-            setError(err?.message || 'Could not load family dashboard');
-        } finally {
-            setLoading(false);
+        // Determine status
+        let status: 'OK' | 'Attention' = 'OK';
+        const alerts: string[] = [];
+
+        if (latestBP && (latestBP.status === 'high' || latestBP.status === 'very_high')) {
+            status = 'Attention';
+            alerts.push(`High BP: ${latestBP.systolic}/${latestBP.diastolic}`);
         }
+        if (latestGlucose && (latestGlucose.status === 'high' || latestGlucose.status === 'low')) {
+            status = 'Attention';
+            alerts.push(`${latestGlucose.status === 'high' ? 'High' : 'Low'} Sugar: ${latestGlucose.value}`);
+        }
+
+        return { latestBP, latestGlucose, recentSymptoms, status, alerts };
     };
+
+    const needsAttention = state.profiles.filter(p => getProfileData(p.id).status === 'Attention').length;
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -59,6 +50,11 @@ export function FamilyDashboardPage() {
         return 'text-red-600 dark:text-red-400';
     };
 
+    const handleSelectProfile = (profileId: string) => {
+        dispatch({ type: 'SET_CURRENT_PROFILE', payload: profileId });
+        navigate('/');
+    };
+
     return (
         <div className={`min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8 ${isElderMode ? 'elder-mode' : ''}`}>
             {/* Header */}
@@ -75,59 +71,31 @@ export function FamilyDashboardPage() {
                             <h1 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
                                 Family Health
                             </h1>
-                            {dashboard && (
-                                <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                                    {dashboard.summary.total} members • {dashboard.summary.needsAttention > 0 && (
-                                        <span className="text-red-500 font-medium">
-                                            {dashboard.summary.needsAttention} need attention
-                                        </span>
-                                    )}
-                                    {dashboard.summary.needsAttention === 0 && 'All OK'}
-                                </p>
-                            )}
+                            <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                {state.profiles.length} members • {needsAttention > 0 ? (
+                                    <span className="text-red-500 font-medium">
+                                        {needsAttention} need attention
+                                    </span>
+                                ) : 'All OK'}
+                            </p>
                         </div>
                     </div>
-                    <button
-                        onClick={loadDashboard}
-                        className="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary"
-                    >
-                        <span className="material-symbols-outlined">refresh</span>
-                    </button>
                 </div>
             </header>
 
             {/* Content */}
             <main className="max-w-5xl mx-auto px-4 md:px-6 py-4">
-                {loading && (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
-                        <p className="text-text-secondary-light dark:text-text-secondary-dark">Loading family health...</p>
-                    </div>
-                )}
-
-                {error && (
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-center">
-                        <span className="material-symbols-outlined text-red-500 text-3xl mb-2">error</span>
-                        <p className="text-red-600 dark:text-red-400">{error}</p>
-                        <button
-                            onClick={() => navigate('/family')}
-                            className="mt-3 text-primary font-medium"
-                        >
-                            Go to Family Management
-                        </button>
-                    </div>
-                )}
-
-                {!loading && !error && dashboard && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {dashboard.members.map((member) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {state.profiles.map((member) => {
+                        const data = getProfileData(member.id);
+                        return (
                             <button
                                 key={member.id}
-                                onClick={() => {
-                                    // Switch to this profile
-                                    navigate('/');
-                                }}
-                                className="bg-surface-light dark:bg-surface-dark rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-left transition-all hover:shadow-md active:scale-[0.99]"
+                                onClick={() => handleSelectProfile(member.id)}
+                                className={`bg-surface-light dark:bg-surface-dark rounded-xl p-4 border text-left transition-all hover:shadow-md active:scale-[0.99] ${member.id === state.currentProfileId
+                                        ? 'border-primary border-2'
+                                        : 'border-gray-200 dark:border-gray-700'
+                                    }`}
                             >
                                 {/* Member Header */}
                                 <div className="flex items-center gap-3 mb-4">
@@ -147,15 +115,15 @@ export function FamilyDashboardPage() {
                                             {member.relationship}
                                         </p>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-sm font-bold ${getStatusColor(member.status)}`}>
-                                        {member.status === 'OK' ? '✓ OK' : '⚠ Attention'}
+                                    <span className={`px-3 py-1 rounded-full text-sm font-bold ${getStatusColor(data.status)}`}>
+                                        {data.status === 'OK' ? '✓ OK' : '⚠ Attention'}
                                     </span>
                                 </div>
 
                                 {/* Alerts */}
-                                {member.alerts.length > 0 && (
+                                {data.alerts.length > 0 && (
                                     <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                                        {member.alerts.map((alert, idx) => (
+                                        {data.alerts.map((alert, idx) => (
                                             <p key={idx} className="text-sm text-red-600 dark:text-red-400 font-medium">
                                                 ⚠️ {alert}
                                             </p>
@@ -171,13 +139,13 @@ export function FamilyDashboardPage() {
                                             <span className="material-symbols-outlined text-red-500 text-sm">favorite</span>
                                             <span className="text-xs font-medium text-gray-500 dark:text-gray-400">BP</span>
                                         </div>
-                                        {member.latestBP ? (
+                                        {data.latestBP ? (
                                             <>
-                                                <p className={`text-xl font-bold ${getReadingStatusColor(member.latestBP.status)}`}>
-                                                    {member.latestBP.systolic}/{member.latestBP.diastolic}
+                                                <p className={`text-xl font-bold ${getReadingStatusColor(data.latestBP.status)}`}>
+                                                    {data.latestBP.systolic}/{data.latestBP.diastolic}
                                                 </p>
                                                 <p className="text-xs text-gray-400">
-                                                    {formatTime(member.latestBP.timestamp)}
+                                                    {formatTime(data.latestBP.timestamp)}
                                                 </p>
                                             </>
                                         ) : (
@@ -191,13 +159,13 @@ export function FamilyDashboardPage() {
                                             <span className="material-symbols-outlined text-blue-500 text-sm">water_drop</span>
                                             <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Sugar</span>
                                         </div>
-                                        {member.latestGlucose ? (
+                                        {data.latestGlucose ? (
                                             <>
-                                                <p className={`text-xl font-bold ${getReadingStatusColor(member.latestGlucose.status)}`}>
-                                                    {member.latestGlucose.value}
+                                                <p className={`text-xl font-bold ${getReadingStatusColor(data.latestGlucose.status)}`}>
+                                                    {data.latestGlucose.value}
                                                 </p>
                                                 <p className="text-xs text-gray-400">
-                                                    {member.latestGlucose.context}
+                                                    {data.latestGlucose.context}
                                                 </p>
                                             </>
                                         ) : (
@@ -207,11 +175,11 @@ export function FamilyDashboardPage() {
                                 </div>
 
                                 {/* Recent Symptoms */}
-                                {member.recentSymptoms.length > 0 && (
+                                {data.recentSymptoms.length > 0 && (
                                     <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                                         <p className="text-xs font-medium text-gray-500 mb-1">Recent Symptoms:</p>
                                         <div className="flex flex-wrap gap-1">
-                                            {member.recentSymptoms.slice(0, 3).map((symptom, idx) => (
+                                            {data.recentSymptoms.map((symptom, idx) => (
                                                 <span
                                                     key={idx}
                                                     className={`text-xs px-2 py-0.5 rounded-full ${symptom.severity === 'severe'
@@ -228,24 +196,24 @@ export function FamilyDashboardPage() {
                                     </div>
                                 )}
                             </button>
-                        ))}
+                        );
+                    })}
 
-                        {dashboard.members.length === 0 && (
-                            <div className="col-span-full text-center py-12">
-                                <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600 mb-4">group</span>
-                                <p className="text-text-secondary-light dark:text-text-secondary-dark">
-                                    No family members in this household yet.
-                                </p>
-                                <button
-                                    onClick={() => navigate('/family')}
-                                    className="mt-4 px-6 py-2 bg-primary text-white rounded-lg font-medium"
-                                >
-                                    Add Family Members
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
+                    {state.profiles.length === 0 && (
+                        <div className="col-span-full text-center py-12">
+                            <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600 mb-4">group</span>
+                            <p className="text-text-secondary-light dark:text-text-secondary-dark">
+                                No family members yet.
+                            </p>
+                            <button
+                                onClick={() => navigate('/family-management')}
+                                className="mt-4 px-6 py-2 bg-primary text-white rounded-lg font-medium"
+                            >
+                                Add Family Member
+                            </button>
+                        </div>
+                    )}
+                </div>
             </main>
         </div>
     );
