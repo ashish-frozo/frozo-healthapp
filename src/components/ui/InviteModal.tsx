@@ -26,11 +26,14 @@ export function InviteModal({ householdId, householdName, onClose, onInviteSent 
 
         try {
             const fullPhone = `${countryCode}${phoneNumber.replace(/\D/g, '')}`;
+            console.log('Sending invite to:', fullPhone);
             const result = await householdService.createInvite(householdId, fullPhone);
+            console.log('Invite result:', result);
             setInviteResult(result);
             onInviteSent?.(result);
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to send invite');
+            console.error('Invite error:', err);
+            setError(err?.message || 'Failed to send invite');
         } finally {
             setIsLoading(false);
         }
