@@ -248,34 +248,98 @@ export function EmergencySettingsPage() {
 
                     {/* BP Thresholds */}
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-red-500">favorite</span>
-                                <span className="font-medium">High BP Alert</span>
+                        {/* High BP */}
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-red-500">favorite</span>
+                                    <span className="font-medium">High BP Alert</span>
+                                </div>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={settings?.notifyOnHighBP ?? true}
+                                        onChange={(e) => saveSettings({ notifyOnHighBP: e.target.checked })}
+                                        className="w-4 h-4 rounded text-primary"
+                                    />
+                                    <span className="text-sm text-gray-500">Enabled</span>
+                                </label>
                             </div>
-                            <span className="text-sm bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded">
-                                &gt; {settings?.bpHighSystolic || 140}/{settings?.bpHighDiastolic || 90}
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-500">Alert when BP &gt;</span>
+                                <input
+                                    type="number"
+                                    value={settings?.bpHighSystolic || 140}
+                                    onChange={(e) => saveSettings({ bpHighSystolic: parseInt(e.target.value) })}
+                                    className="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-center"
+                                />
+                                <span>/</span>
+                                <input
+                                    type="number"
+                                    value={settings?.bpHighDiastolic || 90}
+                                    onChange={(e) => saveSettings({ bpHighDiastolic: parseInt(e.target.value) })}
+                                    className="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-center"
+                                />
+                                <span className="text-sm text-gray-500">mmHg</span>
+                            </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-blue-500">water_drop</span>
-                                <span className="font-medium">High Glucose Alert</span>
+                        {/* High Glucose */}
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-orange-500">water_drop</span>
+                                    <span className="font-medium">High Glucose Alert</span>
+                                </div>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={settings?.notifyOnHighGlucose ?? true}
+                                        onChange={(e) => saveSettings({ notifyOnHighGlucose: e.target.checked })}
+                                        className="w-4 h-4 rounded text-primary"
+                                    />
+                                    <span className="text-sm text-gray-500">Enabled</span>
+                                </label>
                             </div>
-                            <span className="text-sm bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-1 rounded">
-                                &gt; {settings?.glucoseHighThreshold || 180} mg/dL
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-500">Alert when Glucose &gt;</span>
+                                <input
+                                    type="number"
+                                    value={settings?.glucoseHighThreshold || 180}
+                                    onChange={(e) => saveSettings({ glucoseHighThreshold: parseFloat(e.target.value) })}
+                                    className="w-20 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-center"
+                                />
+                                <span className="text-sm text-gray-500">mg/dL</span>
+                            </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-blue-500">water_drop</span>
-                                <span className="font-medium">Low Glucose Alert</span>
+                        {/* Low Glucose */}
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-blue-500">water_drop</span>
+                                    <span className="font-medium">Low Glucose Alert</span>
+                                </div>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={settings?.notifyOnLowGlucose ?? true}
+                                        onChange={(e) => saveSettings({ notifyOnLowGlucose: e.target.checked })}
+                                        className="w-4 h-4 rounded text-primary"
+                                    />
+                                    <span className="text-sm text-gray-500">Enabled</span>
+                                </label>
                             </div>
-                            <span className="text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded">
-                                &lt; {settings?.glucoseLowThreshold || 70} mg/dL
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-500">Alert when Glucose &lt;</span>
+                                <input
+                                    type="number"
+                                    value={settings?.glucoseLowThreshold || 70}
+                                    onChange={(e) => saveSettings({ glucoseLowThreshold: parseFloat(e.target.value) })}
+                                    className="w-20 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-center"
+                                />
+                                <span className="text-sm text-gray-500">mg/dL</span>
+                            </div>
                         </div>
                     </div>
                 </section>
