@@ -75,44 +75,37 @@ export interface HouseholdDashboard {
 export const householdService = {
     // Create a new household
     async createHousehold(name: string): Promise<Household> {
-        const response = await apiClient.post('/households', { name });
-        return response.data;
+        return apiClient.post('/households', { name });
     },
 
     // Get user's households
     async getHouseholds(): Promise<Household[]> {
-        const response = await apiClient.get('/households');
-        return response.data;
+        return apiClient.get('/households');
     },
 
     // Get single household
     async getHousehold(id: string): Promise<Household> {
-        const response = await apiClient.get(`/households/${id}`);
-        return response.data;
+        return apiClient.get(`/households/${id}`);
     },
 
     // Create invite
     async createInvite(householdId: string, phoneNumber: string): Promise<InviteResponse> {
-        const response = await apiClient.post(`/households/${householdId}/invite`, { phoneNumber });
-        return response.data;
+        return apiClient.post(`/households/${householdId}/invite`, { phoneNumber });
     },
 
     // Join household via code
     async joinHousehold(inviteCode: string): Promise<HouseholdMember> {
-        const response = await apiClient.post(`/households/join/${inviteCode}`, {});
-        return response.data;
+        return apiClient.post(`/households/join/${inviteCode}`, {});
     },
 
     // Get household dashboard
     async getDashboard(householdId: string): Promise<HouseholdDashboard> {
-        const response = await apiClient.get(`/households/${householdId}/dashboard`);
-        return response.data;
+        return apiClient.get(`/households/${householdId}/dashboard`);
     },
 
     // Update member permissions
     async updateMember(householdId: string, memberId: string, data: { role?: string; permissions?: Record<string, boolean> }): Promise<HouseholdMember> {
-        const response = await apiClient.patch(`/households/${householdId}/members/${memberId}`, data);
-        return response.data;
+        return apiClient.patch(`/households/${householdId}/members/${memberId}`, data);
     },
 
     // Remove member
