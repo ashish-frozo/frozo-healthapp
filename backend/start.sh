@@ -4,11 +4,11 @@ set -e
 echo "⏳ Waiting for database to be ready..."
 sleep 5
 
-echo "🔄 Running database migrations..."
+echo "🔄 Syncing database schema..."
 MAX_RETRIES=5
 RETRY_COUNT=0
 
-until npx prisma migrate deploy || [ $RETRY_COUNT -eq $MAX_RETRIES ]; do
+until npx prisma db push --skip-generate || [ $RETRY_COUNT -eq $MAX_RETRIES ]; do
   RETRY_COUNT=$((RETRY_COUNT+1))
   echo "Migration failed, retrying in 5 seconds... (Attempt $RETRY_COUNT/$MAX_RETRIES)"
   sleep 5
