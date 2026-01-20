@@ -73,9 +73,17 @@ export function ProfilePage() {
             title: 'Health Preferences',
             items: [
                 {
-                    icon: 'vital_signs',
+                    icon: 'emergency',
                     iconBg: 'bg-red-50 dark:bg-red-900/20',
                     iconColor: 'text-red-500',
+                    title: 'Emergency Settings',
+                    subtitle: 'SOS contacts & alerts',
+                    onClick: () => navigate('/emergency-settings'),
+                },
+                {
+                    icon: 'vital_signs',
+                    iconBg: 'bg-orange-50 dark:bg-orange-900/20',
+                    iconColor: 'text-orange-500',
                     title: 'Thresholds',
                     subtitle: 'Coming Soon',
                     comingSoon: true,
@@ -83,8 +91,8 @@ export function ProfilePage() {
                 },
                 {
                     icon: 'notifications',
-                    iconBg: 'bg-orange-50 dark:bg-orange-900/20',
-                    iconColor: 'text-orange-500',
+                    iconBg: 'bg-purple-50 dark:bg-purple-900/20',
+                    iconColor: 'text-purple-500',
                     title: 'Reminders',
                     subtitle: 'Coming Soon',
                     comingSoon: true,

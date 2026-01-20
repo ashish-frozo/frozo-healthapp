@@ -16,3 +16,4 @@ export { TrendsPage } from './TrendsPage';
 export { NotificationPage } from './NotificationPage';
 export { FamilyManagementPage } from './FamilyManagementPage';
 export { FamilyDashboardPage } from './FamilyDashboardPage';
+export { EmergencySettingsPage } from './EmergencySettingsPage';
