@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { TopBar } from '../components/ui';
@@ -11,8 +11,30 @@ export function CreateProfilePage() {
     const [relationship, setRelationship] = useState<Relationship>('myself');
     const [dateOfBirth, setDateOfBirth] = useState('');
     const [loading, setLoading] = useState(false);
+    const [checkingExisting, setCheckingExisting] = useState(true);
     const navigate = useNavigate();
-    const { dispatch } = useApp();
+    const { dispatch, syncData } = useApp();
+
+    // Check if user already has profiles on the backend
+    useEffect(() => {
+        const checkExistingProfiles = async () => {
+            try {
+                const profiles = await profileService.getProfiles();
+                if (profiles && profiles.length > 0) {
+                    console.log('User already has profiles, syncing and redirecting to home');
+                    // User already has profiles - sync data and redirect
+                    await syncData();
+                    navigate('/', { replace: true });
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking existing profiles:', error);
+            } finally {
+                setCheckingExisting(false);
+            }
+        };
+        checkExistingProfiles();
+    }, [navigate, syncData]);
 
     const relationships: { value: Relationship; label: string; icon?: string }[] = [
         { value: 'myself', label: 'Myself', icon: 'face' },
@@ -42,6 +64,16 @@ export function CreateProfilePage() {
             setLoading(false);
         }
     };
+
+    // Show loading while checking for existing profiles
+    if (checkingExisting) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-surface-light dark:bg-surface-dark">
+                <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
+                <p className="text-text-secondary-light dark:text-text-secondary-dark">Checking account...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex flex-col bg-surface-light dark:bg-surface-dark max-w-md mx-auto">
