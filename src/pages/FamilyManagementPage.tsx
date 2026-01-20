@@ -40,12 +40,17 @@ export function FamilyManagementPage() {
             setIsCreatingHousehold(true);
             try {
                 const currentProfile = state.profiles.find(p => p.id === state.currentProfileId);
-                const newHousehold = await householdService.createHousehold(
-                    `${currentProfile?.name.split(' ')[0] || 'My'} Family`
-                );
+                const firstName = currentProfile?.name?.split(' ')[0];
+                const householdName = firstName && firstName !== 'undefined' ? `${firstName}'s Family` : 'My Family';
+                console.log('Creating household with name:', householdName);
+                const newHousehold = await householdService.createHousehold(householdName);
+                console.log('Household created:', newHousehold);
                 setHousehold(newHousehold);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error creating household:', error);
+                alert(error?.message || 'Failed to create household');
+                setIsCreatingHousehold(false);
+                return;
             } finally {
                 setIsCreatingHousehold(false);
             }
