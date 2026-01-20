@@ -20,15 +20,23 @@ export function FamilyDashboardPage() {
     const loadDashboard = async () => {
         try {
             setLoading(true);
+            setError(null);
             // Get user's households first
             const households = await householdService.getHouseholds();
-            if (households.length > 0) {
+            if (households && households.length > 0) {
                 const data = await householdService.getDashboard(households[0].id);
                 setDashboard(data);
+            } else {
+                // No household - not an error, just empty state
+                setDashboard({
+                    householdId: '',
+                    members: [],
+                    summary: { total: 0, needsAttention: 0 }
+                });
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('Failed to load dashboard:', err);
-            setError('Could not load family dashboard');
+            setError(err?.message || 'Could not load family dashboard');
         } finally {
             setLoading(false);
         }
