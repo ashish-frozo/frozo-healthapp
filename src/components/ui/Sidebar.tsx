@@ -27,9 +27,7 @@ export function Sidebar() {
             {/* Logo / Branding */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-800">
                 <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-xl bg-primary flex items-center justify-center">
-                        <span className="material-symbols-outlined text-white text-xl">favorite</span>
-                    </div>
+                    <img src="/logo.png" alt="Frozo Health Logo" className="size-10 rounded-xl shadow-lg shadow-primary/20" />
                     <div>
                         <h1 className="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">
                             Frozo Health
