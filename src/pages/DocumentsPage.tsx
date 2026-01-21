@@ -104,7 +104,7 @@ export function DocumentsPage() {
     );
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col pb-24 md:pb-8 md:pl-64 transition-all duration-300">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col pb-24 md:pb-8 transition-all duration-300">
             {/* Header (Mobile) */}
             <header className="md:hidden flex items-center justify-between p-6 pb-2 shrink-0 bg-background-light dark:bg-background-dark z-10">
                 <h1 className="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark">Documents</h1>

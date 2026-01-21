@@ -59,7 +59,7 @@ export function ExportPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col md:pl-64 transition-all duration-300">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col pb-24 md:pb-0 transition-all duration-300">
             <div className="md:hidden">
                 <TopBar title="Share Health Data" showBack />
             </div>

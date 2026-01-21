@@ -138,7 +138,7 @@ export function ProfilePage() {
     ];
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8 md:pl-64 transition-all duration-300">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8 transition-all duration-300">
             {/* Top Bar (Mobile Only) */}
             <div className="md:hidden sticky top-0 z-10 flex items-center bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md p-4 pb-2 justify-center border-b border-gray-200 dark:border-gray-800">
                 <h2 className="text-text-primary-light dark:text-text-primary-dark text-xl font-bold leading-tight tracking-tight">Profile</h2>

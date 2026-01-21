@@ -136,7 +136,7 @@ export function TrendsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col md:pl-64 transition-all duration-300">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col transition-all duration-300">
             {/* Header (Mobile) */}
             <header className="md:hidden shrink-0 flex items-center justify-between p-4 bg-background-light dark:bg-background-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
                 <button

@@ -153,7 +153,7 @@ export function HistoryPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8 md:pl-64 transition-all duration-300">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8 transition-all duration-300">
             {/* Header (Mobile) */}
             <header className="md:hidden flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 sticky top-0 z-20">
                 <h2 className="text-text-primary-light dark:text-text-primary-dark text-3xl font-bold leading-tight tracking-tight flex-1">
