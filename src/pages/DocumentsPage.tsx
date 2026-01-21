@@ -104,25 +104,50 @@ export function DocumentsPage() {
     );
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col pb-24 max-w-md mx-auto">
-            {/* Header */}
-            <header className="flex items-center justify-between p-6 pb-2 shrink-0 bg-background-light dark:bg-background-dark z-10">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col pb-24 md:pb-8 md:pl-64 transition-all duration-300">
+            {/* Header (Mobile) */}
+            <header className="md:hidden flex items-center justify-between p-6 pb-2 shrink-0 bg-background-light dark:bg-background-dark z-10">
                 <h1 className="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark">Documents</h1>
                 <button className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                     <span className="material-symbols-outlined">search</span>
                 </button>
             </header>
 
+            {/* Header (Desktop) */}
+            <header className="hidden md:flex items-center justify-between px-8 py-6 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800">
+                <div>
+                    <h1 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">Documents</h1>
+                    <p className="text-text-secondary-light dark:text-text-secondary-dark mt-1">Manage and view your health records</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400">search</span>
+                        <input
+                            type="text"
+                            placeholder="Search documents..."
+                            className="pl-10 pr-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 border-none focus:ring-2 focus:ring-primary/50 w-64 transition-all"
+                        />
+                    </div>
+                    <button
+                        onClick={() => navigate('/add-document')}
+                        className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl shadow-lg shadow-primary/20 transition-transform active:scale-95"
+                    >
+                        <span className="material-symbols-outlined">add</span>
+                        <span className="font-bold text-sm">Add Document</span>
+                    </button>
+                </div>
+            </header>
+
             {/* Filter Chips */}
-            <div className="w-full shrink-0">
-                <div className="flex gap-3 px-6 py-4 overflow-x-auto no-scrollbar items-center">
+            <div className="w-full shrink-0 md:px-8 md:py-6">
+                <div className="flex gap-3 px-6 md:px-0 py-4 md:py-0 overflow-x-auto no-scrollbar items-center">
                     {filters.map((filter) => (
                         <button
                             key={filter.id}
                             onClick={() => setActiveFilter(filter.id)}
                             className={`flex h-10 shrink-0 items-center justify-center px-5 rounded-full transition-transform active:scale-95 ${activeFilter === filter.id
                                 ? 'bg-primary text-white shadow-md shadow-primary/30'
-                                : 'bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-secondary-light dark:text-text-secondary-dark'
+                                : 'bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-50 dark:hover:bg-gray-800'
                                 }`}
                         >
                             <span className={`text-sm ${activeFilter === filter.id ? 'font-semibold' : 'font-medium'}`}>
@@ -134,37 +159,44 @@ export function DocumentsPage() {
             </div>
 
             {/* Document List */}
-            <div className="flex-1 overflow-y-auto px-4 pb-32">
-                <div className="flex flex-col gap-3">
+            <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-32 md:pb-8">
+                <div className="max-w-7xl mx-auto w-full">
                     {recentDocs.length > 0 && (
-                        <>
-                            <p className="px-2 mt-2 text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wide">
+                        <div className="mb-8">
+                            <p className="px-2 mt-2 mb-4 text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wide">
                                 Recent
                             </p>
-                            {recentDocs.map(doc => renderDocCard(doc))}
-                        </>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {recentDocs.map(doc => renderDocCard(doc))}
+                            </div>
+                        </div>
                     )}
 
                     {olderDocs.length > 0 && (
-                        <>
-                            <p className="px-2 mt-4 text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wide">
+                        <div className="mb-8">
+                            <p className="px-2 mt-4 mb-4 text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wide">
                                 Older
                             </p>
-                            {olderDocs.map(doc => renderDocCard(doc, true))}
-                        </>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {olderDocs.map(doc => renderDocCard(doc, true))}
+                            </div>
+                        </div>
                     )}
 
                     {filteredDocs.length === 0 && (
-                        <div className="text-center py-12">
-                            <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600">folder_off</span>
-                            <p className="mt-2 text-text-secondary-light dark:text-text-secondary-dark">No documents found</p>
+                        <div className="text-center py-20">
+                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                                <span className="material-symbols-outlined text-4xl text-gray-400">folder_off</span>
+                            </div>
+                            <h3 className="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">No documents found</h3>
+                            <p className="mt-2 text-text-secondary-light dark:text-text-secondary-dark">Try adjusting your filters or search query</p>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* FAB */}
-            <div className="fixed bottom-24 right-6 z-20" style={{ right: 'max(1.5rem, calc((100vw - 28rem) / 2 + 1.5rem))' }}>
+            {/* FAB (Mobile Only) */}
+            <div className="md:hidden fixed bottom-24 right-6 z-20" style={{ right: 'max(1.5rem, calc((100vw - 28rem) / 2 + 1.5rem))' }}>
                 <button
                     onClick={() => navigate('/add-document')}
                     className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white pl-4 pr-6 py-4 rounded-2xl shadow-lg shadow-primary/40 transition-transform active:scale-95"
@@ -200,8 +232,10 @@ export function DocumentsPage() {
                             <ToggleSwitch
                                 checked={selectedDoc.inVisitPack}
                                 onChange={() => {
-                                    toggleDocumentVisitPack(selectedDoc.id);
-                                    setSelectedDoc({ ...selectedDoc, inVisitPack: !selectedDoc.inVisitPack });
+                                    if (selectedDoc.id) {
+                                        toggleDocumentVisitPack(selectedDoc.id);
+                                        setSelectedDoc({ ...selectedDoc, inVisitPack: !selectedDoc.inVisitPack });
+                                    }
                                 }}
                             />
                         </div>
@@ -234,11 +268,11 @@ export function DocumentsPage() {
 
                         {/* Actions */}
                         <div className="grid grid-cols-2 gap-4 mt-6">
-                            <button className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gray-100 dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark font-semibold">
+                            <button className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gray-100 dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                                 <span className="material-symbols-outlined">share</span>
                                 Share
                             </button>
-                            <button className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gray-100 dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark font-semibold">
+                            <button className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gray-100 dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                                 <span className="material-symbols-outlined">print</span>
                                 Print
                             </button>

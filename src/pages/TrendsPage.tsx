@@ -136,9 +136,9 @@ export function TrendsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col">
-            {/* Header */}
-            <header className="shrink-0 flex items-center justify-between p-4 bg-background-light dark:bg-background-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col md:pl-64 transition-all duration-300">
+            {/* Header (Mobile) */}
+            <header className="md:hidden shrink-0 flex items-center justify-between p-4 bg-background-light dark:bg-background-dark border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
                 <button
                     onClick={() => navigate(-1)}
                     className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-text-primary-light dark:text-text-primary-dark"
@@ -149,117 +149,131 @@ export function TrendsPage() {
                 <div className="w-10" />
             </header>
 
-            <main className="flex-1 overflow-y-auto pb-24 no-scrollbar px-4 py-6">
-                {/* Time Range Selector */}
-                <div className="flex bg-surface-light dark:bg-surface-dark p-1 rounded-xl mb-6 shadow-sm border border-gray-200 dark:border-gray-800">
-                    {(['7d', '30d', '90d'] as const).map((range) => (
-                        <button
-                            key={range}
-                            onClick={() => setTimeRange(range)}
-                            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${timeRange === range
-                                ? 'bg-primary text-white shadow-md'
-                                : 'text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
-                                }`}
-                        >
-                            {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
-                        </button>
-                    ))}
+            {/* Header (Desktop) */}
+            <header className="hidden md:flex items-center justify-between px-8 py-6 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800">
+                <div>
+                    <h1 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">Health Trends</h1>
+                    <p className="text-text-secondary-light dark:text-text-secondary-dark mt-1">Visualize your health data over time</p>
                 </div>
+            </header>
 
-                {/* AI Insights Card */}
-                <section className="mb-8">
-                    <div className="bg-gradient-to-br from-primary/10 to-blue-500/10 dark:from-primary/20 dark:to-blue-500/20 rounded-2xl p-5 border border-primary/20 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <span className="material-symbols-outlined text-6xl">auto_awesome</span>
-                        </div>
+            <main className="flex-1 overflow-y-auto pb-24 md:pb-8 no-scrollbar px-4 md:px-8 py-6">
+                <div className="max-w-6xl mx-auto">
+                    {/* Time Range Selector */}
+                    <div className="flex bg-surface-light dark:bg-surface-dark p-1 rounded-xl mb-6 shadow-sm border border-gray-200 dark:border-gray-800 max-w-md">
+                        {(['7d', '30d', '90d'] as const).map((range) => (
+                            <button
+                                key={range}
+                                onClick={() => setTimeRange(range)}
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${timeRange === range
+                                    ? 'bg-primary text-white shadow-md'
+                                    : 'text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
+                                    }`}
+                            >
+                                {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
+                            </button>
+                        ))}
+                    </div>
 
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="material-symbols-outlined text-primary">auto_awesome</span>
-                            <h2 className="text-lg font-bold text-text-primary-light dark:text-white">AI Health Insights</h2>
-                        </div>
-
-                        {isLoading ? (
-                            <div className="flex flex-col gap-3 animate-pulse">
-                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-                            </div>
-                        ) : error ? (
-                            <div className="text-sm text-red-500 font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                                {error}
-                            </div>
-                        ) : insight ? (
-                            <div className="space-y-4">
-                                <p className="text-text-primary-light dark:text-gray-200 font-medium leading-relaxed">
-                                    {insight.summary}
-                                </p>
-
-                                <div className="space-y-2">
-                                    <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-gray-400">Key Insights</h3>
-                                    <ul className="space-y-2">
-                                        {insight.keyInsights.map((item, i) => (
-                                            <li key={i} className="flex gap-2 text-sm text-text-secondary-light dark:text-gray-300">
-                                                <span className="text-primary font-bold">•</span>
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* AI Insights Card */}
+                        <section className="lg:col-span-1">
+                            <div className="bg-gradient-to-br from-primary/10 to-blue-500/10 dark:from-primary/20 dark:to-blue-500/20 rounded-3xl p-6 border border-primary/20 relative overflow-hidden h-full">
+                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                    <span className="material-symbols-outlined text-8xl">auto_awesome</span>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-gray-400">Actionable Tips</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {insight.tips.map((tip, i) => (
-                                            <span key={i} className="bg-white/50 dark:bg-white/10 px-3 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/10">
-                                                {tip}
-                                            </span>
-                                        ))}
+                                <div className="flex items-center gap-2 mb-6">
+                                    <span className="material-symbols-outlined text-primary text-2xl">auto_awesome</span>
+                                    <h2 className="text-xl font-bold text-text-primary-light dark:text-white">AI Health Insights</h2>
+                                </div>
+
+                                {isLoading ? (
+                                    <div className="flex flex-col gap-4 animate-pulse">
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
                                     </div>
+                                ) : error ? (
+                                    <div className="text-sm text-red-500 font-medium bg-red-50 dark:bg-red-900/20 p-4 rounded-xl">
+                                        {error}
+                                    </div>
+                                ) : insight ? (
+                                    <div className="space-y-6">
+                                        <p className="text-text-primary-light dark:text-gray-200 font-medium leading-relaxed text-lg">
+                                            {insight.summary}
+                                        </p>
+
+                                        <div className="space-y-3">
+                                            <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-gray-400">Key Insights</h3>
+                                            <ul className="space-y-3">
+                                                {insight.keyInsights.map((item, i) => (
+                                                    <li key={i} className="flex gap-3 text-sm text-text-secondary-light dark:text-gray-300">
+                                                        <span className="text-primary font-bold text-lg">•</span>
+                                                        <span className="leading-relaxed">{item}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary-light dark:text-gray-400">Actionable Tips</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {insight.tips.map((tip, i) => (
+                                                    <span key={i} className="bg-white/50 dark:bg-white/10 px-3 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/10">
+                                                        {tip}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-text-secondary-light dark:text-gray-400 italic">
+                                        Log more data to unlock AI insights.
+                                    </p>
+                                )}
+                            </div>
+                        </section>
+
+                        <div className="lg:col-span-2 space-y-8">
+                            {/* BP Chart */}
+                            <section>
+                                <div className="flex items-center justify-between mb-4 px-1">
+                                    <h2 className="text-xl font-bold text-text-primary-light dark:text-white">Blood Pressure</h2>
+                                    <span className="text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">mmHg</span>
                                 </div>
-                            </div>
-                        ) : (
-                            <p className="text-sm text-text-secondary-light dark:text-gray-400 italic">
-                                Log more data to unlock AI insights.
-                            </p>
-                        )}
-                    </div>
-                </section>
+                                <div className="bg-surface-light dark:bg-surface-dark rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 h-[320px]">
+                                    {filteredBP.length > 1 ? (
+                                        <Line data={bpChartData} options={chartOptions} />
+                                    ) : (
+                                        <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                                            <span className="material-symbols-outlined text-gray-300 dark:text-gray-700 text-5xl mb-4">monitoring</span>
+                                            <p className="text-base text-text-secondary-light dark:text-text-secondary-dark">Not enough data for a trend. Log at least 2 readings.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
 
-                {/* BP Chart */}
-                <section className="mb-8">
-                    <div className="flex items-center justify-between mb-4 px-1">
-                        <h2 className="text-lg font-bold text-text-primary-light dark:text-white">Blood Pressure</h2>
-                        <span className="text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-widest">mmHg</span>
+                            {/* Glucose Chart */}
+                            <section>
+                                <div className="flex items-center justify-between mb-4 px-1">
+                                    <h2 className="text-xl font-bold text-text-primary-light dark:text-white">Blood Glucose</h2>
+                                    <span className="text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">mg/dL</span>
+                                </div>
+                                <div className="bg-surface-light dark:bg-surface-dark rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 h-[320px]">
+                                    {filteredGlucose.length > 1 ? (
+                                        <Line data={glucoseChartData} options={chartOptions} />
+                                    ) : (
+                                        <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                                            <span className="material-symbols-outlined text-gray-300 dark:text-gray-700 text-5xl mb-4">water_drop</span>
+                                            <p className="text-base text-text-secondary-light dark:text-text-secondary-dark">Not enough data for a trend. Log at least 2 readings.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+                        </div>
                     </div>
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 h-[280px]">
-                        {filteredBP.length > 1 ? (
-                            <Line data={bpChartData} options={chartOptions} />
-                        ) : (
-                            <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                                <span className="material-symbols-outlined text-gray-300 dark:text-gray-700 text-4xl mb-2">monitoring</span>
-                                <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">Not enough data for a trend. Log at least 2 readings.</p>
-                            </div>
-                        )}
-                    </div>
-                </section>
-
-                {/* Glucose Chart */}
-                <section className="mb-8">
-                    <div className="flex items-center justify-between mb-4 px-1">
-                        <h2 className="text-lg font-bold text-text-primary-light dark:text-white">Blood Glucose</h2>
-                        <span className="text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-widest">mg/dL</span>
-                    </div>
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 h-[280px]">
-                        {filteredGlucose.length > 1 ? (
-                            <Line data={glucoseChartData} options={chartOptions} />
-                        ) : (
-                            <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                                <span className="material-symbols-outlined text-gray-300 dark:text-gray-700 text-4xl mb-2">water_drop</span>
-                                <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">Not enough data for a trend. Log at least 2 readings.</p>
-                            </div>
-                        )}
-                    </div>
-                </section>
+                </div>
             </main>
         </div>
     );

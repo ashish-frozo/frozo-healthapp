@@ -153,9 +153,9 @@ export function HistoryPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8">
-            {/* Header */}
-            <header className="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 sticky top-0 z-20">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark pb-24 md:pb-8 md:pl-64 transition-all duration-300">
+            {/* Header (Mobile) */}
+            <header className="md:hidden flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 sticky top-0 z-20">
                 <h2 className="text-text-primary-light dark:text-text-primary-dark text-3xl font-bold leading-tight tracking-tight flex-1">
                     History
                 </h2>
@@ -164,76 +164,103 @@ export function HistoryPage() {
                 </button>
             </header>
 
+            {/* Header (Desktop) */}
+            <header className="hidden md:flex items-center justify-between px-8 py-6 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800">
+                <div>
+                    <h1 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">History</h1>
+                    <p className="text-text-secondary-light dark:text-text-secondary-dark mt-1">View your health reading history</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400">search</span>
+                        <input
+                            type="text"
+                            placeholder="Search history..."
+                            className="pl-10 pr-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 border-none focus:ring-2 focus:ring-primary/50 w-64 transition-all"
+                        />
+                    </div>
+                    <button
+                        onClick={() => navigate('/quick-add')}
+                        className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl shadow-lg shadow-primary/20 transition-transform active:scale-95"
+                    >
+                        <span className="material-symbols-outlined">add</span>
+                        <span className="font-bold text-sm">Add Reading</span>
+                    </button>
+                </div>
+            </header>
+
             {/* Main Content */}
-            <main className="max-w-5xl mx-auto flex flex-col w-full px-4 md:px-6">
-                {/* Type Filter */}
-                <div className="flex py-2 w-full">
-                    <div className="flex h-12 w-full items-center justify-center rounded-xl bg-surface-light dark:bg-surface-dark p-1 shadow-sm border border-gray-100 dark:border-gray-700">
-                        {(['all', 'bp', 'glucose'] as ReadingType[]).map((type) => (
+            <main className="max-w-5xl mx-auto flex flex-col w-full px-4 md:px-8 py-4 md:py-8">
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    {/* Type Filter */}
+                    <div className="flex py-2 w-full md:w-auto md:flex-1">
+                        <div className="flex h-12 w-full items-center justify-center rounded-xl bg-surface-light dark:bg-surface-dark p-1 shadow-sm border border-gray-100 dark:border-gray-700">
+                            {(['all', 'bp', 'glucose'] as ReadingType[]).map((type) => (
+                                <button
+                                    key={type}
+                                    onClick={() => setTypeFilter(type)}
+                                    className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 transition-all duration-200 font-medium ${typeFilter === type
+                                        ? 'bg-primary text-white'
+                                        : 'text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        }`}
+                                >
+                                    <span className="truncate text-base">
+                                        {type === 'all' ? 'All' : type === 'bp' ? 'BP' : 'Glucose'}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Date Range Chips */}
+                    <div className="flex gap-3 py-3 overflow-x-auto no-scrollbar md:overflow-visible items-center">
+                        {dateRanges.map((range) => (
                             <button
-                                key={type}
-                                onClick={() => setTypeFilter(type)}
-                                className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 transition-all duration-200 font-medium ${typeFilter === type
+                                key={range.value}
+                                onClick={() => setDateRange(range.value)}
+                                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full pl-5 pr-5 shadow-sm transition-transform active:scale-95 ${dateRange === range.value
                                     ? 'bg-primary text-white'
-                                    : 'text-text-secondary-light dark:text-text-secondary-dark'
+                                    : 'bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-50 dark:hover:bg-gray-800'
                                     }`}
                             >
-                                <span className="truncate text-base">
-                                    {type === 'all' ? 'All' : type === 'bp' ? 'BP' : 'Glucose'}
+                                <span className={`text-sm leading-normal ${dateRange === range.value ? 'font-bold' : 'font-medium'}`}>
+                                    {range.label}
                                 </span>
                             </button>
                         ))}
                     </div>
-                </div>
 
-                {/* Date Range Chips */}
-                <div className="flex gap-3 py-3 overflow-x-auto no-scrollbar -mx-4 px-4">
-                    {dateRanges.map((range) => (
+                    {/* Chart Toggle */}
+                    <div className="flex py-1 justify-end md:w-auto">
                         <button
-                            key={range.value}
-                            onClick={() => setDateRange(range.value)}
-                            className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full pl-5 pr-5 shadow-sm transition-transform active:scale-95 ${dateRange === range.value
-                                ? 'bg-primary text-white'
-                                : 'bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-secondary-light dark:text-text-secondary-dark'
-                                }`}
+                            onClick={() => setShowChart(!showChart)}
+                            className="flex w-full md:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 text-primary gap-2 pl-4 pr-4 transition-colors whitespace-nowrap"
                         >
-                            <span className={`text-sm leading-normal ${dateRange === range.value ? 'font-bold' : 'font-medium'}`}>
-                                {range.label}
+                            <span className="material-symbols-outlined text-[20px]">
+                                {showChart ? 'list' : 'bar_chart'}
+                            </span>
+                            <span className="text-sm font-bold leading-normal tracking-wide">
+                                {showChart ? 'Show List' : 'Show Chart'}
                             </span>
                         </button>
-                    ))}
-                </div>
-
-                {/* Chart Toggle */}
-                <div className="flex py-1 justify-end">
-                    <button
-                        onClick={() => setShowChart(!showChart)}
-                        className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 text-primary gap-2 pl-4 pr-4 transition-colors"
-                    >
-                        <span className="material-symbols-outlined text-[20px]">
-                            {showChart ? 'list' : 'bar_chart'}
-                        </span>
-                        <span className="text-sm font-bold leading-normal tracking-wide">
-                            {showChart ? 'Show List View' : 'Show Chart View'}
-                        </span>
-                    </button>
+                    </div>
                 </div>
 
                 {/* Chart View */}
                 {showChart && (
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-4 mt-4 border border-gray-100 dark:border-gray-700">
+                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-4 md:p-6 mb-6 border border-gray-100 dark:border-gray-700 shadow-sm">
                         {(typeFilter === 'all' || typeFilter === 'bp') && bpReadings.length > 0 && (
-                            <div className="mb-4">
-                                <h4 className="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark mb-2">Blood Pressure</h4>
-                                <div className="h-48">
+                            <div className="mb-6">
+                                <h4 className="text-base font-bold text-text-primary-light dark:text-text-primary-dark mb-4">Blood Pressure Trends</h4>
+                                <div className="h-64 md:h-80">
                                     <Line data={bpChartData} options={chartOptions} />
                                 </div>
                             </div>
                         )}
                         {(typeFilter === 'all' || typeFilter === 'glucose') && glucoseReadings.length > 0 && (
                             <div>
-                                <h4 className="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark mb-2">Glucose</h4>
-                                <div className="h-48">
+                                <h4 className="text-base font-bold text-text-primary-light dark:text-text-primary-dark mb-4">Glucose Trends</h4>
+                                <div className="h-64 md:h-80">
                                     <Line data={glucoseChartData} options={chartOptions} />
                                 </div>
                             </div>
@@ -251,64 +278,66 @@ export function HistoryPage() {
 
                 {/* List View */}
                 {!showChart && (
-                    <div className="flex flex-col gap-2 mt-2">
+                    <div className="flex flex-col gap-4">
                         {Object.entries(groupedReadings).map(([dateLabel, readings]) => (
                             <div key={dateLabel}>
-                                <h3 className="text-text-primary-light dark:text-text-primary-dark text-lg font-bold leading-tight tracking-tight pt-4 pb-2">
+                                <h3 className="text-text-primary-light dark:text-text-primary-dark text-lg font-bold leading-tight tracking-tight pb-3 sticky top-0 bg-background-light dark:bg-background-dark z-10">
                                     {dateLabel}
                                 </h3>
-                                {readings.map((reading) => (
-                                    <button
-                                        key={reading.id}
-                                        onClick={() => navigate(reading.type === 'bp' ? '/bp-entry' : '/glucose-entry')}
-                                        className="group relative flex w-full flex-col bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all active:scale-[0.99] active:shadow-sm mb-2"
-                                    >
-                                        <div className="flex items-center p-4 gap-4">
-                                            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${reading.type === 'bp'
-                                                ? 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400'
-                                                : 'bg-blue-50 dark:bg-blue-900/20 text-primary'
-                                                }`}>
-                                                <span className="material-symbols-outlined filled">
-                                                    {reading.type === 'bp' ? 'favorite' : 'water_drop'}
-                                                </span>
-                                            </div>
-                                            <div className="flex flex-col flex-1 text-left">
-                                                <div className="flex items-baseline gap-1">
-                                                    <span className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
-                                                        {reading.type === 'bp'
-                                                            ? `${(reading as any).systolic}/${(reading as any).diastolic}`
-                                                            : (reading as any).value
-                                                        }
-                                                    </span>
-                                                    <span className="text-sm font-medium text-gray-400">
-                                                        {reading.type === 'bp' ? 'mmHg' : 'mg/dL'}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {readings.map((reading) => (
+                                        <button
+                                            key={reading.id}
+                                            onClick={() => navigate(reading.type === 'bp' ? '/bp-entry' : '/glucose-entry')}
+                                            className="group relative flex w-full flex-col bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all hover:shadow-md active:scale-[0.99] text-left"
+                                        >
+                                            <div className="flex items-center p-4 gap-4">
+                                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${reading.type === 'bp'
+                                                    ? 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400'
+                                                    : 'bg-blue-50 dark:bg-blue-900/20 text-primary'
+                                                    }`}>
+                                                    <span className="material-symbols-outlined filled">
+                                                        {reading.type === 'bp' ? 'favorite' : 'water_drop'}
                                                     </span>
                                                 </div>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ring-1 ring-inset ${reading.status === 'normal'
-                                                        ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-600/20'
-                                                        : reading.status === 'elevated'
-                                                            ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 ring-orange-600/20'
-                                                            : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-600/20'
-                                                        }`}>
-                                                        {reading.status.charAt(0).toUpperCase() + reading.status.slice(1)}
-                                                    </span>
-                                                    {reading.type === 'glucose' && (
-                                                        <span className="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">
-                                                            {(reading as any).context.replace('_', ' ')}
+                                                <div className="flex flex-col flex-1 min-w-0">
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
+                                                            {reading.type === 'bp'
+                                                                ? `${(reading as any).systolic}/${(reading as any).diastolic}`
+                                                                : (reading as any).value
+                                                            }
                                                         </span>
-                                                    )}
+                                                        <span className="text-sm font-medium text-gray-400">
+                                                            {reading.type === 'bp' ? 'mmHg' : 'mg/dL'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                        <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold ring-1 ring-inset ${reading.status === 'normal'
+                                                            ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-600/20'
+                                                            : reading.status === 'elevated'
+                                                                ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 ring-orange-600/20'
+                                                                : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-600/20'
+                                                            }`}>
+                                                            {reading.status.charAt(0).toUpperCase() + reading.status.slice(1)}
+                                                        </span>
+                                                        {reading.type === 'glucose' && (
+                                                            <span className="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark truncate">
+                                                                {(reading as any).context.replace('_', ' ')}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-1 shrink-0">
+                                                    <span className="text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark">
+                                                        {formatTime(reading.timestamp)}
+                                                    </span>
+                                                    <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 text-[20px] group-hover:text-primary transition-colors">chevron_right</span>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col items-end gap-1">
-                                                <span className="text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark">
-                                                    {formatTime(reading.timestamp)}
-                                                </span>
-                                                <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 text-[20px]">chevron_right</span>
-                                            </div>
-                                        </div>
-                                    </button>
-                                ))}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         ))}
 
@@ -322,7 +351,7 @@ export function HistoryPage() {
                 )}
             </main>
 
-            {/* FAB */}
+            {/* FAB (Mobile Only) */}
             <button
                 onClick={() => navigate('/quick-add')}
                 className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 transition-transform active:scale-90 hover:scale-105 md:hidden"
