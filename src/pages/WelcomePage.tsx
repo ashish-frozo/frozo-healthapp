@@ -144,7 +144,7 @@ export function WelcomePage() {
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
-                        {/* Feature 1 */}
+                        {/* Feature 1: Vitals */}
                         <div className="group bg-white dark:bg-gray-800 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-primary/20 transition-all duration-300 hover:-translate-y-1">
                             <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:scale-110 transition-transform duration-300">
                                 <span className="material-symbols-outlined text-4xl">monitor_heart</span>
@@ -155,7 +155,7 @@ export function WelcomePage() {
                             </p>
                         </div>
 
-                        {/* Feature 2 */}
+                        {/* Feature 2: Family */}
                         <div className="group bg-white dark:bg-gray-800 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-purple-500/20 transition-all duration-300 hover:-translate-y-1">
                             <div className="w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400 mb-8 group-hover:scale-110 transition-transform duration-300">
                                 <span className="material-symbols-outlined text-4xl">family_restroom</span>
@@ -166,7 +166,7 @@ export function WelcomePage() {
                             </p>
                         </div>
 
-                        {/* Feature 3 */}
+                        {/* Feature 3: Emergency */}
                         <div className="group bg-white dark:bg-gray-800 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-red-500/20 transition-all duration-300 hover:-translate-y-1">
                             <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center text-red-600 dark:text-red-400 mb-8 group-hover:scale-110 transition-transform duration-300">
                                 <span className="material-symbols-outlined text-4xl">emergency_share</span>
@@ -174,6 +174,39 @@ export function WelcomePage() {
                             <h3 className="text-2xl font-bold mb-4">Emergency Alerts</h3>
                             <p className="text-text-secondary-light dark:text-text-secondary-dark leading-relaxed text-lg">
                                 Automatically notify family members via WhatsApp if readings go above dangerous thresholds.
+                            </p>
+                        </div>
+
+                        {/* Feature 4: AI Analysis */}
+                        <div className="group bg-white dark:bg-gray-800 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-indigo-500/20 transition-all duration-300 hover:-translate-y-1">
+                            <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-8 group-hover:scale-110 transition-transform duration-300">
+                                <span className="material-symbols-outlined text-4xl">analytics</span>
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4">AI Health Insights</h3>
+                            <p className="text-text-secondary-light dark:text-text-secondary-dark leading-relaxed text-lg">
+                                Smart analysis of your health trends. Get personalized insights and early warning signals.
+                            </p>
+                        </div>
+
+                        {/* Feature 5: Documents */}
+                        <div className="group bg-white dark:bg-gray-800 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-orange-500/20 transition-all duration-300 hover:-translate-y-1">
+                            <div className="w-16 h-16 bg-orange-50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center text-orange-600 dark:text-orange-400 mb-8 group-hover:scale-110 transition-transform duration-300">
+                                <span className="material-symbols-outlined text-4xl">folder_shared</span>
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4">Medical Records</h3>
+                            <p className="text-text-secondary-light dark:text-text-secondary-dark leading-relaxed text-lg">
+                                Securely store prescriptions, lab reports, and insurance cards. Access them anytime, anywhere.
+                            </p>
+                        </div>
+
+                        {/* Feature 6: Export */}
+                        <div className="group bg-white dark:bg-gray-800 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-teal-500/20 transition-all duration-300 hover:-translate-y-1">
+                            <div className="w-16 h-16 bg-teal-50 dark:bg-teal-900/20 rounded-2xl flex items-center justify-center text-teal-600 dark:text-teal-400 mb-8 group-hover:scale-110 transition-transform duration-300">
+                                <span className="material-symbols-outlined text-4xl">ios_share</span>
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4">Easy Data Export</h3>
+                            <p className="text-text-secondary-light dark:text-text-secondary-dark leading-relaxed text-lg">
+                                Share reports with your doctor instantly. Export data as PDF or Excel for your next appointment.
                             </p>
                         </div>
                     </div>
