@@ -256,21 +256,39 @@ export function WelcomePage() {
                     </div>
 
                     {/* Free Tier - Highlighted */}
-                    <div className="max-w-md mx-auto mb-12">
-                        <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
-                            <div className="absolute top-0 right-4 -translate-y-1/2 bg-white text-emerald-600 px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                    <div className="max-w-2xl mx-auto mb-12">
+                        <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-8 text-white shadow-lg">
+                            <div className="absolute top-0 right-6 -translate-y-1/2 bg-white text-emerald-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
                                 🎉 Free Forever
                             </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-xl font-bold mb-1">Start Free</h3>
-                                    <p className="text-white/80 text-sm">10 credits on signup — no card required</p>
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                                <div className="flex-1">
+                                    <h3 className="text-2xl font-bold mb-2">Start Free</h3>
+                                    <p className="text-white/80 mb-4">Get 10 credits on signup — no card required</p>
+                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-emerald-200">check_circle</span>
+                                            <span>~5 Health Insights</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-emerald-200">check_circle</span>
+                                            <span>Unlimited BP & Glucose Tracking</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-emerald-200">check_circle</span>
+                                            <span>Family Profiles</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-emerald-200">check_circle</span>
+                                            <span>Document Storage</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button
                                     onClick={() => navigate('/login')}
-                                    className="bg-white text-emerald-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-100 transition-all shadow-lg"
+                                    className="bg-white text-emerald-600 font-bold px-8 py-4 rounded-xl hover:bg-gray-100 transition-all shadow-lg whitespace-nowrap"
                                 >
-                                    Try Now →
+                                    Try Now — It's Free →
                                 </button>
                             </div>
                         </div>
