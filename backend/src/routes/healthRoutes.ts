@@ -5,6 +5,8 @@ import {
     getSymptoms, addSymptom
 } from '../controllers/healthController';
 import { authMiddleware } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { addBPSchema, addGlucoseSchema, addSymptomSchema } from '../schemas/healthSchemas';
 
 const router = Router();
 
@@ -67,7 +69,7 @@ router.get('/bp', getBPReadings);
  *       201:
  *         description: Reading added successfully
  */
-router.post('/bp', addBPReading);
+router.post('/bp', validateBody(addBPSchema), addBPReading);
 
 /**
  * @swagger
@@ -118,7 +120,7 @@ router.get('/glucose', getGlucoseReadings);
  *       201:
  *         description: Reading added successfully
  */
-router.post('/glucose', addGlucoseReading);
+router.post('/glucose', validateBody(addGlucoseSchema), addGlucoseReading);
 
 /**
  * @swagger
@@ -170,6 +172,6 @@ router.get('/symptoms', getSymptoms);
  *       201:
  *         description: Symptom added successfully
  */
-router.post('/symptoms', addSymptom);
+router.post('/symptoms', validateBody(addSymptomSchema), addSymptom);
 
 export default router;

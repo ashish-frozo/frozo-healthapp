@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { sendOTP, verifyOTP } from '../controllers/authController';
 import { getUserSettings, updateUserSettings } from '../controllers/userSettingsController';
+import { validateBody } from '../middleware/validate';
+import { sendOtpSchema, verifyOtpSchema, updateSettingsSchema } from '../schemas/authSchemas';
 
 const router = Router();
 
@@ -28,7 +30,7 @@ const router = Router();
  *       400:
  *         description: Phone number is required
  */
-router.post('/send-otp', sendOTP);
+router.post('/send-otp', validateBody(sendOtpSchema), sendOTP);
 
 /**
  * @swagger
@@ -67,7 +69,7 @@ router.post('/send-otp', sendOTP);
  *       400:
  *         description: Invalid OTP or missing fields
  */
-router.post('/verify-otp', verifyOTP);
+router.post('/verify-otp', validateBody(verifyOtpSchema), verifyOTP);
 
 /**
  * @swagger
@@ -95,7 +97,7 @@ router.post('/verify-otp', verifyOTP);
  *         description: Settings updated
  */
 router.get('/settings', getUserSettings);
-router.patch('/settings', updateUserSettings);
+router.patch('/settings', validateBody(updateSettingsSchema), updateUserSettings);
 
 export default router;
 
