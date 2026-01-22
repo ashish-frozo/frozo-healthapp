@@ -87,7 +87,7 @@ export function CreateProfilePage() {
                     <h1 className="text-xl font-bold">Create First Profile</h1>
                     <div className="flex items-center gap-2 text-primary">
                         <span className="material-symbols-outlined">health_and_safety</span>
-                        <span className="font-bold">Frozo Health</span>
+                        <span className="font-bold">KinCare</span>
                     </div>
                 </div>
 

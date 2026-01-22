@@ -23,9 +23,9 @@ export function WelcomePage() {
             <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-sm py-3' : 'bg-transparent py-6'}`}>
                 <div className="w-full px-6 flex items-center justify-between max-w-7xl mx-auto">
                     <div className="flex items-center gap-2">
-                        <img src="/logo.png" alt="Frozo Health Logo" className="w-10 h-10 rounded-xl shadow-lg shadow-primary/20" />
+                        <img src="/logo.png" alt="KinCare Logo" className="w-10 h-10 rounded-xl shadow-lg shadow-primary/20" />
                         <span className="text-xl font-bold tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
-                            Frozo Health
+                            KinCare
                         </span>
                     </div>
                     <div className="flex gap-3">
@@ -419,11 +419,11 @@ export function WelcomePage() {
             <footer className="py-12 border-t border-gray-200 dark:border-gray-800 mt-auto bg-white dark:bg-gray-900 z-10">
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-2 opacity-80">
-                        <img src="/logo.png" alt="Frozo Health Logo" className="w-8 h-8 rounded-lg" />
-                        <span className="font-bold text-lg">Frozo Health</span>
+                        <img src="/logo.png" alt="KinCare Logo" className="w-8 h-8 rounded-lg" />
+                        <span className="font-bold text-lg">KinCare</span>
                     </div>
                     <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                        © {new Date().getFullYear()} Frozo Health. All rights reserved.
+                        © {new Date().getFullYear()} KinCare. All rights reserved.
                     </p>
                     <div className="flex gap-8 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">
                         <a href="#" className="hover:text-primary transition-colors">Privacy</a>

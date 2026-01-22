@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['logo.png', 'welcome-hero.jpg'],
       manifest: {
-        name: 'Frozo Health',
-        short_name: 'Frozo',
+        name: 'KinCare',
+        short_name: 'KinCare',
         description: 'Family Health Tracking App',
         theme_color: '#ffffff',
         background_color: '#ffffff',

@@ -27,10 +27,10 @@ export function Sidebar() {
             {/* Logo / Branding */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-800">
                 <div className="flex items-center gap-3">
-                    <img src="/logo.png" alt="Frozo Health Logo" className="size-10 rounded-xl shadow-lg shadow-primary/20" />
+                    <img src="/logo.png" alt="KinCare Logo" className="size-10 rounded-xl shadow-lg shadow-primary/20" />
                     <div>
                         <h1 className="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">
-                            Frozo Health
+                            KinCare
                         </h1>
                         <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
                             Family Health Tracker

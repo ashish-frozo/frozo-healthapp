@@ -176,7 +176,7 @@ export function LoginPage() {
                 <div className="flex-1 flex flex-col px-6 pt-4 pb-6 overflow-y-auto">
                     {/* Header Icon */}
                     <div className="w-full flex justify-center mb-6">
-                        <img src="/logo.png" alt="Frozo Health" className="w-24 h-24 rounded-2xl shadow-xl shadow-primary/20" />
+                        <img src="/logo.png" alt="KinCare" className="w-24 h-24 rounded-2xl shadow-xl shadow-primary/20" />
                     </div>
 
                     {/* Headline */}
@@ -304,8 +304,8 @@ export function LoginPage() {
 
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-12">
-                            <img src="/logo.png" alt="Frozo Health" className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg" />
-                            <span className="text-2xl font-bold tracking-tight">Frozo Health</span>
+                            <img src="/logo.png" alt="KinCare" className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg" />
+                            <span className="text-2xl font-bold tracking-tight">KinCare</span>
                         </div>
                         <h1 className="text-6xl font-extrabold leading-[1.1] mb-8">
                             Family Health <br />
@@ -317,7 +317,7 @@ export function LoginPage() {
                     </div>
 
                     <div className="relative z-10 flex gap-6 text-sm font-medium text-blue-100/80">
-                        <span>© {new Date().getFullYear()} Frozo Health</span>
+                        <span>© {new Date().getFullYear()} KinCare</span>
                         <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
                         <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
                     </div>

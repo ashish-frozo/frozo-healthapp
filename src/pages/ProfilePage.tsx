@@ -36,7 +36,7 @@ export function ProfilePage() {
     const handleLogout = () => {
         dispatch({ type: 'LOGOUT' });
         localStorage.removeItem('family-health-app-state');
-        localStorage.removeItem('frozo_auth_token'); // Clear auth token
+        localStorage.removeItem('kincare_auth_token'); // Clear auth token
         navigate('/login');
     };
 

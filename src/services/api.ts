@@ -1,21 +1,21 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 class ApiClient {
-    private token: string | null = localStorage.getItem('frozo_token');
-    private userId: string | null = localStorage.getItem('frozo_user_id');
+    private token: string | null = localStorage.getItem('kincare_token');
+    private userId: string | null = localStorage.getItem('kincare_user_id');
 
     setAuth(token: string, userId: string) {
         this.token = token;
         this.userId = userId;
-        localStorage.setItem('frozo_token', token);
-        localStorage.setItem('frozo_user_id', userId);
+        localStorage.setItem('kincare_token', token);
+        localStorage.setItem('kincare_user_id', userId);
     }
 
     clearAuth() {
         this.token = null;
         this.userId = null;
-        localStorage.removeItem('frozo_token');
-        localStorage.removeItem('frozo_user_id');
+        localStorage.removeItem('kincare_token');
+        localStorage.removeItem('kincare_user_id');
     }
 
     async request(endpoint: string, options: RequestInit = {}) {
