@@ -1,16 +1,24 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import DodoPayments from 'dodopayments';
-import logger from '../utils/logger';
+import { PrismaClient } from '@prisma/client'; \nimport logger from '../utils/logger';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Initialize Dodo Payments client
-const dodoClient = new DodoPayments({
-    bearerToken: process.env.DODO_PAYMENTS_API_KEY,
-    environment: (process.env.DODO_PAYMENTS_ENVIRONMENT as 'test_mode' | 'live_mode') || 'test_mode',
-});
+// Lazy-load Dodo Payments client to prevent crash when API key is not configured
+let _dodoClient: any = null;
+const getDodoClient = () => {
+    if (!_dodoClient) {
+        if (!process.env.DODO_PAYMENTS_API_KEY) {
+            throw new Error('DODO_PAYMENTS_API_KEY is not configured. Please add it to your environment variables.');
+        }
+        const DodoPayments = require('dodopayments').default;
+        _dodoClient = new DodoPayments({
+            bearerToken: process.env.DODO_PAYMENTS_API_KEY,
+            environment: (process.env.DODO_PAYMENTS_ENVIRONMENT as 'test_mode' | 'live_mode') || 'test_mode',
+        });
+    }
+    return _dodoClient;
+};
 
 // Credit costs for AI features
 const CREDIT_COSTS = {
@@ -414,7 +422,7 @@ router.post('/purchase', async (req, res) => {
         const pkg = CREDIT_PACKAGES[packageId];
 
         // Create Dodo checkout session
-        const session = await dodoClient.checkoutSessions.create({
+        const session = await getDodoClient().checkoutSessions.create({
             product_cart: [
                 {
                     product_id: pkg.productId,
@@ -485,7 +493,7 @@ router.post('/subscribe', async (req, res) => {
         const plan = SUBSCRIPTION_PLANS[planId];
 
         // Create Dodo checkout session for subscription
-        const session = await dodoClient.checkoutSessions.create({
+        const session = await getDodoClient().checkoutSessions.create({
             product_cart: [
                 {
                     product_id: plan.productId,
