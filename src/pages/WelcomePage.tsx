@@ -255,6 +255,27 @@ export function WelcomePage() {
                         </p>
                     </div>
 
+                    {/* Free Tier - Highlighted */}
+                    <div className="max-w-md mx-auto mb-12">
+                        <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
+                            <div className="absolute top-0 right-4 -translate-y-1/2 bg-white text-emerald-600 px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                                🎉 Free Forever
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-xl font-bold mb-1">Start Free</h3>
+                                    <p className="text-white/80 text-sm">10 credits on signup — no card required</p>
+                                </div>
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    className="bg-white text-emerald-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-100 transition-all shadow-lg"
+                                >
+                                    Try Now →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Subscription - Featured */}
                     <div className="max-w-lg mx-auto mb-16">
                         <div className="relative bg-gradient-to-br from-primary to-indigo-600 rounded-[2rem] p-8 text-white shadow-2xl shadow-primary/30">
