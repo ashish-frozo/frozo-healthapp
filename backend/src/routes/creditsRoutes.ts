@@ -19,28 +19,50 @@ const CREDIT_COSTS = {
     doctor_brief: 3,
 } as const;
 
-// Credit packages available for purchase
+// Credit packages available for purchase (one-time)
 const CREDIT_PACKAGES = {
-    starter: {
-        id: 'starter',
-        name: 'Starter Pack',
+    try_it_out: {
+        id: 'try_it_out',
+        name: 'Try It Out',
+        description: 'Perfect for getting started',
         credits: 50,
-        price: 499, // in cents
-        productId: process.env.DODO_PRODUCT_STARTER || 'prod_starter_credits',
+        price: 299, // in cents
+        productId: process.env.DODO_PRODUCT_TRY_IT_OUT || 'prod_try_it_out',
     },
-    popular: {
-        id: 'popular',
-        name: 'Popular Pack',
+    monthly_care: {
+        id: 'monthly_care',
+        name: 'Monthly Care',
+        description: 'Best for regular health tracking',
         credits: 150,
-        price: 999,
-        productId: process.env.DODO_PRODUCT_POPULAR || 'prod_popular_credits',
+        price: 799,
+        productId: process.env.DODO_PRODUCT_MONTHLY_CARE || 'prod_monthly_care',
+        popular: true,
     },
-    pro: {
-        id: 'pro',
-        name: 'Pro Pack',
+    yearly_care: {
+        id: 'yearly_care',
+        name: 'Yearly Care',
+        description: 'Maximum value for families',
         credits: 500,
-        price: 2499,
-        productId: process.env.DODO_PRODUCT_PRO || 'prod_pro_credits',
+        price: 1999,
+        productId: process.env.DODO_PRODUCT_YEARLY_CARE || 'prod_yearly_care',
+    },
+} as const;
+
+// Subscription plan
+const SUBSCRIPTION_PLANS = {
+    care_plus: {
+        id: 'care_plus',
+        name: 'Care+',
+        description: 'Unlimited AI-powered health insights',
+        price: 999, // in cents per month
+        productId: process.env.DODO_PRODUCT_CARE_PLUS || 'prod_care_plus_subscription',
+        features: [
+            'Unlimited health insights',
+            'Unlimited lab translations',
+            'Unlimited doctor briefs',
+            'Priority support',
+            'Family sharing (up to 5 profiles)',
+        ],
     },
 } as const;
 
@@ -319,11 +341,35 @@ router.get('/packages', (req, res) => {
     const packages = Object.values(CREDIT_PACKAGES).map(pkg => ({
         id: pkg.id,
         name: pkg.name,
+        description: pkg.description,
         credits: pkg.credits,
         price: pkg.price,
         priceDisplay: `$${(pkg.price / 100).toFixed(2)}`,
+        popular: 'popular' in pkg ? pkg.popular : false,
     }));
     res.json(packages);
+});
+
+/**
+ * @swagger
+ * /api/credits/subscriptions:
+ *   get:
+ *     summary: Get available subscription plans
+ *     tags: [Credits]
+ *     responses:
+ *       200:
+ *         description: List of available subscription plans
+ */
+router.get('/subscriptions', (req, res) => {
+    const subscriptions = Object.values(SUBSCRIPTION_PLANS).map(plan => ({
+        id: plan.id,
+        name: plan.name,
+        description: plan.description,
+        price: plan.price,
+        priceDisplay: `$${(plan.price / 100).toFixed(2)}/mo`,
+        features: plan.features,
+    }));
+    res.json(subscriptions);
 });
 
 type PackageType = keyof typeof CREDIT_PACKAGES;
@@ -345,7 +391,7 @@ type PackageType = keyof typeof CREDIT_PACKAGES;
  *             properties:
  *               packageId:
  *                 type: string
- *                 enum: [starter, popular, pro]
+ *                 enum: [try_it_out, monthly_care, yearly_care]
  *     responses:
  *       200:
  *         description: Checkout session URL
@@ -394,6 +440,77 @@ router.post('/purchase', async (req, res) => {
     } catch (error) {
         logger.error({ err: error }, 'Failed to create checkout session');
         res.status(500).json({ error: 'Failed to initiate purchase' });
+    }
+});
+
+type SubscriptionType = keyof typeof SUBSCRIPTION_PLANS;
+
+/**
+ * @swagger
+ * /api/credits/subscribe:
+ *   post:
+ *     summary: Initiate subscription via Dodo Payments
+ *     tags: [Credits]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               planId:
+ *                 type: string
+ *                 enum: [care_plus]
+ *     responses:
+ *       200:
+ *         description: Checkout session URL for subscription
+ */
+router.post('/subscribe', async (req, res) => {
+    try {
+        const userId = req.headers['x-user-id'] as string;
+        const userEmail = req.headers['x-user-email'] as string;
+        const userName = req.headers['x-user-name'] as string;
+        const { planId } = req.body as { planId: SubscriptionType };
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        if (!planId || !SUBSCRIPTION_PLANS[planId]) {
+            return res.status(400).json({ error: 'Invalid subscription plan' });
+        }
+
+        const plan = SUBSCRIPTION_PLANS[planId];
+
+        // Create Dodo checkout session for subscription
+        const session = await dodoClient.checkoutSessions.create({
+            product_cart: [
+                {
+                    product_id: plan.productId,
+                    quantity: 1,
+                },
+            ],
+            customer: {
+                email: userEmail || 'customer@example.com',
+                name: userName || 'Frozo User',
+            },
+            return_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/credits/success?subscription=true`,
+            metadata: {
+                userId,
+                planId,
+                type: 'subscription',
+            },
+        });
+
+        res.json({
+            checkoutUrl: session.checkout_url,
+            sessionId: session.session_id,
+        });
+    } catch (error) {
+        logger.error({ err: error }, 'Failed to create subscription session');
+        res.status(500).json({ error: 'Failed to initiate subscription' });
     }
 });
 

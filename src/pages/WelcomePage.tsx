@@ -251,32 +251,86 @@ export function WelcomePage() {
                             Simple, Transparent Pricing
                         </h2>
                         <p className="text-xl text-text-secondary-light dark:text-text-secondary-dark leading-relaxed">
-                            Pay only for what you use. No monthly subscriptions.
+                            Choose credits for flexibility or subscribe for unlimited access
+                        </p>
+                    </div>
+
+                    {/* Subscription - Featured */}
+                    <div className="max-w-lg mx-auto mb-16">
+                        <div className="relative bg-gradient-to-br from-primary to-indigo-600 rounded-[2rem] p-8 text-white shadow-2xl shadow-primary/30">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-primary px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                                ✨ Best Value
+                            </div>
+                            <div className="text-center mb-6">
+                                <h3 className="text-2xl font-bold mb-2">Care+ Subscription</h3>
+                                <div className="flex items-baseline justify-center gap-1">
+                                    <span className="text-5xl font-extrabold">$9.99</span>
+                                    <span className="text-white/80">/ month</span>
+                                </div>
+                                <p className="text-white/80 mt-2">Cancel anytime</p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-green-300">check_circle</span>
+                                    <span>Unlimited Health Insights</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-green-300">check_circle</span>
+                                    <span>Unlimited Lab Translations</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-green-300">check_circle</span>
+                                    <span>Unlimited Doctor Briefs</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-green-300">check_circle</span>
+                                    <span>Priority Support</span>
+                                </div>
+                                <div className="flex items-center gap-2 col-span-2 justify-center">
+                                    <span className="material-symbols-outlined text-green-300">check_circle</span>
+                                    <span>Family Sharing (up to 5 profiles)</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="w-full py-4 rounded-xl font-bold bg-white text-primary hover:bg-gray-100 transition-all shadow-lg"
+                            >
+                                Start Free Trial
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="text-center mb-8">
+                        <p className="text-text-secondary-light dark:text-text-secondary-dark">
+                            Or purchase credits as needed
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                        {/* Starter Pack */}
+                        {/* Try It Out Pack */}
                         <div className="relative bg-surface-light dark:bg-surface-dark rounded-[2rem] p-8 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
                             <div className="mb-6">
-                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Starter Pack</h3>
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white mb-4">
+                                    <span className="material-symbols-outlined">rocket_launch</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Try It Out</h3>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-extrabold text-text-primary-light dark:text-white">$4.99</span>
+                                    <span className="text-4xl font-extrabold text-text-primary-light dark:text-white">$2.99</span>
                                     <span className="text-text-secondary-light dark:text-text-secondary-dark">/ one-time</span>
                                 </div>
                             </div>
                             <div className="flex-1 space-y-4 mb-8">
                                 <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
                                     <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>100 AI Credits</span>
+                                    <span>50 AI Credits</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
                                     <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>Basic Health Insights</span>
+                                    <span>~25 Health Insights</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
                                     <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>7-Day History Analysis</span>
+                                    <span>Perfect for getting started</span>
                                 </div>
                             </div>
                             <button
@@ -287,13 +341,50 @@ export function WelcomePage() {
                             </button>
                         </div>
 
-                        {/* Pro Pack */}
-                        <div className="relative bg-surface-light dark:bg-surface-dark rounded-[2rem] p-8 border-2 border-primary shadow-xl scale-105 z-10 flex flex-col">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-primary to-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                                Most Popular
+                        {/* Monthly Care Pack */}
+                        <div className="relative bg-surface-light dark:bg-surface-dark rounded-[2rem] p-8 border-2 border-blue-500 shadow-xl z-10 flex flex-col">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                                Popular
                             </div>
                             <div className="mb-6">
-                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Pro Pack</h3>
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white mb-4">
+                                    <span className="material-symbols-outlined">favorite</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Monthly Care</h3>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-extrabold text-text-primary-light dark:text-white">$7.99</span>
+                                    <span className="text-text-secondary-light dark:text-text-secondary-dark">/ one-time</span>
+                                </div>
+                            </div>
+                            <div className="flex-1 space-y-4 mb-8">
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span className="font-bold text-blue-600 dark:text-blue-400">150 AI Credits</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>~75 Health Insights</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>Best for regular tracking</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:-translate-y-1"
+                            >
+                                Get Monthly Care
+                            </button>
+                        </div>
+
+                        {/* Yearly Care Pack */}
+                        <div className="relative bg-surface-light dark:bg-surface-dark rounded-[2rem] p-8 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
+                            <div className="mb-6">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white mb-4">
+                                    <span className="material-symbols-outlined">family_restroom</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Yearly Care</h3>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-4xl font-extrabold text-text-primary-light dark:text-white">$19.99</span>
                                     <span className="text-text-secondary-light dark:text-text-secondary-dark">/ one-time</span>
@@ -302,61 +393,22 @@ export function WelcomePage() {
                             <div className="flex-1 space-y-4 mb-8">
                                 <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
                                     <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span className="font-bold text-primary">500 AI Credits</span>
+                                    <span>500 AI Credits</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
                                     <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>Advanced Health Analysis</span>
+                                    <span>~250 Health Insights</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
                                     <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>30-Day Trend Detection</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
-                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>Priority Support</span>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => navigate('/login')}
-                                className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:-translate-y-1"
-                            >
-                                Get Pro
-                            </button>
-                        </div>
-
-                        {/* Premium Pack */}
-                        <div className="relative bg-surface-light dark:bg-surface-dark rounded-[2rem] p-8 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
-                            <div className="mb-6">
-                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Premium Pack</h3>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-extrabold text-text-primary-light dark:text-white">$39.99</span>
-                                    <span className="text-text-secondary-light dark:text-text-secondary-dark">/ one-time</span>
-                                </div>
-                            </div>
-                            <div className="flex-1 space-y-4 mb-8">
-                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
-                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>1200 AI Credits</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
-                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>Full Health History Analysis</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
-                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>Emergency Alert Configuration</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
-                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                    <span>Family Data Export</span>
+                                    <span>Maximum value for families</span>
                                 </div>
                             </div>
                             <button
                                 onClick={() => navigate('/login')}
                                 className="w-full py-4 rounded-xl font-bold border-2 border-gray-200 dark:border-gray-700 text-text-primary-light dark:text-white hover:border-primary hover:text-primary transition-all"
                             >
-                                Get Premium
+                                Get Yearly Care
                             </button>
                         </div>
                     </div>

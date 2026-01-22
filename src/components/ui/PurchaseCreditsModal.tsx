@@ -12,15 +12,15 @@ interface PurchaseCreditsModalProps {
 }
 
 const packageIcons: Record<string, React.ReactNode> = {
-    starter: <Coins className="w-6 h-6" />,
-    popular: <Sparkles className="w-6 h-6" />,
-    pro: <Crown className="w-6 h-6" />,
+    try_it_out: <Coins className="w-6 h-6" />,
+    monthly_care: <Sparkles className="w-6 h-6" />,
+    yearly_care: <Crown className="w-6 h-6" />,
 };
 
 const packageColors: Record<string, string> = {
-    starter: 'from-blue-500 to-cyan-500',
-    popular: 'from-purple-500 to-pink-500',
-    pro: 'from-amber-500 to-yellow-500',
+    try_it_out: 'from-teal-500 to-emerald-500',
+    monthly_care: 'from-blue-500 to-indigo-500',
+    yearly_care: 'from-amber-500 to-orange-500',
 };
 
 export function PurchaseCreditsModal({
