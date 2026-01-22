@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { AIFeatureWrapper } from '.';
 import { useApp } from '../../context/AppContext';
 import { useHealthInsights } from '../../hooks';
 import { BPReading, GlucoseReading, Symptom, Document, Profile } from '../../types';
@@ -29,11 +29,7 @@ export function ReportPreviewModal({ isOpen, onClose, options }: ReportPreviewMo
     const filteredSymptoms = options.includeSymptoms ? state.symptoms.filter(r => r.profileId === state.currentProfileId).slice(0, 5) : [];
     const filteredDocs = options.includeDocs ? state.documents.filter(r => r.profileId === state.currentProfileId).slice(0, 3) : [];
 
-    useEffect(() => {
-        if (isOpen && (filteredBP.length > 0 || filteredGlucose.length > 0)) {
-            generateInsights(filteredBP, filteredGlucose);
-        }
-    }, [isOpen]);
+    // Auto-generation removed to prevent credit drain
 
     if (!isOpen) return null;
 
@@ -132,7 +128,23 @@ export function ReportPreviewModal({ isOpen, onClose, options }: ReportPreviewMo
                                 </div>
                             </div>
                         ) : (
-                            <p className="text-sm text-gray-500 italic">No AI analysis available for this period.</p>
+                            <div className="flex flex-col items-center gap-3 py-2">
+                                <p className="text-sm text-gray-500 italic">Generate an AI summary for this report.</p>
+                                <AIFeatureWrapper
+                                    feature="health_insight"
+                                    onSuccess={() => generateInsights(filteredBP, filteredGlucose)}
+                                >
+                                    {(onUse) => (
+                                        <button
+                                            onClick={onUse}
+                                            className="px-4 py-2 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-bold hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors flex items-center gap-2"
+                                        >
+                                            <span className="material-symbols-outlined text-base">auto_awesome</span>
+                                            Generate Summary
+                                        </button>
+                                    )}
+                                </AIFeatureWrapper>
+                            </div>
                         )}
                     </div>
                 </section>

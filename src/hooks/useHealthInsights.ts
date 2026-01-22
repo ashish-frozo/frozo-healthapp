@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
+import { useCredits } from './useCredits';
 import { BPReading, GlucoseReading } from '../types';
 
 export interface HealthInsight {
@@ -37,6 +38,7 @@ Only return the JSON object, nothing else.`;
 
 export function useHealthInsights() {
     const { addNotification } = useApp();
+    const { useCredits: deductCredits, checkCredits } = useCredits();
     const [state, setState] = useState<UseHealthInsightsState>({
         isLoading: false,
         error: null,
@@ -58,6 +60,9 @@ export function useHealthInsights() {
         setState(prev => ({ ...prev, isLoading: true, error: null }));
 
         try {
+            // Credits are handled by the wrapper component
+
+
             // Format data for the prompt
             const bpData = bpReadings.slice(0, 10).map(r =>
                 `BP: ${r.systolic}/${r.diastolic} (${r.status}) at ${new Date(r.timestamp).toLocaleDateString()}`
@@ -131,7 +136,7 @@ export function useHealthInsights() {
                 insight: null,
             });
         }
-    }, []);
+    }, [addNotification, checkCredits, deductCredits]);
 
     return {
         ...state,

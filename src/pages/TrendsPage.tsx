@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useHealthInsights } from '../hooks';
+import { AIFeatureWrapper } from '../components/ui';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -48,11 +49,8 @@ export function TrendsPage() {
             .sort((a, b) => parseISO(a.timestamp).getTime() - parseISO(b.timestamp).getTime());
     }, [state.glucoseReadings, timeRange]);
 
-    useEffect(() => {
-        if (filteredBP.length > 0 || filteredGlucose.length > 0) {
-            generateInsights(filteredBP, filteredGlucose);
-        }
-    }, [filteredBP, filteredGlucose, generateInsights]);
+    // Auto-generation removed to prevent credit drain
+    // Insights are now generated manually via the button
 
     const bpChartData = {
         labels: filteredBP.map(r => format(parseISO(r.timestamp), 'MMM d')),
@@ -228,9 +226,26 @@ export function TrendsPage() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <p className="text-sm text-text-secondary-light dark:text-gray-400 italic">
-                                        Log more data to unlock AI insights.
-                                    </p>
+                                    <div className="flex flex-col items-center gap-4 py-2">
+                                        <p className="text-sm text-text-secondary-light dark:text-gray-400 italic text-center">
+                                            Unlock personalized health insights powered by AI.
+                                        </p>
+                                        <AIFeatureWrapper
+                                            feature="health_insight"
+                                            onSuccess={() => generateInsights(filteredBP, filteredGlucose)}
+                                        >
+                                            {(onUse) => (
+                                                <button
+                                                    onClick={onUse}
+                                                    disabled={filteredBP.length === 0 && filteredGlucose.length === 0}
+                                                    className="bg-primary hover:bg-primary-dark text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-colors flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    <span className="material-symbols-outlined text-lg">auto_awesome</span>
+                                                    Generate Insights
+                                                </button>
+                                            )}
+                                        </AIFeatureWrapper>
+                                    </div>
                                 )}
                             </div>
                         </section>

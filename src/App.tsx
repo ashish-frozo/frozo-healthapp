@@ -21,6 +21,7 @@ import {
   FamilyManagementPage,
   FamilyDashboardPage,
   EmergencySettingsPage,
+  CreditsPage,
 } from './pages';
 
 // Protected route wrapper
@@ -121,6 +122,11 @@ function AppRoutes() {
       <Route path="/emergency-settings" element={
         <ProtectedRoute>
           <EmergencySettingsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/credits" element={
+        <ProtectedRoute>
+          <CreditsPage />
         </ProtectedRoute>
       } />
 

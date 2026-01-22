@@ -243,6 +243,126 @@ export function WelcomePage() {
                 </div>
             </section>
 
+            {/* Pricing Section */}
+            <section className="py-24 bg-white dark:bg-gray-900 relative z-10">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+                            Simple, Transparent Pricing
+                        </h2>
+                        <p className="text-xl text-text-secondary-light dark:text-text-secondary-dark leading-relaxed">
+                            Pay only for what you use. No monthly subscriptions.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                        {/* Starter Pack */}
+                        <div className="relative bg-surface-light dark:bg-surface-dark rounded-[2rem] p-8 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
+                            <div className="mb-6">
+                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Starter Pack</h3>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-extrabold text-text-primary-light dark:text-white">$4.99</span>
+                                    <span className="text-text-secondary-light dark:text-text-secondary-dark">/ one-time</span>
+                                </div>
+                            </div>
+                            <div className="flex-1 space-y-4 mb-8">
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>100 AI Credits</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>Basic Health Insights</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>7-Day History Analysis</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="w-full py-4 rounded-xl font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all"
+                            >
+                                Get Started
+                            </button>
+                        </div>
+
+                        {/* Pro Pack */}
+                        <div className="relative bg-surface-light dark:bg-surface-dark rounded-[2rem] p-8 border-2 border-primary shadow-xl scale-105 z-10 flex flex-col">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-primary to-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                                Most Popular
+                            </div>
+                            <div className="mb-6">
+                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Pro Pack</h3>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-extrabold text-text-primary-light dark:text-white">$19.99</span>
+                                    <span className="text-text-secondary-light dark:text-text-secondary-dark">/ one-time</span>
+                                </div>
+                            </div>
+                            <div className="flex-1 space-y-4 mb-8">
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span className="font-bold text-primary">500 AI Credits</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>Advanced Health Analysis</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>30-Day Trend Detection</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>Priority Support</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:-translate-y-1"
+                            >
+                                Get Pro
+                            </button>
+                        </div>
+
+                        {/* Premium Pack */}
+                        <div className="relative bg-surface-light dark:bg-surface-dark rounded-[2rem] p-8 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
+                            <div className="mb-6">
+                                <h3 className="text-xl font-bold text-text-primary-light dark:text-white mb-2">Premium Pack</h3>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-extrabold text-text-primary-light dark:text-white">$39.99</span>
+                                    <span className="text-text-secondary-light dark:text-text-secondary-dark">/ one-time</span>
+                                </div>
+                            </div>
+                            <div className="flex-1 space-y-4 mb-8">
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>1200 AI Credits</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>Full Health History Analysis</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>Emergency Alert Configuration</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                    <span>Family Data Export</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="w-full py-4 rounded-xl font-bold border-2 border-gray-200 dark:border-gray-700 text-text-primary-light dark:text-white hover:border-primary hover:text-primary transition-all"
+                            >
+                                Get Premium
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Footer */}
             <footer className="py-12 border-t border-gray-200 dark:border-gray-800 mt-auto bg-white dark:bg-gray-900 z-10">
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
