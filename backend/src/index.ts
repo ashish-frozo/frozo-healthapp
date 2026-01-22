@@ -17,6 +17,8 @@ import analyticsRoutes from './routes/analyticsRoutes';
 import householdRoutes from './routes/householdRoutes';
 import whatsappRoutes from './routes/whatsappRoutes';
 import emergencyRoutes from './routes/emergencyRoutes';
+import creditsRoutes from './routes/creditsRoutes';
+import webhookRoutes from './routes/webhookRoutes';
 import path from 'path';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -128,6 +130,8 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/households', householdRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/emergency', emergencyRoutes);
+app.use('/api/credits', creditsRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 // Serve uploads as static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

@@ -12,4 +12,8 @@ export * from './LabTranslationModal';
 export * from './FamilyMemberCard';
 export * from './NudgeModal';
 export * from './MedicalIDModal';
+export * from './CreditBalanceChip';
+export * from './PurchaseCreditsModal';
+export * from './InsufficientCreditsModal';
+export * from './AIFeatureWrapper';
 

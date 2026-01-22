@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { TopBar, BottomNav, ToggleSwitch, ReportPreviewModal } from '../components/ui';
+import { TopBar, BottomNav, ToggleSwitch, ReportPreviewModal, AIFeatureWrapper } from '../components/ui';
+import { useCredits } from '../hooks/useCredits';
 
 type ReportType = 'doctor_brief' | 'visit_pack';
 type TimePeriod = '30d' | '90d' | 'custom';
@@ -16,10 +17,15 @@ export function ExportPage() {
     const [includeNotes, setIncludeNotes] = useState(true);
     const [includeDocs, setIncludeDocs] = useState(true);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    // Credit System State
+    const [isGenerating, setIsGenerating] = useState(false);
+
     const navigate = useNavigate();
     const { createClinicLink } = useApp();
+    const { getCostForFeature } = useCredits();
 
-    const handleGenerateReport = () => {
+    const handleGenerateReport = async () => {
         const link = createClinicLink();
         navigate('/clinic-link');
     };
@@ -32,6 +38,7 @@ export function ExportPage() {
             icon: 'medical_information',
             bgColor: 'bg-blue-50 dark:bg-blue-900/30',
             iconColor: 'text-primary',
+            cost: getCostForFeature('doctor_brief'),
         },
         {
             id: 'visit_pack' as const,
@@ -57,6 +64,40 @@ export function ExportPage() {
         { id: 'notes', label: 'Personal Notes', icon: 'edit_note', bgColor: 'bg-gray-100 dark:bg-gray-800', iconColor: 'text-gray-600 dark:text-gray-400', value: includeNotes, setValue: setIncludeNotes, disabled: false },
         { id: 'docs', label: 'Documents', icon: 'attach_file', bgColor: 'bg-gray-100 dark:bg-gray-800', iconColor: 'text-gray-600 dark:text-gray-400', value: includeDocs, setValue: setIncludeDocs, disabled: false },
     ];
+
+    const GenerateButton = ({ onClick, disabled }: { onClick: () => void; disabled: boolean }) => (
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            className="w-full bg-primary hover:bg-primary-dark text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            {disabled ? (
+                <span>Generating...</span>
+            ) : (
+                <>
+                    <span>Generate Report</span>
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                </>
+            )}
+        </button>
+    );
+
+    const MobileGenerateButton = ({ onClick, disabled }: { onClick: () => void; disabled: boolean }) => (
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            className="w-full bg-primary hover:bg-primary-dark text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            {disabled ? (
+                <span>Generating...</span>
+            ) : (
+                <>
+                    <span>Generate Report</span>
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                </>
+            )}
+        </button>
+    );
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col pb-24 md:pb-0 transition-all duration-300">
@@ -96,7 +137,14 @@ export function ExportPage() {
                                                 <span className="material-symbols-outlined text-3xl">{type.icon}</span>
                                             </div>
                                             <div className="flex-1">
-                                                <h4 className="font-bold text-lg text-text-primary-light dark:text-text-primary-dark">{type.title}</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="font-bold text-lg text-text-primary-light dark:text-text-primary-dark">{type.title}</h4>
+                                                    {type.cost && (
+                                                        <span className="text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full">
+                                                            {type.cost} credits
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">{type.subtitle}</p>
                                             </div>
                                             <div className={`h-6 w-6 rounded-full flex items-center justify-center ${reportType === type.id
@@ -180,13 +228,29 @@ export function ExportPage() {
                                 <span className="material-symbols-outlined">visibility</span>
                                 <span>Preview Report</span>
                             </button>
-                            <button
-                                onClick={handleGenerateReport}
-                                className="w-full bg-primary hover:bg-primary-dark text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                            >
-                                <span>Generate Report</span>
-                                <span className="material-symbols-outlined">arrow_forward</span>
-                            </button>
+
+                            {reportType === 'doctor_brief' ? (
+                                <AIFeatureWrapper
+                                    feature="doctor_brief"
+                                    onSuccess={handleGenerateReport}
+                                >
+                                    {(onUse) => (
+                                        <GenerateButton
+                                            onClick={async () => {
+                                                setIsGenerating(true);
+                                                const success = await onUse();
+                                                if (!success) setIsGenerating(false);
+                                            }}
+                                            disabled={isGenerating}
+                                        />
+                                    )}
+                                </AIFeatureWrapper>
+                            ) : (
+                                <GenerateButton
+                                    onClick={handleGenerateReport}
+                                    disabled={isGenerating}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -202,13 +266,29 @@ export function ExportPage() {
                         <span className="material-symbols-outlined">visibility</span>
                         <span>Preview Report</span>
                     </button>
-                    <button
-                        onClick={handleGenerateReport}
-                        className="w-full bg-primary hover:bg-primary-dark text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                    >
-                        <span>Generate Report</span>
-                        <span className="material-symbols-outlined">arrow_forward</span>
-                    </button>
+
+                    {reportType === 'doctor_brief' ? (
+                        <AIFeatureWrapper
+                            feature="doctor_brief"
+                            onSuccess={handleGenerateReport}
+                        >
+                            {(onUse) => (
+                                <MobileGenerateButton
+                                    onClick={async () => {
+                                        setIsGenerating(true);
+                                        const success = await onUse();
+                                        if (!success) setIsGenerating(false);
+                                    }}
+                                    disabled={isGenerating}
+                                />
+                            )}
+                        </AIFeatureWrapper>
+                    ) : (
+                        <MobileGenerateButton
+                            onClick={handleGenerateReport}
+                            disabled={isGenerating}
+                        />
+                    )}
                 </div>
                 <BottomNav />
             </div>

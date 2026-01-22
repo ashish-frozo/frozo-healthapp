@@ -8,6 +8,9 @@ import { formatTime, isToday } from '../data/mockData';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import { useElderMode } from '../hooks/useElderMode';
 import { SOSButton } from '../components/SOSButton';
+import { useCredits } from '../hooks/useCredits';
+import { CreditBalanceChip } from '../components/ui/CreditBalanceChip';
+import { PurchaseCreditsModal } from '../components/ui/PurchaseCreditsModal';
 
 export function HomePage() {
     const navigate = useNavigate();
@@ -16,6 +19,10 @@ export function HomePage() {
     const isDesktop = useIsDesktop();
     const { isElderMode } = useElderMode();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+
+    // Credits system
+    const { balance, isLoading: creditsLoading, packages, initiatePurchase } = useCredits();
 
     const handleSwitchProfile = (profileId: string) => {
         dispatch({ type: 'SET_CURRENT_PROFILE', payload: profileId });
@@ -118,6 +125,13 @@ export function HomePage() {
 
                     {/* Header Actions */}
                     <div className="flex items-center gap-3">
+                        {/* Credit Balance */}
+                        <CreditBalanceChip
+                            balance={balance}
+                            isLoading={creditsLoading}
+                            onClick={() => setShowPurchaseModal(true)}
+                        />
+
                         {/* Notification Bell - Only on mobile */}
                         {!isDesktop && (
                             <button
@@ -375,6 +389,14 @@ export function HomePage() {
                     <span className={`font-bold tracking-wide ${isElderMode ? 'text-lg' : 'text-base'}`}>Quick Add</span>
                 </button>
             )}
+
+            {/* Purchase Credits Modal */}
+            <PurchaseCreditsModal
+                isOpen={showPurchaseModal}
+                onClose={() => setShowPurchaseModal(false)}
+                packages={packages}
+                onPurchase={initiatePurchase}
+            />
         </div>
     );
 }

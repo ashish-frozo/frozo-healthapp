@@ -18,6 +18,7 @@ model User {
   householdMemberships HouseholdMember[]
   createdHouseholds    Household[]       @relation("HouseholdCreator")
   sentInvites          HouseholdInvite[] @relation("InviteSender")
+  wallet               UserWallet?
 }
 
 model Household {
@@ -202,4 +203,27 @@ model AlertSettings {
   emergencyContacts    Json     @default("[]") // [{name, phone, relationship}]
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+}
+
+// User Wallet for credits system
+model UserWallet {
+  id           String              @id @default(cuid())
+  userId       String              @unique
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance      Int                 @default(10) // Starting credits for new users
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  transactions CreditTransaction[]
+}
+
+// Credit transactions for tracking purchases and usage
+model CreditTransaction {
+  id          String     @id @default(cuid())
+  walletId    String
+  wallet      UserWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  amount      Int        // Positive = credit, Negative = debit
+  type        String     // 'purchase', 'usage', 'referral', 'bonus', 'signup'
+  description String?
+  referenceId String?    // paymentId, featureId, or referral code
+  createdAt   DateTime   @default(now())
 }

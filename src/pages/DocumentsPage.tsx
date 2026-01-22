@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Modal, ToggleSwitch, LabTranslationModal } from '../components/ui';
+import { Modal, ToggleSwitch, LabTranslationModal, AIFeatureWrapper } from '../components/ui';
 import { useLabTranslator } from '../hooks';
 import { Document } from '../types';
 
@@ -280,18 +280,25 @@ export function DocumentsPage() {
 
                         {/* AI Translator Button */}
                         {selectedDoc.category === 'lab_result' && (
-                            <button
-                                onClick={() => {
+                            <AIFeatureWrapper
+                                feature="lab_translation"
+                                onSuccess={() => {
                                     setIsTranslationOpen(true);
                                     if (selectedDoc.thumbnailUrl) {
                                         translateLabReport(selectedDoc.thumbnailUrl);
                                     }
                                 }}
-                                className="w-full mt-4 flex items-center justify-center gap-2 py-4 px-4 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold border-2 border-primary/20 transition-all active:scale-[0.98]"
                             >
-                                <span className="material-symbols-outlined filled">auto_awesome</span>
-                                Translate with AI
-                            </button>
+                                {(onUse) => (
+                                    <button
+                                        onClick={onUse}
+                                        className="w-full mt-4 flex items-center justify-center gap-2 py-4 px-4 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold border-2 border-primary/20 transition-all active:scale-[0.98]"
+                                    >
+                                        <span className="material-symbols-outlined filled">auto_awesome</span>
+                                        Translate with AI
+                                    </button>
+                                )}
+                            </AIFeatureWrapper>
                         )}
                     </div>
                 )}

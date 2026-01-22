@@ -132,3 +132,37 @@ export type DateRange = '7d' | '30d' | '90d';
 export type ReportType = 'doctor_brief' | 'visit_pack';
 
 export type TimePeriod = '30d' | '90d' | 'custom';
+
+// Credit System Types
+export interface CreditTransaction {
+    id: string;
+    amount: number;
+    type: 'signup' | 'purchase' | 'usage' | 'referral';
+    description: string;
+    referenceId?: string;
+    createdAt: string;
+}
+
+export interface CreditPackage {
+    id: string;
+    name: string;
+    credits: number;
+    price: number;
+    priceDisplay: string;
+}
+
+export interface CreditState {
+    balance: number;
+    isLoading: boolean;
+    transactions: CreditTransaction[];
+    packages: CreditPackage[];
+}
+
+export type AIFeature = 'lab_translation' | 'health_insight' | 'doctor_brief';
+
+export interface CreditCosts {
+    lab_translation: number;
+    health_insight: number;
+    doctor_brief: number;
+}
+
