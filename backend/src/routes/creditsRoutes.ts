@@ -121,9 +121,23 @@ router.get('/balance', async (req, res) => {
             });
         }
 
+        // Check for active subscription
+        const subscription = await prisma.subscription.findUnique({
+            where: { userId },
+        });
+
+        const hasActiveSubscription = subscription?.status === 'active'
+            && subscription.currentPeriodEnd > new Date();
+
         res.json({
             balance: wallet.balance,
             updatedAt: wallet.updatedAt,
+            subscription: hasActiveSubscription ? {
+                status: 'active',
+                planId: subscription?.planId,
+                currentPeriodEnd: subscription?.currentPeriodEnd,
+            } : null,
+            unlimited: hasActiveSubscription, // For easier frontend check
         });
     } catch (error) {
         logger.error({ err: error }, 'Failed to get credit balance');

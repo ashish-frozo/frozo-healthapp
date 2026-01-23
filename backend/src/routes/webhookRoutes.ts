@@ -80,17 +80,47 @@ interface WebhookPayload {
     };
 }
 
+interface SubscriptionData {
+    subscription_id: string;
+    customer: {
+        email: string;
+        name: string;
+    };
+    status: string;
+    current_period_start: string;
+    current_period_end: string;
+    cancelled_at?: string;
+    metadata?: {
+        userId?: string;
+        planId?: string;
+    };
+}
+
+interface WebhookPayload {
+    type: string;
+    data: PaymentData | SubscriptionData;
+}
+
 async function processWebhookAsync(data: WebhookPayload) {
-    const { type, payload } = data;
+    const { type } = data;
 
     logger.info({ type }, 'Processing webhook event');
 
     switch (type) {
         case 'payment.succeeded':
-            await handlePaymentSucceeded(payload.data);
+            await handlePaymentSucceeded(data.data as PaymentData);
             break;
         case 'payment.failed':
-            await handlePaymentFailed(payload.data);
+            await handlePaymentFailed(data.data as PaymentData);
+            break;
+        case 'subscription.active':
+            await handleSubscriptionActive(data.data as SubscriptionData);
+            break;
+        case 'subscription.cancelled':
+            await handleSubscriptionCancelled(data.data as SubscriptionData);
+            break;
+        case 'subscription.renewed':
+            await handleSubscriptionRenewed(data.data as SubscriptionData);
             break;
         default:
             logger.info({ type }, 'Unhandled webhook event type');
@@ -169,4 +199,111 @@ async function handlePaymentFailed(payment: PaymentData) {
     // Optionally: Send email notification, update UI state, etc.
 }
 
+async function handleSubscriptionActive(subscription: SubscriptionData) {
+    const { subscription_id, metadata, current_period_start, current_period_end } = subscription;
+
+    if (!metadata?.userId) {
+        logger.warn({ subscription_id }, 'Subscription active but missing userId');
+        return;
+    }
+
+    const userId = metadata.userId;
+    const planId = metadata.planId || 'care_plus';
+
+    try {
+        // Upsert subscription record
+        await prisma.subscription.upsert({
+            where: { userId },
+            create: {
+                userId,
+                subscriptionId: subscription_id,
+                status: 'active',
+                planId,
+                currentPeriodStart: new Date(current_period_start),
+                currentPeriodEnd: new Date(current_period_end),
+            },
+            update: {
+                subscriptionId: subscription_id,
+                status: 'active',
+                planId,
+                currentPeriodStart: new Date(current_period_start),
+                currentPeriodEnd: new Date(current_period_end),
+                cancelledAt: null,
+            },
+        });
+
+        logger.info(
+            { userId, subscription_id, planId },
+            'Subscription activated successfully'
+        );
+    } catch (error) {
+        logger.error({ err: error, userId, subscription_id }, 'Failed to activate subscription');
+        throw error;
+    }
+}
+
+async function handleSubscriptionCancelled(subscription: SubscriptionData) {
+    const { subscription_id, cancelled_at } = subscription;
+
+    try {
+        const existingSub = await prisma.subscription.findUnique({
+            where: { subscriptionId: subscription_id },
+        });
+
+        if (!existingSub) {
+            logger.warn({ subscription_id }, 'Subscription cancelled but not found in DB');
+            return;
+        }
+
+        await prisma.subscription.update({
+            where: { subscriptionId: subscription_id },
+            data: {
+                status: 'cancelled',
+                cancelledAt: cancelled_at ? new Date(cancelled_at) : new Date(),
+            },
+        });
+
+        logger.info(
+            { userId: existingSub.userId, subscription_id },
+            'Subscription cancelled'
+        );
+    } catch (error) {
+        logger.error({ err: error, subscription_id }, 'Failed to cancel subscription');
+        throw error;
+    }
+}
+
+async function handleSubscriptionRenewed(subscription: SubscriptionData) {
+    const { subscription_id, current_period_start, current_period_end } = subscription;
+
+    try {
+        const existingSub = await prisma.subscription.findUnique({
+            where: { subscriptionId: subscription_id },
+        });
+
+        if (!existingSub) {
+            logger.warn({ subscription_id }, 'Subscription renewed but not found in DB');
+            return;
+        }
+
+        await prisma.subscription.update({
+            where: { subscriptionId: subscription_id },
+            data: {
+                status: 'active',
+                currentPeriodStart: new Date(current_period_start),
+                currentPeriodEnd: new Date(current_period_end),
+            },
+        });
+
+        logger.info(
+            { userId: existingSub.userId, subscription_id },
+            'Subscription renewed'
+        );
+    } catch (error) {
+        logger.error({ err: error, subscription_id }, 'Failed to renew subscription');
+        throw error;
+    }
+}
+
 export default router;
+

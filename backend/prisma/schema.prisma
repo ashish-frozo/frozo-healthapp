@@ -227,3 +227,17 @@ model CreditTransaction {
   referenceId String?    // paymentId, featureId, or referral code
   createdAt   DateTime   @default(now())
 }
+
+// Subscription model for Care+ unlimited plan
+model Subscription {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  subscriptionId String    @unique // Dodo subscription ID
+  status         String    @default("active") // active, cancelled, expired, paused
+  planId         String    // care_plus, etc.
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelledAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
