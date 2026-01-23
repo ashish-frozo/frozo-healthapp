@@ -101,26 +101,33 @@ interface WebhookPayload {
     data: PaymentData | SubscriptionData;
 }
 
-async function processWebhookAsync(data: WebhookPayload) {
-    const { type } = data;
+async function processWebhookAsync(rawData: any) {
+    // Log full payload for debugging
+    logger.info({ rawPayload: JSON.stringify(rawData) }, 'Webhook received - full payload');
 
-    logger.info({ type }, 'Processing webhook event');
+    const { type } = rawData;
+
+    // Handle both formats: data.field or payload.data.field
+    // Some Dodo webhooks use "data" directly, others use "payload.data"
+    const data = rawData.data || rawData.payload?.data || rawData;
+
+    logger.info({ type, dataKeys: Object.keys(data || {}) }, 'Processing webhook event');
 
     switch (type) {
         case 'payment.succeeded':
-            await handlePaymentSucceeded(data.data as PaymentData);
+            await handlePaymentSucceeded(data as PaymentData);
             break;
         case 'payment.failed':
-            await handlePaymentFailed(data.data as PaymentData);
+            await handlePaymentFailed(data as PaymentData);
             break;
         case 'subscription.active':
-            await handleSubscriptionActive(data.data as SubscriptionData);
+            await handleSubscriptionActive(data as SubscriptionData);
             break;
         case 'subscription.cancelled':
-            await handleSubscriptionCancelled(data.data as SubscriptionData);
+            await handleSubscriptionCancelled(data as SubscriptionData);
             break;
         case 'subscription.renewed':
-            await handleSubscriptionRenewed(data.data as SubscriptionData);
+            await handleSubscriptionRenewed(data as SubscriptionData);
             break;
         default:
             logger.info({ type }, 'Unhandled webhook event type');
