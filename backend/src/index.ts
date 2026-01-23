@@ -74,7 +74,7 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            connectSrc: ["'self'", "https://frozo-healthapp-backend-production.up.railway.app", "wss://frozo-healthapp-backend-production.up.railway.app"],
+            connectSrc: ["'self'", "https://api.kincare.frozo.ai", "wss://api.kincare.frozo.ai"],
             imgSrc: ["'self'", "data:", "https:"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],

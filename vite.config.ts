@@ -40,7 +40,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/frozo-healthapp-backend-production\.up\.railway\.app\/api\/.*/i,
+            urlPattern: /^https:\/\/api\.kincare\.frozo\.ai\/api\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
