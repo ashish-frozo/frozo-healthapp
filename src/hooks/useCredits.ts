@@ -20,9 +20,9 @@ interface UseCreditsReturn {
 }
 
 const getAuthHeaders = (): Record<string, string> => {
-    const userId = localStorage.getItem('userId') || '';
-    const userEmail = localStorage.getItem('userEmail') || '';
-    const userName = localStorage.getItem('userName') || '';
+    const userId = localStorage.getItem('kincare_user_id') || '';
+    const userEmail = localStorage.getItem('kincare_user_email') || '';
+    const userName = localStorage.getItem('kincare_user_name') || '';
 
     return {
         'Content-Type': 'application/json',
