@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { authService } from '../services/authService';
+import { settingsService } from '../services/settingsService';
 import { auth } from '../config/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import { CountrySelector, DEFAULT_COUNTRY, Country } from '../components/ui/CountrySelector';
@@ -118,6 +119,19 @@ export function LoginPage() {
                 console.log('Firebase verified, syncing with backend...');
                 const response = await authService.verifyOTP(idToken);
                 console.log('Backend sync successful:', response);
+
+                // For new users, set preferred language based on country
+                const isNewUser = !response.user.profiles || response.user.profiles.length === 0;
+                if (isNewUser || !response.user.preferredLanguage) {
+                    try {
+                        await settingsService.updateSettings({
+                            preferredLanguage: selectedCountry.defaultLanguage
+                        });
+                        console.log('Set default language to:', selectedCountry.defaultLanguage);
+                    } catch (langErr) {
+                        console.warn('Failed to set default language:', langErr);
+                    }
+                }
 
                 // Sync data from backend
                 await syncData();
