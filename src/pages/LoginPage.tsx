@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { authService } from '../services/authService';
 import { auth } from '../config/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { CountrySelector, DEFAULT_COUNTRY, Country } from '../components/ui/CountrySelector';
 
 export function LoginPage() {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -11,6 +12,7 @@ export function LoginPage() {
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [selectedCountry, setSelectedCountry] = useState<Country>(DEFAULT_COUNTRY);
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
     const navigate = useNavigate();
     const { dispatch, syncData } = useApp();
@@ -57,7 +59,7 @@ export function LoginPage() {
                 setOtp(prev => prev + key);
             }
         } else {
-            if (phoneNumber.length < 10) {
+            if (phoneNumber.length < selectedCountry.maxLength) {
                 setPhoneNumber(prev => prev + key);
             }
         }
@@ -80,12 +82,12 @@ export function LoginPage() {
     };
 
     const handleSendCode = async () => {
-        if (phoneNumber.length === 10) {
+        if (phoneNumber.length >= selectedCountry.minLength && phoneNumber.length <= selectedCountry.maxLength) {
             setLoading(true);
             setError(null);
             try {
                 const appVerifier = (window as any).recaptchaVerifier;
-                const fullPhone = `+91${phoneNumber}`;
+                const fullPhone = `${selectedCountry.dialCode}${phoneNumber}`;
                 const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
                 setConfirmationResult(result);
                 setShowOtp(true);
@@ -124,7 +126,7 @@ export function LoginPage() {
                     type: 'SET_AUTHENTICATED',
                     payload: {
                         authenticated: true,
-                        phoneNumber: `+91${phoneNumber}`,
+                        phoneNumber: `${selectedCountry.dialCode}${phoneNumber}`,
                         user: response.user
                     }
                 });
@@ -145,7 +147,7 @@ export function LoginPage() {
     };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        const value = e.target.value.replace(/\D/g, '').slice(0, selectedCountry.maxLength);
         setPhoneNumber(value);
         setError(null);
     };
@@ -186,7 +188,7 @@ export function LoginPage() {
                         </h1>
                         <p className="text-text-secondary-light dark:text-text-secondary-dark text-lg font-normal leading-snug max-w-[280px]">
                             {showOtp
-                                ? `We sent a code to +91 ${formatPhoneNumber(phoneNumber)}`
+                                ? `We sent a code to ${selectedCountry.dialCode} ${phoneNumber}`
                                 : "Let's log in. Enter your mobile number below."
                             }
                         </p>
@@ -222,14 +224,20 @@ export function LoginPage() {
                                     Mobile Number
                                 </label>
                                 <div className="relative flex items-center">
-                                    {/* Country Code */}
-                                    <div className="absolute left-0 top-0 bottom-0 flex items-center pl-4 pr-3 border-r border-gray-200 dark:border-gray-600">
-                                        <span className="text-2xl mr-2">🇮🇳</span>
-                                        <span className="text-text-secondary-light dark:text-text-secondary-dark font-semibold text-lg">+91</span>
+                                    {/* Country Selector */}
+                                    <div className="absolute left-0 top-0 bottom-0 flex items-center z-10">
+                                        <CountrySelector
+                                            selectedCountry={selectedCountry}
+                                            onSelect={(country) => {
+                                                setSelectedCountry(country);
+                                                setPhoneNumber('');
+                                            }}
+                                            disabled={loading}
+                                        />
                                     </div>
                                     {/* Input Display */}
-                                    <div className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-background-light dark:bg-background-dark pl-[110px] pr-4 h-16 flex items-center text-2xl font-medium tracking-wide text-text-primary-light dark:text-text-primary-dark">
-                                        {formatPhoneNumber(phoneNumber) || <span className="text-gray-400">(555) 000-0000</span>}
+                                    <div className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-background-light dark:bg-background-dark pl-[130px] pr-4 h-16 flex items-center text-2xl font-medium tracking-wide text-text-primary-light dark:text-text-primary-dark">
+                                        {phoneNumber || <span className="text-gray-400">Enter phone number</span>}
                                     </div>
                                 </div>
                             </div>
@@ -238,7 +246,7 @@ export function LoginPage() {
                         {/* Primary Button */}
                         <button
                             onClick={showOtp ? handleVerifyOtp : handleSendCode}
-                            disabled={loading || (showOtp ? otp.length !== 6 : phoneNumber.length !== 10)}
+                            disabled={loading || (showOtp ? otp.length !== 6 : phoneNumber.length < selectedCountry.minLength)}
                             className="w-full bg-primary hover:bg-primary-dark disabled:bg-gray-300 disabled:dark:bg-gray-700 text-white rounded-xl h-14 text-lg font-bold shadow-lg shadow-primary/30 disabled:shadow-none transition-all flex items-center justify-center gap-2"
                         >
                             {loading ? (
@@ -332,7 +340,7 @@ export function LoginPage() {
                             </h2>
                             <p className="text-gray-500 dark:text-gray-400 text-lg">
                                 {showOtp
-                                    ? `Enter the code sent to +91 ${formatPhoneNumber(phoneNumber)}`
+                                    ? `Enter the code sent to ${selectedCountry.dialCode} ${phoneNumber}`
                                     : 'Enter your mobile number to continue'
                                 }
                             </p>
@@ -367,17 +375,24 @@ export function LoginPage() {
                                         Mobile Number
                                     </label>
                                     <div className="relative">
-                                        <div className="absolute left-0 top-0 bottom-0 flex items-center pl-4 pr-3 border-r border-gray-200 dark:border-gray-700">
-                                            <span className="text-xl mr-2">🇮🇳</span>
-                                            <span className="font-semibold text-gray-600 dark:text-gray-400">+91</span>
+                                        <div className="absolute left-0 top-0 bottom-0 flex items-center z-10">
+                                            <CountrySelector
+                                                selectedCountry={selectedCountry}
+                                                onSelect={(country) => {
+                                                    setSelectedCountry(country);
+                                                    setPhoneNumber('');
+                                                }}
+                                                disabled={loading}
+                                                compact
+                                            />
                                         </div>
                                         <input
                                             type="tel"
                                             value={phoneNumber}
                                             onChange={handlePhoneChange}
-                                            maxLength={10}
-                                            placeholder="(555) 000-0000"
-                                            className="w-full h-14 pl-[100px] pr-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-lg font-medium focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none"
+                                            maxLength={selectedCountry.maxLength}
+                                            placeholder="Enter phone number"
+                                            className="w-full h-14 pl-[120px] pr-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-lg font-medium focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none"
                                             autoFocus
                                         />
                                     </div>
@@ -386,7 +401,7 @@ export function LoginPage() {
 
                             <button
                                 onClick={showOtp ? handleVerifyOtp : handleSendCode}
-                                disabled={loading || (showOtp ? otp.length !== 6 : phoneNumber.length !== 10)}
+                                disabled={loading || (showOtp ? otp.length !== 6 : phoneNumber.length < selectedCountry.minLength)}
                                 className="w-full h-14 bg-primary hover:bg-primary-dark disabled:bg-gray-300 disabled:dark:bg-gray-700 text-white rounded-xl text-lg font-bold shadow-lg shadow-primary/30 disabled:shadow-none transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0"
                             >
                                 {loading ? (
