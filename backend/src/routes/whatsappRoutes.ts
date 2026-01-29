@@ -14,6 +14,9 @@ const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_T
 
 const WHATSAPP_NUMBER = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886';
 
+console.log(`[Twilio Init] SID: ${process.env.TWILIO_ACCOUNT_SID ? 'Configured' : 'MISSING'}`);
+console.log(`[Twilio Init] Number: ${WHATSAPP_NUMBER}`);
+
 
 // Get BP status
 const getBPStatus = (systolic: number, diastolic: number): { status: string; emoji: string; alert: boolean } => {
@@ -96,14 +99,24 @@ const sendReply = async (to: string, message: string) => {
         return;
     }
 
+    // Ensure 'to' is in correct format: whatsapp:+[digits]
+    let formattedTo = to.replace(/\s+/g, ''); // Remove all spaces
+    if (!formattedTo.startsWith('whatsapp:')) {
+        if (!formattedTo.startsWith('+')) {
+            formattedTo = `whatsapp:+${formattedTo}`;
+        } else {
+            formattedTo = `whatsapp:${formattedTo}`;
+        }
+    }
+
     try {
         await twilioClient.messages.create({
             from: WHATSAPP_NUMBER,
-            to: to.startsWith('whatsapp:') ? to : `whatsapp:${to}`,
+            to: formattedTo,
             body: message,
         });
     } catch (error) {
-        console.error('Error sending WhatsApp reply:', error);
+        console.error(`Error sending WhatsApp reply to ${formattedTo}:`, error);
     }
 };
 
@@ -156,23 +169,25 @@ router.post('/webhook', async (req: Request, res: Response) => {
     try {
         const { From, Body } = req.body;
 
+        console.log(`[WhatsApp Webhook] Received from ${From}: ${Body}`);
+
         if (!From || !Body) {
             return res.status(400).send('Missing From or Body');
         }
 
-        // Extract phone number (remove whatsapp: prefix)
-        const phoneNumber = From.replace('whatsapp:', '').replace('+', '');
-        const normalizedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
+        // Extract phone number (remove whatsapp: prefix and all non-digits except +)
+        const rawPhone = From.replace('whatsapp:', '').trim();
+        const normalizedPhone = rawPhone.startsWith('+') ? rawPhone.replace(/\s+/g, '') : `+${rawPhone.replace(/\s+/g, '')}`;
 
-        console.log(`[WhatsApp] From: ${normalizedPhone}, Message: ${Body}`);
+        console.log(`[WhatsApp Webhook] From: ${normalizedPhone}, Message: ${Body}`);
 
         // Find user by phone
         const user = await prisma.user.findFirst({
             where: {
                 OR: [
                     { phoneNumber: normalizedPhone },
-                    { phoneNumber: phoneNumber },
-                    { phoneNumber: `+${phoneNumber}` },
+                    { phoneNumber: rawPhone },
+                    { phoneNumber: `+${rawPhone}` },
                 ],
             },
             include: {
