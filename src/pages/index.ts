@@ -18,4 +18,5 @@ export { FamilyManagementPage } from './FamilyManagementPage';
 export { FamilyDashboardPage } from './FamilyDashboardPage';
 export { EmergencySettingsPage } from './EmergencySettingsPage';
 export { CreditsPage } from './CreditsPage';
+export * from './JoinHouseholdPage';
 

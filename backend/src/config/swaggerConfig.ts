@@ -4,9 +4,9 @@ const options: swaggerJsdoc.Options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Frozo Health App API',
+            title: 'KinCare App API',
             version: '1.0.0',
-            description: 'API documentation for the Frozo Health App backend',
+            description: 'API documentation for the KinCare App backend',
         },
         servers: [
             {

@@ -137,7 +137,7 @@ app.use('/api/webhooks', webhookRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.get('/', (req, res) => {
-    res.status(200).send('Frozo Backend is running');
+    res.status(200).send('KinCare Backend is running');
 });
 
 app.get('/health', (req, res) => {

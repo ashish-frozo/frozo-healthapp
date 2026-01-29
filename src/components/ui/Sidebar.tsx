@@ -33,7 +33,7 @@ export function Sidebar() {
                             KinCare
                         </h1>
                         <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
-                            Family Health Tracker
+                            KinCare Tracker
                         </p>
                     </div>
                 </div>

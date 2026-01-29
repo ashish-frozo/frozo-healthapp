@@ -9,23 +9,23 @@ class ApiClient {
 
     async init() {
         if (this.initialized) return;
-        this.token = await AsyncStorage.getItem('frozo_token');
-        this.userId = await AsyncStorage.getItem('frozo_user_id');
+        this.token = await AsyncStorage.getItem('kincare_token');
+        this.userId = await AsyncStorage.getItem('kincare_user_id');
         this.initialized = true;
     }
 
     async setAuth(token: string, userId: string) {
         this.token = token;
         this.userId = userId;
-        await AsyncStorage.setItem('frozo_token', token);
-        await AsyncStorage.setItem('frozo_user_id', userId);
+        await AsyncStorage.setItem('kincare_token', token);
+        await AsyncStorage.setItem('kincare_user_id', userId);
     }
 
     async clearAuth() {
         this.token = null;
         this.userId = null;
-        await AsyncStorage.removeItem('frozo_token');
-        await AsyncStorage.removeItem('frozo_user_id');
+        await AsyncStorage.removeItem('kincare_token');
+        await AsyncStorage.removeItem('kincare_user_id');
     }
 
     async request(endpoint: string, options: RequestInit = {}) {

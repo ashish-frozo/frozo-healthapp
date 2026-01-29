@@ -189,13 +189,13 @@ export const createInvite = async (req: Request, res: Response) => {
         });
 
         // Generate invite link
-        const inviteLink = `${process.env.APP_URL || 'https://frozo.health'}/join/${invite.household.inviteCode}`;
+        const inviteLink = `${process.env.APP_URL || 'https://kincare.frozo.ai'}/join/${invite.household.inviteCode}`;
 
         res.status(201).json({
             invite,
             inviteLink,
             whatsappLink: `https://wa.me/${phoneNumber.replace('+', '')}?text=${encodeURIComponent(
-                `You've been invited to join ${invite.household.name} on Frozo Health! Track and share health readings with your family. Join here: ${inviteLink}`
+                `You've been invited to join ${invite.household.name} on KinCare! Track and share health readings with your family. Join here: ${inviteLink}`
             )}`,
         });
     } catch (error) {

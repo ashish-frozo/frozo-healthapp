@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Frozo Health",
-    "slug": "frozo-healthapp-antigravity",
+    "name": "KinCare",
+    "slug": "kincare-healthapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.frozo.healthapp"
+      "bundleIdentifier": "com.kincare.healthapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.frozo.healthapp"
+      "package": "com.kincare.healthapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

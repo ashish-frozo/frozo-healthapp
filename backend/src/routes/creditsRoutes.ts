@@ -446,7 +446,7 @@ router.post('/purchase', async (req, res) => {
             ],
             customer: {
                 email: userEmail || 'customer@example.com',
-                name: userName || 'Frozo User',
+                name: userName || 'KinCare User',
             },
             return_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/credits/success`,
             metadata: {
@@ -517,7 +517,7 @@ router.post('/subscribe', async (req, res) => {
             ],
             customer: {
                 email: userEmail || 'customer@example.com',
-                name: userName || 'Frozo User',
+                name: userName || 'KinCare User',
             },
             return_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/credits/success?subscription=true`,
             metadata: {

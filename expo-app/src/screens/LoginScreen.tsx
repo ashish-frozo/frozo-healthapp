@@ -5,12 +5,15 @@ import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { auth } from '../config/firebase';
 import { PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
 import { authService } from '../services/authService';
+import { CountrySelector } from '../components/CountrySelector';
+import { DEFAULT_COUNTRY, Country } from '../data/countries';
 
 export function LoginScreen() {
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState('');
     const [step, setStep] = useState<'phone' | 'otp'>('phone');
     const [loading, setLoading] = useState(false);
+    const [selectedCountry, setSelectedCountry] = useState<Country>(DEFAULT_COUNTRY);
     const [verificationId, setVerificationId] = useState<string | null>(null);
     const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
 
@@ -21,7 +24,7 @@ export function LoginScreen() {
         if (step === 'phone') {
             if (key === 'del') {
                 setPhone(p => p.slice(0, -1));
-            } else if (phone.length < 10) {
+            } else if (phone.length < selectedCountry.maxLength) {
                 setPhone(p => p + key);
             }
         } else {
@@ -34,12 +37,12 @@ export function LoginScreen() {
     };
 
     const handleSendOtp = async () => {
-        if (phone.length !== 10) return;
+        if (phone.length < selectedCountry.minLength) return;
 
         setLoading(true);
         try {
             const phoneProvider = new PhoneAuthProvider(auth);
-            const fullPhone = `+91${phone}`;
+            const fullPhone = `${selectedCountry.dialCode}${phone}`;
             const vId = await phoneProvider.verifyPhoneNumber(
                 fullPhone,
                 recaptchaVerifier.current!
@@ -70,7 +73,7 @@ export function LoginScreen() {
                 type: 'SET_AUTHENTICATED',
                 payload: {
                     authenticated: true,
-                    phoneNumber: phone,
+                    phoneNumber: `${selectedCountry.dialCode}${phone}`,
                     user: response.user
                 }
             });
@@ -99,12 +102,12 @@ export function LoginScreen() {
             <View style={styles.header}>
                 <Text style={styles.icon}>❤️</Text>
                 <Text style={styles.title}>
-                    {step === 'phone' ? 'Welcome to Family Health' : 'Enter Verification Code'}
+                    {step === 'phone' ? 'Welcome to KinCare' : 'Enter Verification Code'}
                 </Text>
                 <Text style={styles.subtitle}>
                     {step === 'phone'
                         ? 'Track health vitals for your loved ones.'
-                        : `We sent a code to +91 ${formatPhone(phone)}`}
+                        : `We sent a code to ${selectedCountry.dialCode} ${formatPhone(phone)}`}
                 </Text>
             </View>
 
@@ -112,9 +115,16 @@ export function LoginScreen() {
             <View style={styles.inputContainer}>
                 {step === 'phone' ? (
                     <View style={styles.phoneDisplay}>
-                        <Text style={styles.countryCode}>+91</Text>
+                        <CountrySelector
+                            selectedCountry={selectedCountry}
+                            onSelect={(country) => {
+                                setSelectedCountry(country);
+                                setPhone('');
+                            }}
+                            disabled={loading}
+                        />
                         <Text style={styles.phoneNumber}>
-                            {formatPhone(phone) || 'Enter phone number'}
+                            {formatPhone(phone) || 'Phone number'}
                         </Text>
                     </View>
                 ) : (
@@ -130,9 +140,9 @@ export function LoginScreen() {
 
             {/* Action Button */}
             <TouchableOpacity
-                style={[styles.button, (step === 'phone' ? phone.length !== 10 : otp.length !== 6) && styles.buttonDisabled]}
+                style={[styles.button, (step === 'phone' ? phone.length < selectedCountry.minLength : otp.length !== 6) && styles.buttonDisabled]}
                 onPress={step === 'phone' ? handleSendOtp : handleVerify}
-                disabled={loading || (step === 'phone' ? phone.length !== 10 : otp.length !== 6)}
+                disabled={loading || (step === 'phone' ? phone.length < selectedCountry.minLength : otp.length !== 6)}
             >
                 {loading ? (
                     <ActivityIndicator color="#fff" />

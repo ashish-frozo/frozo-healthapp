@@ -22,6 +22,7 @@ import {
   FamilyDashboardPage,
   EmergencySettingsPage,
   CreditsPage,
+  JoinHouseholdPage,
 } from './pages';
 
 // Protected route wrapper
@@ -127,6 +128,11 @@ function AppRoutes() {
       <Route path="/credits" element={
         <ProtectedRoute>
           <CreditsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/join/:code" element={
+        <ProtectedRoute>
+          <JoinHouseholdPage />
         </ProtectedRoute>
       } />
 

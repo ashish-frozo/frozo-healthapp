@@ -198,7 +198,7 @@ export function LoginPage() {
                     {/* Headline */}
                     <div className="flex flex-col items-center text-center space-y-3 mb-8">
                         <h1 className="text-text-primary-light dark:text-text-primary-dark tracking-tight text-3xl font-bold leading-tight">
-                            {showOtp ? 'Enter Code' : 'Welcome to Family Health'}
+                            {showOtp ? 'Enter Code' : 'Welcome to KinCare'}
                         </h1>
                         <p className="text-text-secondary-light dark:text-text-secondary-dark text-lg font-normal leading-snug max-w-[280px]">
                             {showOtp

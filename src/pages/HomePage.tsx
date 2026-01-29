@@ -307,7 +307,7 @@ export function HomePage() {
                         {/* Family Health Section */}
                         <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-4 border border-gray-200 dark:border-gray-800">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest">Family Health</h2>
+                                <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest">KinCare</h2>
                                 <button
                                     onClick={() => navigate('/family-dashboard')}
                                     className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1"

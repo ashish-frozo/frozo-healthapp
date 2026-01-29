@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppState, Profile, BPReading, GlucoseReading, Document, Reminder, ClinicLink, Symptom, AppNotification, User } from '../types';
 import { apiClient } from '../services/api';
@@ -88,7 +89,7 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType | null>(null);
-const STORAGE_KEY = 'frozo-app-state';
+const STORAGE_KEY = 'kincare-app-state';
 
 export function AppProvider({ children }: { children: ReactNode }) {
     const [state, dispatch] = useReducer(appReducer, initialState);
@@ -130,7 +131,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const init = async () => {
             await apiClient.init();
-            const token = await AsyncStorage.getItem('frozo_token');
+            const token = await AsyncStorage.getItem('kincare_token');
             if (token) {
                 // We have a token, try to load basic state
                 const savedState = await AsyncStorage.getItem(STORAGE_KEY);
@@ -157,7 +158,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 try {
                     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                 } catch (e) {
-                    console.error('Failed to save state:', e);
+                    Alert.alert('Error', 'Failed to initialize KinCare. Please restart the app.');
                 }
             }
         };

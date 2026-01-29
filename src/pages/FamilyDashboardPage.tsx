@@ -76,7 +76,7 @@ export function FamilyDashboardPage() {
                         </button>
                         <div>
                             <h1 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
-                                Family Health
+                                KinCare
                             </h1>
                             <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
                                 {state.profiles.length} members • {needsAttention > 0 ? (

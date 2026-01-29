@@ -86,9 +86,9 @@ const messages = {
         hinglish: { fasting: 'खाली पेट (Fasting)', after_food: 'खाने के बाद (After Food)', before_food: 'खाने से पहले (Before Food)', random: 'Random' },
     },
     notRegistered: {
-        english: `👋 *Welcome to Frozo Health!*\n\nYour phone number is not registered.\n\nPlease register in the app first:\nhttps://frozo.health\n\nAfter registering, you can log readings via WhatsApp!`,
-        hindi: `👋 *Frozo Health में आपका स्वागत है!*\n\nआपका फोन नंबर रजिस्टर्ड नहीं है।\n\nकृपया पहले ऐप में रजिस्टर करें:\nhttps://frozo.health\n\nरजिस्टर करने के बाद, आप WhatsApp से रीडिंग्स लॉग कर सकते हैं!`,
-        hinglish: `👋 *Frozo Health में आपका स्वागत है!*\n\nआपका phone number registered नहीं है।\n\nपहले app में register करें:\nhttps://frozo.health\n\nRegister करने के बाद, आप WhatsApp से readings log कर सकते हैं!`,
+        english: `👋 *Welcome to KinCare!*\n\nYour phone number is not registered.\n\nPlease register in the app first:\nhttps://kincare.frozo.ai\n\nAfter registering, you can log readings via WhatsApp!`,
+        hindi: `👋 *KinCare में आपका स्वागत है!*\n\nआपका फोन नंबर रजिस्टर्ड नहीं है।\n\ कृपया पहले ऐप में रजिस्टर करें:\nhttps://kincare.frozo.ai\n\nरजिस्टर करने के बाद, आप WhatsApp से रीडिंग्स लॉग कर सकते हैं!`,
+        hinglish: `👋 *KinCare में आपका स्वागत है!*\n\nआपका phone number registered नहीं है।\n\nपहले app में register करें:\nhttps://kincare.frozo.ai\n\nRegister करने के बाद, आप WhatsApp से readings log कर सकते हैं!`,
     },
 };
 
@@ -140,7 +140,7 @@ const notifyAdmins = async (householdId: string, message: string, excludeUserId?
 
 // Get help message
 const getHelpMessage = () => `
-🏥 *Frozo Health Bot*
+🏥 *KinCare Bot*
 
 मैं आपकी health readings track करने में मदद करता हूं!
 
@@ -211,7 +211,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
         const lang = (user.preferredLanguage || 'hinglish') as Language;
 
         if (!profile) {
-            await sendReply(From, `Please complete your profile setup in the Frozo app first.`);
+            await sendReply(From, `Please complete your profile setup in the KinCare app first.`);
             return res.status(200).send('OK');
         }
 
