@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../index';
 import fs from 'fs/promises';
 import { classifyDocument } from '../services/aiService';
-import * as pdfParse from 'pdf-parse';
+import pdfParse from 'pdf-parse';
 
 export const getDocuments = async (req: Request, res: Response) => {
     try {
@@ -35,8 +35,8 @@ export const addDocument = async (req: Request, res: Response) => {
         try {
             const dataBuffer = await fs.readFile(file.path);
 
-            // Use pdf-parse with proper typing
-            const pdfData = await (pdfParse as any)(dataBuffer);
+            // Use pdf-parse to extract text
+            const pdfData = await pdfParse(dataBuffer);
             const extractedText = pdfData.text;
 
             if (extractedText && extractedText.trim().length > 50) {
