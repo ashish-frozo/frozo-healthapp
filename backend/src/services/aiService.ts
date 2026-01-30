@@ -19,7 +19,7 @@ export const generateHealthInsights = async (data: any) => {
             messages: [
                 {
                     role: 'system',
-                    content: 'You are a medical AI assistant. Analyze health data and provide 3-4 concise, actionable insights.'
+                    content: 'You are a medical AI assistant. Analyze physical health readings (BP, Glucose), symptoms, and recent medical documents (prescriptions, lab results) to provide 3-4 concise, actionable insights.'
                 },
                 {
                     role: 'user',

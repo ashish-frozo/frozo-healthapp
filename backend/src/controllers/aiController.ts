@@ -25,10 +25,17 @@ export const getInsights = async (req: Request, res: Response) => {
             orderBy: { timestamp: 'desc' },
         });
 
+        const documents = await prisma.document.findMany({
+            where: { profileId },
+            take: 5,
+            orderBy: { date: 'desc' },
+        });
+
         const insights = await generateHealthInsights({
             bpReadings,
             glucoseReadings,
             symptoms,
+            documents,
         });
 
         res.json({ insights });
