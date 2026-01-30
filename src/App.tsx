@@ -23,6 +23,9 @@ import {
   EmergencySettingsPage,
   CreditsPage,
   JoinHouseholdPage,
+  PrivacyPage,
+  TermsPage,
+  ContactPage,
 } from './pages';
 
 // Protected route wrapper
@@ -135,6 +138,11 @@ function AppRoutes() {
           <JoinHouseholdPage />
         </ProtectedRoute>
       } />
+
+      {/* Public Pages */}
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/contact" element={<ContactPage />} />
 
       {/* Protected Routes - Modal-like (hide nav) */}
       <Route path="/quick-add" element={

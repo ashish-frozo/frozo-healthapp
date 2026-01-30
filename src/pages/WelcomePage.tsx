@@ -457,17 +457,22 @@ export function WelcomePage() {
             {/* Footer */}
             <footer className="py-12 border-t border-gray-200 dark:border-gray-800 mt-auto bg-white dark:bg-gray-900 z-10">
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center gap-2 opacity-80">
-                        <img src="/logo.png" alt="KinCare Logo" className="w-8 h-8 rounded-lg" />
-                        <span className="font-bold text-lg">KinCare</span>
+                    <div className="flex flex-col items-center md:items-start">
+                        <div className="flex items-center gap-2 opacity-80">
+                            <img src="/logo.png" alt="KinCare Logo" className="w-8 h-8 rounded-lg" />
+                            <span className="font-bold text-lg">KinCare</span>
+                        </div>
+                        <p className="text-[10px] font-bold text-text-secondary-light dark:text-text-secondary-dark mt-1 tracking-widest uppercase opacity-60">
+                            by Frozo Software Pvt ltd
+                        </p>
                     </div>
-                    <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark font-medium">
                         © {new Date().getFullYear()} KinCare. All rights reserved.
                     </p>
-                    <div className="flex gap-8 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">
-                        <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-primary transition-colors">Terms</a>
-                        <a href="#" className="hover:text-primary transition-colors">Contact</a>
+                    <div className="flex gap-8 text-sm font-bold text-text-secondary-light dark:text-text-secondary-dark">
+                        <button onClick={() => navigate('/privacy')} className="hover:text-primary transition-colors">Privacy</button>
+                        <button onClick={() => navigate('/terms')} className="hover:text-primary transition-colors">Terms</button>
+                        <button onClick={() => navigate('/contact')} className="hover:text-primary transition-colors">Contact</button>
                     </div>
                 </div>
             </footer>

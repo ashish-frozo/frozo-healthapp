@@ -135,6 +135,33 @@ export function ProfilePage() {
                 },
             ],
         },
+        {
+            title: 'Support & Legal',
+            items: [
+                {
+                    icon: 'contact_support',
+                    iconBg: 'bg-green-50 dark:bg-green-900/20',
+                    iconColor: 'text-green-500',
+                    title: 'Contact Support',
+                    subtitle: 'hello@frozo.ai',
+                    onClick: () => navigate('/contact'),
+                },
+                {
+                    icon: 'policy',
+                    iconBg: 'bg-blue-50 dark:bg-blue-900/20',
+                    iconColor: 'text-blue-500',
+                    title: 'Privacy Policy',
+                    onClick: () => navigate('/privacy'),
+                },
+                {
+                    icon: 'gavel',
+                    iconBg: 'bg-gray-50 dark:bg-gray-800',
+                    iconColor: 'text-gray-500',
+                    title: 'Terms of Service',
+                    onClick: () => navigate('/terms'),
+                },
+            ],
+        },
     ];
 
     return (
@@ -389,9 +416,9 @@ export function ProfilePage() {
                             Log Out
                         </button>
 
-                        {/* App Version */}
                         <div className="py-4 text-center">
-                            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs">Version 2.4.0 (Build 102)</p>
+                            <p className="text-text-secondary-light dark:text-text-secondary-dark text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Developed by Frozo Software Pvt ltd</p>
+                            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium">Version 2.4.0 (Build 102)</p>
                         </div>
                     </div>
                 </div>
