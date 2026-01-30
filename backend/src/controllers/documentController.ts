@@ -35,8 +35,22 @@ export const addDocument = async (req: Request, res: Response) => {
         try {
             const dataBuffer = await fs.readFile(file.path);
 
-            // Use pdf-parse to extract text
-            const pdfData = await pdfParse(dataBuffer);
+            // Defensively handle pdf-parse import (CommonJS/ESM interop)
+            let pdfParseExecutable: any = pdfParse;
+            if (typeof pdfParseExecutable !== 'function' && (pdfParseExecutable as any)?.default) {
+                pdfParseExecutable = (pdfParseExecutable as any).default;
+            }
+            // Last resort: direct require if the above failed to find a function
+            if (typeof pdfParseExecutable !== 'function') {
+                const directRequire = require('pdf-parse');
+                pdfParseExecutable = typeof directRequire === 'function' ? directRequire : directRequire.default;
+            }
+
+            if (typeof pdfParseExecutable !== 'function') {
+                throw new Error('pdf-parse is not a function after interop checks');
+            }
+
+            const pdfData = await pdfParseExecutable(dataBuffer);
             const extractedText = pdfData.text;
 
             if (extractedText && extractedText.trim().length > 50) {
