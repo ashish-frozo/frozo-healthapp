@@ -54,10 +54,18 @@ interface ClassificationResult {
 
 export const classifyDocument = async (text: string): Promise<ClassificationResult> => {
     try {
-        if (!process.env.GEMINI_API_KEY) {
+        const rawApiKey = process.env.GEMINI_API_KEY || '';
+        const apiKey = rawApiKey.trim();
+
+        if (!apiKey) {
             console.warn('GEMINI_API_KEY not set, falling back to "other" category');
             return { category: 'other', confidence: 0 };
         }
+
+        // Minimal validation log (don't log the actual key)
+        console.log(`API Key Check: length=${apiKey.length}, startsWithAIza=${apiKey.startsWith('AIza')}`);
+
+        const localGenAI = new GoogleGenerativeAI(apiKey);
 
         const prompt = `You are a medical document classifier. Analyze the following text extracted from a PDF and classify it into ONE of these categories:
 
@@ -81,24 +89,32 @@ Respond ONLY with a JSON object in this exact format:
 }`;
 
         let responseText = '';
-        const modelAttempts = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro', 'gemini-pro', 'gemini-2.0-flash-exp'];
+        // Comprehensive fallback list for models and versions
+        const combinations = [
+            { name: 'gemini-1.5-flash', version: 'v1' },
+            { name: 'gemini-1.5-flash', version: 'v1beta' },
+            { name: 'gemini-1.5-flash-latest', version: 'v1' },
+            { name: 'gemini-pro', version: 'v1' },
+            { name: 'gemini-pro', version: 'v1beta' }
+        ];
 
-        for (const modelName of modelAttempts) {
+        for (const combo of combinations) {
             try {
-                process.stdout.write(`Attempting classification with model: ${modelName} (v1)... `);
-                const model = genAI.getGenerativeModel({ model: modelName }, { apiVersion: 'v1' });
+                process.stdout.write(`Attempting: ${combo.name} (${combo.version})... `);
+                const model = localGenAI.getGenerativeModel({ model: combo.name }, { apiVersion: combo.version as any });
                 const result = await model.generateContent(prompt);
                 responseText = result.response.text();
                 process.stdout.write('SUCCESS\n');
                 break;
             } catch (err: any) {
                 process.stdout.write(`FAILED (${err.status || 'Error'})\n`);
-                // If it's a 404, we continue to the next model
-                if (modelName === modelAttempts[modelAttempts.length - 1]) {
-                    throw err; // Last attempt failed
+                // If it's the last one, throw it
+                if (combo === combinations[combinations.length - 1]) {
+                    throw err;
                 }
             }
         }
+
         const response = responseText;
 
         // Extract JSON from response (handle markdown code blocks)
