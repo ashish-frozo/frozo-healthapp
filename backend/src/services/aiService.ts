@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
+import fs from 'fs/promises';
 
 dotenv.config();
 
@@ -129,6 +130,78 @@ Respond ONLY with a JSON object:
         return classification;
     } catch (error) {
         console.error('OpenAI Document classification error:', error);
+        return { category: 'other', confidence: 0 };
+    }
+};
+
+export const classifyImage = async (imagePath: string): Promise<ClassificationResult> => {
+    try {
+        const apiKey = (process.env.OPENAI_API_KEY || '').trim();
+        if (!apiKey) {
+            console.warn('OPENAI_API_KEY not set');
+            return { category: 'other', confidence: 0 };
+        }
+
+        const imageBuffer = await fs.readFile(imagePath);
+        const base64Image = imageBuffer.toString('base64');
+
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a medical document classifier. Analyze the attached image and classify it into ONE category:
+Categories:
+- prescription: Medical prescriptions, medication orders
+- lab_result: Lab test results, blood tests, diagnostic reports
+- bill: Medical bills, invoices, receipts
+- insurance: Insurance claims, coverage letters, policies
+- other: Anything else
+
+Respond ONLY with a JSON object:
+{
+  "category": "one of: prescription, lab_result, bill, insurance, other",
+  "confidence": 0.95,
+  "reasoning": "brief explanation"
+}`
+                },
+                {
+                    role: 'user',
+                    content: [
+                        { type: 'text', text: 'Classify this document image:' },
+                        {
+                            type: 'image_url',
+                            image_url: {
+                                url: `data:image/jpeg;base64,${base64Image}`,
+                            },
+                        },
+                    ],
+                },
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0,
+        });
+
+        const responseText = completion.choices[0].message.content;
+        if (!responseText) {
+            throw new Error('Empty response from OpenAI');
+        }
+
+        const classification = JSON.parse(responseText) as ClassificationResult;
+
+        // Validate category
+        const validCategories = ['prescription', 'lab_result', 'bill', 'insurance', 'other'];
+        if (!validCategories.includes(classification.category)) {
+            classification.category = 'other';
+            classification.confidence = 0.5;
+        }
+
+        // Ensure confidence is between 0 and 1
+        classification.confidence = Math.max(0, Math.min(1, classification.confidence));
+
+        return classification;
+    } catch (error) {
+        console.error('OpenAI Image classification error:', error);
         return { category: 'other', confidence: 0 };
     }
 };

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../index';
 import fs from 'fs/promises';
-import { classifyDocument } from '../services/aiService';
+import { classifyDocument, classifyImage } from '../services/aiService';
 import pdfParse from 'pdf-parse';
 
 export const getDocuments = async (req: Request, res: Response) => {
@@ -31,24 +31,33 @@ export const addDocument = async (req: Request, res: Response) => {
         let category = 'other';
         let classificationConfidence = 0;
 
-        // Extract text from PDF and classify
-        try {
-            const dataBuffer = await fs.readFile(file.path);
+        const isImage = file.mimetype.startsWith('image/');
+        const isPdf = file.mimetype === 'application/pdf';
 
-            const pdfData = await pdfParse(dataBuffer);
-            const extractedText = pdfData.text;
+        if (isImage) {
+            console.log('Processing image document via OpenAI Vision...');
+            const classification = await classifyImage(file.path);
+            category = classification.category;
+            classificationConfidence = classification.confidence;
+            console.log('Image classified:', { category, confidence: classificationConfidence });
+        } else if (isPdf) {
+            console.log('Processing PDF document...');
+            try {
+                const dataBuffer = await fs.readFile(file.path);
+                const pdfData = await pdfParse(dataBuffer);
+                const extractedText = pdfData.text;
 
-            if (extractedText && extractedText.trim().length > 50) {
-                const classification = await classifyDocument(extractedText);
-                category = classification.category;
-                classificationConfidence = classification.confidence;
-                console.log('Document classified:', { category, confidence: classificationConfidence });
-            } else {
-                console.warn('Insufficient text extracted from PDF, defaulting to "other"');
+                if (extractedText && extractedText.trim().length > 50) {
+                    const classification = await classifyDocument(extractedText);
+                    category = classification.category;
+                    classificationConfidence = classification.confidence;
+                    console.log('PDF classified:', { category, confidence: classificationConfidence });
+                } else {
+                    console.warn('Insufficient text extracted from PDF, defaulting to "other"');
+                }
+            } catch (pdfError) {
+                console.error('PDF processing error:', pdfError);
             }
-        } catch (pdfError) {
-            console.error('PDF processing error:', pdfError);
-            // Continue with default category
         }
 
         const document = await prisma.document.create({
