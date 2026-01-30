@@ -1,8 +1,22 @@
 import { Router } from 'express';
 import { sendOTP, verifyOTP } from '../controllers/authController';
+import {
+    generateDeviceToken,
+    biometricLogin,
+    listDeviceTokens,
+    revokeDeviceToken
+} from '../controllers/biometricController';
 import { getUserSettings, updateUserSettings } from '../controllers/userSettingsController';
 import { validateBody } from '../middleware/validate';
-import { sendOtpSchema, verifyOtpSchema, updateSettingsSchema } from '../schemas/authSchemas';
+import {
+    sendOtpSchema,
+    verifyOtpSchema,
+    updateSettingsSchema,
+    generateDeviceTokenSchema,
+    biometricLoginSchema,
+    listDeviceTokensSchema,
+    revokeDeviceTokenSchema
+} from '../schemas/authSchemas';
 
 const router = Router();
 
@@ -98,6 +112,118 @@ router.post('/verify-otp', validateBody(verifyOtpSchema), verifyOTP);
  */
 router.get('/settings', getUserSettings);
 router.patch('/settings', validateBody(updateSettingsSchema), updateUserSettings);
+
+/**
+ * @swagger
+ * /auth/device-token:
+ *   post:
+ *     summary: Generate device token for biometric authentication
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - idToken
+ *               - deviceInfo
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *               deviceInfo:
+ *                 type: object
+ *                 properties:
+ *                   deviceId:
+ *                     type: string
+ *                   platform:
+ *                     type: string
+ *                     enum: [android, ios]
+ *                   model:
+ *                     type: string
+ *                   osVersion:
+ *                     type: string
+ *     responses:
+ *       200:
+ *         description: Device token generated
+ *       400:
+ *         description: Invalid request
+ */
+router.post('/device-token', validateBody(generateDeviceTokenSchema), generateDeviceToken);
+
+/**
+ * @swagger
+ * /auth/biometric-login:
+ *   post:
+ *     summary: Login using biometric authentication
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - deviceToken
+ *             properties:
+ *               deviceToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid or expired token
+ */
+router.post('/biometric-login', validateBody(biometricLoginSchema), biometricLogin);
+
+/**
+ * @swagger
+ * /auth/devices:
+ *   post:
+ *     summary: List all device tokens for a user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - idToken
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: List of devices
+ */
+router.post('/devices', validateBody(listDeviceTokensSchema), listDeviceTokens);
+
+/**
+ * @swagger
+ * /auth/revoke-device:
+ *   post:
+ *     summary: Revoke a device token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - idToken
+ *               - deviceId
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *               deviceId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Device revoked
+ */
+router.post('/revoke-device', validateBody(revokeDeviceTokenSchema), revokeDeviceToken);
 
 export default router;
 

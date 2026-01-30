@@ -19,6 +19,7 @@ model User {
   createdHouseholds    Household[]       @relation("HouseholdCreator")
   sentInvites          HouseholdInvite[] @relation("InviteSender")
   wallet               UserWallet?
+  deviceTokens         DeviceToken[]
 }
 
 model Household {
@@ -241,3 +242,24 @@ model Subscription {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
+
+// Device Token for biometric authentication
+model DeviceToken {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId   String   // Unique device identifier
+  token      String   @unique // Hashed token for security
+  platform   String   // 'android' or 'ios'
+  model      String?  // Device model
+  osVersion  String?  // OS version
+  lastUsed   DateTime @default(now())
+  expiresAt  DateTime // 30 days from creation
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, deviceId])
+  @@index([userId])
+  @@index([token])
+}
+
