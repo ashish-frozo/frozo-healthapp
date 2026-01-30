@@ -58,8 +58,6 @@ export const classifyDocument = async (text: string): Promise<ClassificationResu
             return { category: 'other', confidence: 0 };
         }
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
-
         const prompt = `You are a medical document classifier. Analyze the following text extracted from a PDF and classify it into ONE of these categories:
 
 Categories:
@@ -81,8 +79,26 @@ Respond ONLY with a JSON object in this exact format:
   "reasoning": "brief explanation"
 }`;
 
-        const result = await model.generateContent(prompt);
-        const response = result.response.text();
+        let responseText = '';
+        const modelAttempts = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro', 'gemini-1.0-pro'];
+
+        for (const modelName of modelAttempts) {
+            try {
+                console.log(`Attempting classification with model: ${modelName}`);
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const result = await model.generateContent(prompt);
+                responseText = result.response.text();
+                console.log(`Successfully classified with ${modelName}`);
+                break;
+            } catch (err: any) {
+                console.warn(`Model ${modelName} failed: ${err.message}`);
+                // If it's a 404, we continue to the next model
+                if (modelName === modelAttempts[modelAttempts.length - 1]) {
+                    throw err; // Last attempt failed
+                }
+            }
+        }
+        const response = responseText;
 
         // Extract JSON from response (handle markdown code blocks)
         const jsonMatch = response.match(/\{[\s\S]*\}/);
