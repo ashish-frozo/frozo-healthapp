@@ -101,3 +101,25 @@ export const toggleVisitPack = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Failed to toggle visit pack' });
     }
 };
+
+export const updateDocument = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { title, category, date, tags, manuallyOverridden } = req.body;
+
+        const document = await prisma.document.update({
+            where: { id },
+            data: {
+                title,
+                category,
+                date: date ? new Date(date) : undefined,
+                tags: tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : undefined,
+                manuallyOverridden: manuallyOverridden === undefined ? true : manuallyOverridden,
+            },
+        });
+        res.json(document);
+    } catch (error) {
+        console.error('Update document error:', error);
+        res.status(500).json({ error: 'Failed to update document' });
+    }
+};

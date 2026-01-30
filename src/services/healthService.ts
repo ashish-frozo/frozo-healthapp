@@ -36,6 +36,9 @@ export const healthService = {
     updateDocumentVisitPack: async (id: string, inVisitPack: boolean) => {
         return apiClient.patch(`/documents/${id}/visit-pack`, { inVisitPack });
     },
+    updateDocument: async (id: string, data: any) => {
+        return apiClient.patch(`/documents/${id}`, data);
+    },
 
     // Bulk Sync (for migration)
     syncData: async (data: {

@@ -13,6 +13,7 @@ export function AddDocumentPage() {
     const [confidence, setConfidence] = useState<number>(0);
     const [showCategoryOverride, setShowCategoryOverride] = useState(false);
     const [overrideCategory, setOverrideCategory] = useState<Category>('other');
+    const [lastUploadedDocId, setLastUploadedDocId] = useState<string | null>(null);
     const navigate = useNavigate();
     const { dispatch, state } = useApp();
 
@@ -54,6 +55,7 @@ export function AddDocumentPage() {
 
                     // Show classification result
                     if (newDoc.category) {
+                        setLastUploadedDocId(newDoc.id);
                         setClassifiedCategory(newDoc.category as Category);
                         setConfidence(newDoc.classificationConfidence || 0);
                         setOverrideCategory(newDoc.category as Category);
@@ -77,9 +79,22 @@ export function AddDocumentPage() {
     };
 
     const handleCategoryOverride = async () => {
-        // Here you would update the document with the new category
-        // For now, just navigate
-        navigate('/documents');
+        if (!lastUploadedDocId) return;
+
+        setLoading(true);
+        try {
+            const updatedDoc = await healthService.updateDocument(lastUploadedDocId, {
+                category: overrideCategory,
+                manuallyOverridden: true
+            });
+            dispatch({ type: 'UPDATE_DOCUMENT', payload: updatedDoc });
+            navigate('/documents');
+        } catch (error) {
+            console.error('Override error:', error);
+            alert('Failed to save category. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -140,8 +155,8 @@ export function AddDocumentPage() {
                                             key={cat.value}
                                             onClick={() => setOverrideCategory(cat.value)}
                                             className={`inline-block rounded-full px-4 py-2 text-sm font-medium transition-all ${overrideCategory === cat.value
-                                                    ? 'bg-primary text-white'
-                                                    : 'bg-surface-light dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark border border-gray-200 dark:border-gray-700'
+                                                ? 'bg-primary text-white'
+                                                : 'bg-surface-light dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark border border-gray-200 dark:border-gray-700'
                                                 }`}
                                         >
                                             {cat.label}

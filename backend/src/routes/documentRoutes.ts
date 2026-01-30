@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDocuments, addDocument, toggleVisitPack } from '../controllers/documentController';
+import { getDocuments, addDocument, toggleVisitPack, updateDocument } from '../controllers/documentController';
 import { authMiddleware } from '../middleware/auth';
 import { upload } from '../middleware/upload';
 
@@ -86,6 +86,7 @@ router.post('/', upload.single('file'), addDocument);
  *       200:
  *         description: Visit pack status updated successfully
  */
+router.patch('/:id', updateDocument);
 router.patch('/:id/visit-pack', toggleVisitPack);
 
 export default router;
