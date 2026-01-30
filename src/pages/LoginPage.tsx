@@ -299,10 +299,6 @@ export function LoginPage() {
                             </button>
                         ))}
                     </div>
-                    {/* Home Indicator */}
-                    <div className="w-full flex justify-center mt-6">
-                        <div className="w-32 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
-                    </div>
                 </div>
             </div>
 
