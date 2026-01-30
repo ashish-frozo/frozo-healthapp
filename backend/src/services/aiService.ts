@@ -89,13 +89,16 @@ Respond ONLY with a JSON object in this exact format:
 }`;
 
         let responseText = '';
-        // Comprehensive fallback list for models and versions
+        // Hyper-robust fallback list including specific version codes and lighter models
         const combinations = [
             { name: 'gemini-1.5-flash', version: 'v1' },
-            { name: 'gemini-1.5-flash', version: 'v1beta' },
-            { name: 'gemini-1.5-flash-latest', version: 'v1' },
+            { name: 'gemini-1.5-flash-8b', version: 'v1' },
+            { name: 'gemini-1.5-flash-001', version: 'v1' },
+            { name: 'gemini-1.5-flash-002', version: 'v1' },
+            { name: 'gemini-1.5-pro', version: 'v1' },
             { name: 'gemini-pro', version: 'v1' },
-            { name: 'gemini-pro', version: 'v1beta' }
+            { name: 'gemini-1.5-flash', version: 'v1beta' },
+            { name: 'gemini-1.5-flash-8b', version: 'v1beta' }
         ];
 
         for (const combo of combinations) {
@@ -107,9 +110,13 @@ Respond ONLY with a JSON object in this exact format:
                 process.stdout.write('SUCCESS\n');
                 break;
             } catch (err: any) {
-                process.stdout.write(`FAILED (${err.status || 'Error'})\n`);
-                // If it's the last one, throw it
+                process.stdout.write(`FAILED (${err.status || err.message || 'Error'})\n`);
+                // If it's the last one, throw or log diagnostics
                 if (combo === combinations[combinations.length - 1]) {
+                    console.error('All Gemini model attempts failed. Diagnostic check list:');
+                    console.error('1. Visit https://aistudio.google.com/ to verify your API Key is valid and active.');
+                    console.error('2. Ensure "Generative Language API" is enabled in your Google Cloud Project.');
+                    console.error('3. Check if your region has specific restrictions (sometimes requires v1beta specifically).');
                     throw err;
                 }
             }
