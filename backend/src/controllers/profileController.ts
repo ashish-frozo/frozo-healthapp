@@ -29,6 +29,20 @@ export const createProfile = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'User ID is required' });
         }
 
+        // Robust check: Only one "Myself" profile per user
+        if (relationship === 'myself') {
+            const existingMyself = await prisma.profile.findFirst({
+                where: {
+                    userId,
+                    relationship: 'myself'
+                }
+            });
+
+            if (existingMyself) {
+                return res.status(400).json({ error: 'A "Myself" profile already exists for this account.' });
+            }
+        }
+
         const profile = await prisma.profile.create({
             data: {
                 userId,
