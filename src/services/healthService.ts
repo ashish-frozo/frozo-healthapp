@@ -39,6 +39,9 @@ export const healthService = {
     updateDocument: async (id: string, data: any) => {
         return apiClient.patch(`/documents/${id}`, data);
     },
+    deleteDocument: async (id: string) => {
+        return apiClient.delete(`/documents/${id}`);
+    },
 
     // Bulk Sync (for migration)
     syncData: async (data: {

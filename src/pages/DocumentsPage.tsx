@@ -9,7 +9,7 @@ export function DocumentsPage() {
     const [activeFilter, setActiveFilter] = useState('all');
     const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
     const navigate = useNavigate();
-    const { state, toggleDocumentVisitPack } = useApp();
+    const { state, toggleDocumentVisitPack, deleteDocument } = useApp();
     const { translateLabReport, isLoading, error, translation, reset } = useLabTranslator();
     const [isTranslationOpen, setIsTranslationOpen] = useState(false);
 
@@ -272,9 +272,22 @@ export function DocumentsPage() {
                                 <span className="material-symbols-outlined">share</span>
                                 Share
                             </button>
-                            <button className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gray-100 dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                                <span className="material-symbols-outlined">print</span>
-                                Print
+                            <button
+                                onClick={async () => {
+                                    if (selectedDoc?.id && window.confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+                                        try {
+                                            await deleteDocument(selectedDoc.id);
+                                            setSelectedDoc(null);
+                                        } catch (err) {
+                                            console.error('Failed to delete document:', err);
+                                            alert('Failed to delete document. Please try again.');
+                                        }
+                                    }
+                                }}
+                                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 font-semibold hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">delete</span>
+                                Delete
                             </button>
                         </div>
 

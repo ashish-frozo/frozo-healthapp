@@ -233,6 +233,7 @@ interface AppContextType {
     addGlucoseReading: (value: number, context: GlucoseReading['context']) => void;
     addDocument: (doc: Omit<Document, 'id' | 'createdAt'>) => void;
     toggleDocumentVisitPack: (id: string) => void;
+    deleteDocument: (id: string) => Promise<void>;
     createClinicLink: () => ClinicLink;
     addSymptom: (name: string, severity: Symptom['severity'], notes?: string) => void;
     sendNudge: (targetProfileId: string, message: string) => void;
@@ -498,6 +499,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const deleteDocument = async (id: string) => {
+        try {
+            await healthService.deleteDocument(id);
+            dispatch({ type: 'DELETE_DOCUMENT', payload: id });
+
+            addNotification(
+                'Document Deleted',
+                'The document has been successfully removed from your records.',
+                'system',
+                'low'
+            );
+        } catch (error) {
+            console.error('Failed to delete document:', error);
+            throw error;
+        }
+    };
+
     const createClinicLink = (): ClinicLink => {
         const link: ClinicLink = {
             id: generateId(),
@@ -606,6 +624,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             addGlucoseReading,
             addDocument,
             toggleDocumentVisitPack,
+            deleteDocument,
             createClinicLink,
             addSymptom,
             sendNudge: async (targetProfileId: string, message: string) => {
