@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { prisma } from '../index';
 import fs from 'fs/promises';
 import { classifyDocument } from '../services/aiService';
-const pdfParse = require('pdf-parse');
 
 export const getDocuments = async (req: Request, res: Response) => {
     try {
@@ -34,6 +33,9 @@ export const addDocument = async (req: Request, res: Response) => {
         // Extract text from PDF and classify
         try {
             const dataBuffer = await fs.readFile(file.path);
+
+            // Dynamic import for pdf-parse (works with CommonJS in compiled code)
+            const pdfParse = (await import('pdf-parse')).default as any;
             const pdfData = await pdfParse(dataBuffer);
             const extractedText = pdfData.text;
 
