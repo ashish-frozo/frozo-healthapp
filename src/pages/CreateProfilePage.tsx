@@ -45,7 +45,7 @@ export function CreateProfilePage() {
                 // If it's the first time and they already have profiles, sync and redirect
                 // However, if they only have "New User", we might want to let them edit it
                 if (profiles && profiles.length > 0) {
-                    const myself = profiles.find(p => p.relationship === 'myself');
+                    const myself = profiles.find((p: any) => p.relationship === 'myself');
                     if (myself && myself.name === 'New User') {
                         // Let them edit the "New User" profile instead of creating a new one
                         navigate(`/create-profile?edit=${myself.id}`, { replace: true });
