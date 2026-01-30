@@ -178,25 +178,15 @@ export function LoginPage() {
         <>
             {/* Mobile Layout */}
             <div className="md:hidden min-h-screen flex flex-col bg-surface-light dark:bg-surface-dark">
-                {/* Status Bar */}
-                <div className="h-12 w-full flex items-center justify-between px-6 pt-2">
-                    <span className="text-sm font-semibold dark:text-white">9:41</span>
-                    <div className="flex gap-1.5">
-                        <span className="material-symbols-outlined text-sm dark:text-white">signal_cellular_alt</span>
-                        <span className="material-symbols-outlined text-sm dark:text-white">wifi</span>
-                        <span className="material-symbols-outlined text-sm dark:text-white">battery_full</span>
-                    </div>
-                </div>
-
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col px-6 pt-4 pb-6 overflow-y-auto">
+                <div className="flex-1 flex flex-col px-6 pt-8 pb-6 overflow-y-auto">
                     {/* Header Icon */}
-                    <div className="w-full flex justify-center mb-6">
-                        <img src="/logo.png" alt="KinCare" className="w-24 h-24 rounded-2xl shadow-xl shadow-primary/20" />
+                    <div className="w-full flex justify-center mb-10">
+                        <img src="/logo.png" alt="KinCare" className="w-28 h-28 rounded-3xl shadow-2xl shadow-primary/30 ring-4 ring-white/50 dark:ring-gray-800/50" />
                     </div>
 
                     {/* Headline */}
-                    <div className="flex flex-col items-center text-center space-y-3 mb-8">
+                    <div className="flex flex-col items-center text-center space-y-3 mb-10">
                         <h1 className="text-text-primary-light dark:text-text-primary-dark tracking-tight text-3xl font-bold leading-tight">
                             {showOtp ? 'Enter Code' : 'Welcome to KinCare'}
                         </h1>
