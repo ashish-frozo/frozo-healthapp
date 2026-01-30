@@ -30,15 +30,20 @@ export function AddDocumentPage() {
     };
 
     const handleScan = () => {
-        // For now, we'll just simulate a scan by triggering the upload flow
-        // In a real app, this would open the camera
-        handleUpload();
+        handleUpload('camera');
     };
 
-    const handleUpload = () => {
+    const handleUpload = (source: 'camera' | 'file' = 'file') => {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = '.pdf,.jpg,.jpeg,.png';
+
+        if (source === 'camera') {
+            input.accept = 'image/*';
+            input.capture = 'environment';
+        } else {
+            input.accept = '.pdf,.jpg,.jpeg,.png';
+        }
+
         input.onchange = async () => {
             if (input.files && input.files[0] && state.currentProfileId) {
                 setLoading(true);
@@ -201,7 +206,7 @@ export function AddDocumentPage() {
 
                     {/* Upload Card */}
                     <button
-                        onClick={handleUpload}
+                        onClick={() => handleUpload('file')}
                         disabled={loading}
                         className="w-full text-left group transition-transform active:scale-[0.98] disabled:opacity-50"
                     >
