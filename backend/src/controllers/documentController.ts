@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../index';
 import fs from 'fs/promises';
+import path from 'path';
 import { classifyDocument, classifyImage } from '../services/aiService';
 import pdfParse from 'pdf-parse';
 
@@ -115,5 +116,45 @@ export const updateDocument = async (req: Request, res: Response) => {
     } catch (error) {
         console.error('Update document error:', error);
         res.status(500).json({ error: 'Failed to update document' });
+    }
+};
+
+export const deleteDocument = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Get document to find the file path
+        const document = await prisma.document.findUnique({
+            where: { id },
+        });
+
+        if (!document) {
+            return res.status(404).json({ error: 'Document not found' });
+        }
+
+        // 2. Delete from database
+        await prisma.document.delete({
+            where: { id },
+        });
+
+        // 3. Delete physical file (optional, but good practice)
+        if (document.fileUrl) {
+            // fileUrl is like /uploads/filename.ext, we need to get filename.ext
+            const fileName = document.fileUrl.split('/').pop();
+            if (fileName) {
+                const filePath = path.join(process.cwd(), 'uploads', fileName);
+                try {
+                    await fs.unlink(filePath);
+                    console.log(`Deleted file: ${filePath}`);
+                } catch (err) {
+                    console.warn(`Failed to delete physical file: ${filePath}`, err);
+                }
+            }
+        }
+
+        res.json({ message: 'Document deleted successfully' });
+    } catch (error) {
+        console.error('Delete document error:', error);
+        res.status(500).json({ error: 'Failed to delete document' });
     }
 };

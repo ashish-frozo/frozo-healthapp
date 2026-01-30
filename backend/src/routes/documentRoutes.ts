@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDocuments, addDocument, toggleVisitPack, updateDocument } from '../controllers/documentController';
+import { getDocuments, addDocument, toggleVisitPack, updateDocument, deleteDocument } from '../controllers/documentController';
 import { authMiddleware } from '../middleware/auth';
 import { upload } from '../middleware/upload';
 
@@ -88,5 +88,6 @@ router.post('/', upload.single('file'), addDocument);
  */
 router.patch('/:id', updateDocument);
 router.patch('/:id/visit-pack', toggleVisitPack);
+router.delete('/:id', deleteDocument);
 
 export default router;
