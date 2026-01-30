@@ -7,7 +7,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export const generateHealthInsights = async (data: any) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
         const prompt = `
       As a medical AI assistant, analyze the following health data and provide 3-4 concise, actionable insights.
@@ -28,7 +28,7 @@ export const generateHealthInsights = async (data: any) => {
 
 export const translateLabReport = async (text: string) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
         const prompt = `
       Translate the following complex medical lab report into simple, easy-to-understand language for a patient.
@@ -58,7 +58,7 @@ export const classifyDocument = async (text: string): Promise<ClassificationResu
             return { category: 'other', confidence: 0 };
         }
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
         const prompt = `You are a medical document classifier. Analyze the following text extracted from a PDF and classify it into ONE of these categories:
 
