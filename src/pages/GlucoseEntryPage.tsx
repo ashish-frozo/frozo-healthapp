@@ -44,6 +44,15 @@ export function GlucoseEntryPage() {
                     status: getGlucoseStatus(val, context),
                 });
                 addGlucoseReading(val, context);
+
+                // Umami Event
+                if ((window as any).umami) {
+                    (window as any).umami.track('save-glucose-reading', {
+                        status: getGlucoseStatus(val, context),
+                        context: context
+                    });
+                }
+
                 navigate('/');
             } catch (error) {
                 console.error('Save Glucose error:', error);

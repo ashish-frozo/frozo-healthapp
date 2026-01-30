@@ -79,6 +79,15 @@ export function BPEntryPage() {
                     status: getBPStatus(sys, dia),
                 });
                 addBPReading(sys, dia, showPulse ? parseInt(pulse) : undefined);
+
+                // Umami Event
+                if ((window as any).umami) {
+                    (window as any).umami.track('save-bp-reading', {
+                        status: getBPStatus(sys, dia),
+                        hasPulse: showPulse
+                    });
+                }
+
                 navigate('/');
             } catch (error) {
                 console.error('Save BP error:', error);

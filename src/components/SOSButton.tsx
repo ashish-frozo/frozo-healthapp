@@ -109,6 +109,14 @@ export function SOSButton({ className = '', size = 'normal' }: SOSButtonProps) {
                 'high'
             );
 
+            // Umami Event
+            if ((window as any).umami) {
+                (window as any).umami.track('sos-triggered', {
+                    profileId: state.currentProfileId,
+                    notifiedCount: result.notifiedCount
+                });
+            }
+
             setShowConfirmation(false);
         } catch (error) {
             console.error('Failed to send SOS:', error);

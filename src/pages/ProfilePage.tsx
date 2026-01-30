@@ -59,6 +59,11 @@ export function ProfilePage() {
 
     const handleDeleteAccount = () => {
         if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+            // Umami Event
+            if ((window as any).umami) {
+                (window as any).umami.track('delete-account-attempt');
+            }
+
             // TODO: Implement actual delete
             addNotification('Account Deletion', 'Please contact support to delete your account.', 'system', 'high');
         }
