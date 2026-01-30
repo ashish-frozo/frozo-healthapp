@@ -49,6 +49,8 @@ export interface Document {
     fileUrl?: string;
     tags: string[];
     inVisitPack: boolean;
+    classificationConfidence?: number;
+    manuallyOverridden?: boolean;
     createdAt: string;
 }
 
