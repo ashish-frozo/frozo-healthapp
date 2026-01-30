@@ -36,7 +36,10 @@ function ProtectedRoute({ children, hideNav = false }: { children: React.ReactNo
     return <Navigate to="/welcome" replace />;
   }
 
-  if (state.profiles.length === 0) {
+  const isNewUser = state.profiles.length === 0 ||
+    (state.profiles.length === 1 && state.profiles[0].name === 'New User' && state.profiles[0].relationship === 'myself');
+
+  if (isNewUser) {
     return <Navigate to="/create-profile" replace />;
   }
 

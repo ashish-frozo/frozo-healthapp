@@ -238,7 +238,11 @@ export function LoginPage() {
                     }
                 });
 
-                if (response.user.profiles && response.user.profiles.length > 0) {
+                const isFullyRegistered = response.user.profiles &&
+                    response.user.profiles.length > 0 &&
+                    !(response.user.profiles.length === 1 && response.user.profiles[0].name === 'New User');
+
+                if (isFullyRegistered) {
                     navigate('/');
                 } else {
                     navigate('/create-profile');
