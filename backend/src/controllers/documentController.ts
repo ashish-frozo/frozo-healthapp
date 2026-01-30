@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../index';
 import fs from 'fs/promises';
 import { classifyDocument } from '../services/aiService';
-import pdfParse from 'pdf-parse';
+import pdfParse = require('pdf-parse');
 
 export const getDocuments = async (req: Request, res: Response) => {
     try {
