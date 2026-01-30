@@ -3,11 +3,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Initialize with API Key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export const generateHealthInsights = async (data: any) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }, { apiVersion: 'v1' });
 
         const prompt = `
       As a medical AI assistant, analyze the following health data and provide 3-4 concise, actionable insights.
@@ -28,7 +29,7 @@ export const generateHealthInsights = async (data: any) => {
 
 export const translateLabReport = async (text: string) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }, { apiVersion: 'v1' });
 
         const prompt = `
       Translate the following complex medical lab report into simple, easy-to-understand language for a patient.
@@ -80,18 +81,18 @@ Respond ONLY with a JSON object in this exact format:
 }`;
 
         let responseText = '';
-        const modelAttempts = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro', 'gemini-1.0-pro'];
+        const modelAttempts = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro', 'gemini-pro', 'gemini-2.0-flash-exp'];
 
         for (const modelName of modelAttempts) {
             try {
-                console.log(`Attempting classification with model: ${modelName}`);
-                const model = genAI.getGenerativeModel({ model: modelName });
+                process.stdout.write(`Attempting classification with model: ${modelName} (v1)... `);
+                const model = genAI.getGenerativeModel({ model: modelName }, { apiVersion: 'v1' });
                 const result = await model.generateContent(prompt);
                 responseText = result.response.text();
-                console.log(`Successfully classified with ${modelName}`);
+                process.stdout.write('SUCCESS\n');
                 break;
             } catch (err: any) {
-                console.warn(`Model ${modelName} failed: ${err.message}`);
+                process.stdout.write(`FAILED (${err.status || 'Error'})\n`);
                 // If it's a 404, we continue to the next model
                 if (modelName === modelAttempts[modelAttempts.length - 1]) {
                     throw err; // Last attempt failed
