@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import { prisma } from '../index';
+import fs from 'fs/promises';
+import { classifyDocument } from '../services/aiService';
+const pdfParse = require('pdf-parse');
 
 export const getDocuments = async (req: Request, res: Response) => {
     try {
@@ -18,11 +21,33 @@ export const getDocuments = async (req: Request, res: Response) => {
 
 export const addDocument = async (req: Request, res: Response) => {
     try {
-        const { profileId, title, category, date, tags, inVisitPack } = req.body;
+        const { profileId, title, date, tags, inVisitPack } = req.body;
         const file = req.file;
 
         if (!file) {
             return res.status(400).json({ error: 'File is required' });
+        }
+
+        let category = 'other';
+        let classificationConfidence = 0;
+
+        // Extract text from PDF and classify
+        try {
+            const dataBuffer = await fs.readFile(file.path);
+            const pdfData = await pdfParse(dataBuffer);
+            const extractedText = pdfData.text;
+
+            if (extractedText && extractedText.trim().length > 50) {
+                const classification = await classifyDocument(extractedText);
+                category = classification.category;
+                classificationConfidence = classification.confidence;
+                console.log('Document classified:', { category, confidence: classificationConfidence });
+            } else {
+                console.warn('Insufficient text extracted from PDF, defaulting to "other"');
+            }
+        } catch (pdfError) {
+            console.error('PDF processing error:', pdfError);
+            // Continue with default category
         }
 
         const document = await prisma.document.create({
@@ -35,6 +60,8 @@ export const addDocument = async (req: Request, res: Response) => {
                 thumbnailUrl: `/uploads/${file.filename}`, // In production, generate a real thumbnail
                 tags: tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [],
                 inVisitPack: inVisitPack === 'true' || inVisitPack === true,
+                classificationConfidence,
+                manuallyOverridden: false,
             },
         });
         res.json(document);

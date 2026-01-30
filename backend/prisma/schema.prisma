@@ -114,17 +114,19 @@ model GlucoseReading {
 }
 
 model Document {
-  id           String   @id @default(cuid())
-  profileId    String
-  profile      Profile  @relation(fields: [profileId], references: [id])
-  title        String
-  category     String
-  date         DateTime
-  fileUrl      String?
-  thumbnailUrl String?
-  tags         String[]
-  inVisitPack  Boolean  @default(false)
-  createdAt    DateTime @default(now())
+  id                        String   @id @default(cuid())
+  profileId                 String
+  profile                   Profile  @relation(fields: [profileId], references: [id])
+  title                     String
+  category                  String
+  date                      DateTime
+  fileUrl                   String?
+  thumbnailUrl              String?
+  tags                      String[]
+  inVisitPack               Boolean  @default(false)
+  classificationConfidence  Float?   // AI confidence score (0-1)
+  manuallyOverridden        Boolean  @default(false) // User changed category
+  createdAt                 DateTime @default(now())
 }
 
 model Reminder {
