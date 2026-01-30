@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { authService } from '../services/authService';
 import { settingsService } from '../services/settingsService';
@@ -21,6 +21,13 @@ export function LoginPage() {
     const navigate = useNavigate();
     const { dispatch, syncData } = useApp();
     const biometric = useBiometric();
+    const location = useLocation();
+
+    // Determine mode from query params: /login?mode=login or /login?mode=signup
+    const queryParams = new URLSearchParams(location.search);
+    const mode = (queryParams.get('mode') as 'login' | 'signup') || 'signup';
+
+    const isLogin = mode === 'login';
 
     useEffect(() => {
         // Check for saved biometric credentials
@@ -155,13 +162,31 @@ export function LoginPage() {
             setLoading(true);
             setError(null);
             try {
-                const appVerifier = (window as any).recaptchaVerifier;
                 const fullPhone = `${selectedCountry.dialCode}${phoneNumber}`;
+
+                // Check if user exists on backend first
+                console.log('Checking user existence...');
+                const checkRes = await authService.checkUser(fullPhone);
+
+                if (isLogin && !checkRes.exists) {
+                    setError("Account not found. Please click 'Get Started' to create an account.");
+                    setLoading(false);
+                    return;
+                }
+
+                if (!isLogin && checkRes.exists) {
+                    setError("This number is already registered. Please click 'Log In' to continue.");
+                    setLoading(false);
+                    return;
+                }
+
+                const appVerifier = (window as any).recaptchaVerifier;
+                console.log('Sending OTP via Firebase...');
                 const result = await signInWithPhoneNumber(auth, fullPhone, appVerifier);
                 setConfirmationResult(result);
                 setShowOtp(true);
             } catch (err: any) {
-                console.error('Firebase Auth Error:', err);
+                console.error('Login Send Code Error:', err);
                 setError(err.message || 'Failed to send OTP. Please try again.');
                 // Reset recaptcha if it fails
                 if ((window as any).recaptchaVerifier) {
@@ -258,7 +283,7 @@ export function LoginPage() {
                         <h1 className="text-text-primary-light dark:text-text-primary-dark tracking-tight text-3xl font-bold leading-tight">
                             {showBiometric
                                 ? 'Welcome Back!'
-                                : showOtp ? 'Enter Code' : 'Welcome to KinCare'
+                                : showOtp ? 'Enter Code' : (isLogin ? 'Welcome Back' : 'Join KinCare')
                             }
                         </h1>
                         <p className="text-text-secondary-light dark:text-text-secondary-dark text-lg font-normal leading-snug max-w-[280px]">
@@ -266,7 +291,7 @@ export function LoginPage() {
                                 ? 'Use your biometric to log in quickly'
                                 : showOtp
                                     ? `We sent a code to ${selectedCountry.dialCode} ${phoneNumber}`
-                                    : "Let's log in. Enter your mobile number below."
+                                    : (isLogin ? 'Log in to your health dashboard' : 'Start your family health journey today')
                             }
                         </p>
                     </div>
@@ -443,12 +468,12 @@ export function LoginPage() {
                     <div className="w-full max-w-md space-y-8">
                         <div className="text-center">
                             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                                {showOtp ? 'Verify Code' : 'Welcome Back'}
+                                {showOtp ? 'Verify Code' : (isLogin ? 'Welcome Back' : 'Create Account')}
                             </h2>
                             <p className="text-gray-500 dark:text-gray-400 text-lg">
                                 {showOtp
                                     ? `Enter the code sent to ${selectedCountry.dialCode} ${phoneNumber}`
-                                    : 'Enter your mobile number to continue'
+                                    : (isLogin ? 'Enter your mobile number to log in' : 'Enter your mobile number to get started')
                                 }
                             </p>
                         </div>

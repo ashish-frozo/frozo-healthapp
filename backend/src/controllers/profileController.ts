@@ -9,6 +9,14 @@ export const getProfiles = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'User ID is required' });
         }
 
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            return res.status(401).json({ error: 'User session invalid or account deleted' });
+        }
+
         const profiles = await prisma.profile.findMany({
             where: { userId },
         });

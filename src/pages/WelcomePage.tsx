@@ -30,13 +30,13 @@ export function WelcomePage() {
                     </div>
                     <div className="flex gap-3">
                         <button
-                            onClick={() => navigate('/login')}
+                            onClick={() => navigate('/login?mode=login')}
                             className="px-4 py-2 text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors"
                         >
                             Log In
                         </button>
                         <button
-                            onClick={() => navigate('/login')}
+                            onClick={() => navigate('/login?mode=signup')}
                             className="px-5 py-2 text-sm font-bold bg-primary text-white rounded-full shadow-lg shadow-primary/30 hover:bg-primary-dark hover:shadow-primary/40 transition-all active:scale-95"
                         >
                             Get Started
@@ -70,14 +70,14 @@ export function WelcomePage() {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                             <button
-                                onClick={() => navigate('/login')}
+                                onClick={() => navigate('/login?mode=signup')}
                                 className="group h-14 px-8 bg-primary hover:bg-primary-dark text-white rounded-2xl text-lg font-bold shadow-xl shadow-primary/30 transition-all hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2"
                             >
                                 Start Tracking Free
                                 <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                             </button>
                             <button
-                                onClick={() => navigate('/login')}
+                                onClick={() => navigate('/login?mode=login')}
                                 className="h-14 px-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-text-primary-light dark:text-white rounded-2xl text-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all hover:-translate-y-1 flex items-center justify-center shadow-sm hover:shadow-md"
                             >
                                 I have an account

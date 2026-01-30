@@ -13,8 +13,13 @@ export const authService = {
         return response;
     },
 
+    checkUser: async (phoneNumber: string) => {
+        return apiClient.post('/auth/check', { phoneNumber });
+    },
+
     logout: () => {
         apiClient.clearAuth();
+        localStorage.removeItem('family-health-app-state');
     },
 
     /**

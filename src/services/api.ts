@@ -39,6 +39,12 @@ class ApiClient {
         });
 
         if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                console.warn('Authentication expired or invalid. Clearing state.');
+                this.clearAuth();
+                localStorage.removeItem('family-health-app-state');
+                window.location.href = '/login';
+            }
             const error = await response.json().catch(() => ({ error: 'Unknown error' }));
             throw new Error(error.error || `Request failed with status ${response.status}`);
         }

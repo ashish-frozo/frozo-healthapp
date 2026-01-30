@@ -21,6 +21,10 @@ export const sendOtpSchema = z.object({
     phoneNumber,
 });
 
+export const checkUserSchema = z.object({
+    phoneNumber,
+});
+
 export const verifyOtpSchema = z.object({
     idToken: z.string().min(1, 'ID Token is required'),
 });

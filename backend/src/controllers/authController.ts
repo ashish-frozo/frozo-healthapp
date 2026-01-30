@@ -97,3 +97,25 @@ export const verifyOTP = async (req: Request, res: Response) => {
         res.status(401).json({ error: 'Invalid or expired token' });
     }
 };
+
+export const checkUser = async (req: Request, res: Response) => {
+    try {
+        const { phoneNumber } = req.body;
+
+        if (!phoneNumber) {
+            return res.status(400).json({ error: 'Phone number is required' });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { phoneNumber },
+        });
+
+        res.json({
+            exists: !!user,
+            message: user ? 'User exists' : 'User not found'
+        });
+    } catch (error) {
+        console.error('Check user error:', error);
+        res.status(500).json({ error: 'Failed to check user existence' });
+    }
+};

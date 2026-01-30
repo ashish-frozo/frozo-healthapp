@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendOTP, verifyOTP } from '../controllers/authController';
+import { sendOTP, verifyOTP, checkUser } from '../controllers/authController';
 import {
     generateDeviceToken,
     biometricLogin,
@@ -15,7 +15,8 @@ import {
     generateDeviceTokenSchema,
     biometricLoginSchema,
     listDeviceTokensSchema,
-    revokeDeviceTokenSchema
+    revokeDeviceTokenSchema,
+    checkUserSchema
 } from '../schemas/authSchemas';
 
 const router = Router();
@@ -45,6 +46,29 @@ const router = Router();
  *         description: Phone number is required
  */
 router.post('/send-otp', validateBody(sendOtpSchema), sendOTP);
+
+/**
+ * @swagger
+ * /auth/check:
+ *   post:
+ *     summary: Check if a user exists by phone number
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - phoneNumber
+ *             properties:
+ *               phoneNumber:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Check result
+ */
+router.post('/check', validateBody(checkUserSchema), checkUser);
 
 /**
  * @swagger
