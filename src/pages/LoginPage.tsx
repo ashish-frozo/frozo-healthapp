@@ -6,6 +6,8 @@ import { settingsService } from '../services/settingsService';
 import { auth } from '../config/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import { CountrySelector, DEFAULT_COUNTRY, Country } from '../components/ui/CountrySelector';
+import { useBiometric } from '../hooks/useBiometric';
+import { hapticService } from '../services/hapticService';
 
 export function LoginPage() {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -15,10 +17,15 @@ export function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [selectedCountry, setSelectedCountry] = useState<Country>(DEFAULT_COUNTRY);
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+    const [showBiometric, setShowBiometric] = useState(false);
     const navigate = useNavigate();
     const { dispatch, syncData } = useApp();
+    const biometric = useBiometric();
 
     useEffect(() => {
+        // Check for saved biometric credentials
+        checkBiometricAvailability();
+
         // Clear any existing stale verifier
         if ((window as any).recaptchaVerifier) {
             try {
@@ -53,7 +60,58 @@ export function LoginPage() {
         };
     }, []);
 
+    const checkBiometricAvailability = async () => {
+        if (biometric.hasSavedCredentials && biometric.isAvailable) {
+            setShowBiometric(true);
+        }
+    };
+
+    const handleBiometricLogin = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Authenticate with biometric
+            const authResult = await biometric.authenticate('Log in to KinCare');
+
+            if (!authResult.success) {
+                setError(authResult.error || 'Biometric authentication failed');
+                setShowBiometric(false);
+                return;
+            }
+
+            // Get saved credentials
+            const deviceToken = await biometric.getDeviceToken();
+            const savedPhone = await biometric.getSavedPhoneNumber();
+
+            if (!deviceToken || !savedPhone) {
+                setError('Saved credentials not found. Please log in again.');
+                setShowBiometric(false);
+                await biometric.disableBiometric();
+                return;
+            }
+
+            // TODO: Call backend biometric login endpoint
+            // const response = await authService.biometricLogin(deviceToken);
+
+            // For now, show success and navigate
+            await hapticService.success();
+            console.log('Biometric login successful!', { deviceToken, savedPhone });
+
+            // Temporary: Navigate to home (replace with actual backend call)
+            // navigate('/');
+
+        } catch (err: any) {
+            console.error('Biometric login error:', err);
+            setError(err.message || 'Biometric login failed');
+            await hapticService.error();
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleKeyPress = (key: string) => {
+        hapticService.light(); // Add haptic feedback
         setError(null);
         if (showOtp) {
             if (otp.length < 6) {
@@ -188,12 +246,17 @@ export function LoginPage() {
                     {/* Headline */}
                     <div className="flex flex-col items-center text-center space-y-3 mb-10">
                         <h1 className="text-text-primary-light dark:text-text-primary-dark tracking-tight text-3xl font-bold leading-tight">
-                            {showOtp ? 'Enter Code' : 'Welcome to KinCare'}
+                            {showBiometric
+                                ? 'Welcome Back!'
+                                : showOtp ? 'Enter Code' : 'Welcome to KinCare'
+                            }
                         </h1>
                         <p className="text-text-secondary-light dark:text-text-secondary-dark text-lg font-normal leading-snug max-w-[280px]">
-                            {showOtp
-                                ? `We sent a code to ${selectedCountry.dialCode} ${phoneNumber}`
-                                : "Let's log in. Enter your mobile number below."
+                            {showBiometric
+                                ? 'Use your biometric to log in quickly'
+                                : showOtp
+                                    ? `We sent a code to ${selectedCountry.dialCode} ${phoneNumber}`
+                                    : "Let's log in. Enter your mobile number below."
                             }
                         </p>
                     </div>
@@ -208,7 +271,37 @@ export function LoginPage() {
 
                     {/* Input Field */}
                     <div className="w-full space-y-6">
-                        {showOtp ? (
+                        {showBiometric ? (
+                            /* Biometric Login UI */
+                            <>
+                                {/* Biometric Button */}
+                                <button
+                                    onClick={handleBiometricLogin}
+                                    disabled={loading}
+                                    className="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary-dark hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-2xl h-32 text-lg font-bold shadow-2xl shadow-primary/40 disabled:shadow-none transition-all flex flex-col items-center justify-center gap-4"
+                                >
+                                    {loading ? (
+                                        <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined text-6xl">fingerprint</span>
+                                            <span>Tap to Login</span>
+                                        </>
+                                    )}
+                                </button>
+
+                                {/* Use Different Number */}
+                                <button
+                                    onClick={() => {
+                                        setShowBiometric(false);
+                                        hapticService.medium();
+                                    }}
+                                    className="w-full text-primary hover:text-primary-dark font-semibold text-base py-3 transition-colors"
+                                >
+                                    Use a different number
+                                </button>
+                            </>
+                        ) : showOtp ? (
                             <div className="flex justify-center gap-3">
                                 {[0, 1, 2, 3, 4, 5].map((i) => (
                                     <div
@@ -247,21 +340,23 @@ export function LoginPage() {
                             </div>
                         )}
 
-                        {/* Primary Button */}
-                        <button
-                            onClick={showOtp ? handleVerifyOtp : handleSendCode}
-                            disabled={loading || (showOtp ? otp.length !== 6 : phoneNumber.length < selectedCountry.minLength)}
-                            className="w-full bg-primary hover:bg-primary-dark disabled:bg-gray-300 disabled:dark:bg-gray-700 text-white rounded-xl h-14 text-lg font-bold shadow-lg shadow-primary/30 disabled:shadow-none transition-all flex items-center justify-center gap-2"
-                        >
-                            {loading ? (
-                                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <>
-                                    <span>{showOtp ? 'Verify Code' : 'Send Verification Code'}</span>
-                                    <span className="material-symbols-outlined text-xl">arrow_forward</span>
-                                </>
-                            )}
-                        </button>
+                        {/* Primary Button - Hide for biometric */}
+                        {!showBiometric && (
+                            <button
+                                onClick={showOtp ? handleVerifyOtp : handleSendCode}
+                                disabled={loading || (showOtp ? otp.length !== 6 : phoneNumber.length < selectedCountry.minLength)}
+                                className="w-full bg-primary hover:bg-primary-dark disabled:bg-gray-300 disabled:dark:bg-gray-700 text-white rounded-xl h-14 text-lg font-bold shadow-lg shadow-primary/30 disabled:shadow-none transition-all flex items-center justify-center gap-2"
+                            >
+                                {loading ? (
+                                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        <span>{showOtp ? 'Verify Code' : 'Send Verification Code'}</span>
+                                        <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
                     </div>
 
                     {/* Trust Indicator */}
@@ -281,25 +376,27 @@ export function LoginPage() {
                     </div>
                 </div>
 
-                {/* Numeric Keypad */}
-                <div className="bg-gray-100 dark:bg-background-dark pb-8 pt-4 px-6 rounded-t-2xl border-t border-gray-200 dark:border-gray-800">
-                    <div className="grid grid-cols-3 gap-y-4 gap-x-6 max-w-[320px] mx-auto">
-                        {keys.map((key, i) => (
-                            <button
-                                key={i}
-                                onClick={() => key === 'del' ? handleDelete() : key && handleKeyPress(key)}
-                                className={`h-12 rounded-lg flex items-center justify-center text-2xl font-medium transition-colors ${key === ''
-                                    ? 'cursor-default'
-                                    : 'text-text-primary-light dark:text-text-primary-dark active:bg-gray-200 dark:active:bg-gray-700'
-                                    }`}
-                            >
-                                {key === 'del' ? (
-                                    <span className="material-symbols-outlined">backspace</span>
-                                ) : key}
-                            </button>
-                        ))}
+                {/* Numeric Keypad - Hide for biometric */}
+                {!showBiometric && (
+                    <div className="bg-gray-100 dark:bg-background-dark pb-8 pt-4 px-6 rounded-t-2xl border-t border-gray-200 dark:border-gray-800">
+                        <div className="grid grid-cols-3 gap-y-4 gap-x-6 max-w-[320px] mx-auto">
+                            {keys.map((key, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => key === 'del' ? handleDelete() : key && handleKeyPress(key)}
+                                    className={`h-12 rounded-lg flex items-center justify-center text-2xl font-medium transition-colors ${key === ''
+                                        ? 'cursor-default'
+                                        : 'text-text-primary-light dark:text-text-primary-dark active:bg-gray-200 dark:active:bg-gray-700'
+                                        }`}
+                                >
+                                    {key === 'del' ? (
+                                        <span className="material-symbols-outlined">backspace</span>
+                                    ) : key}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Desktop Layout */}
