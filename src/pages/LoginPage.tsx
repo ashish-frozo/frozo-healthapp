@@ -91,19 +91,29 @@ export function LoginPage() {
                 return;
             }
 
-            // TODO: Call backend biometric login endpoint
-            // const response = await authService.biometricLogin(deviceToken);
+            // Call backend biometric login endpoint
+            const response = await authService.biometricLogin(deviceToken);
 
-            // For now, show success and navigate
-            await hapticService.success();
-            console.log('Biometric login successful!', { deviceToken, savedPhone });
-
-            // Temporary: Navigate to home (replace with actual backend call)
-            // navigate('/');
+            if (response.user) {
+                await hapticService.success();
+                console.log('Biometric login successful!', response.user);
+                navigate('/');
+            } else {
+                throw new Error('Login failed - no user data returned');
+            }
 
         } catch (err: any) {
             console.error('Biometric login error:', err);
-            setError(err.message || 'Biometric login failed');
+
+            // Handle expired token
+            if (err.message?.includes('expired')) {
+                setError('Your biometric login has expired. Please log in again.');
+                await biometric.disableBiometric();
+                setShowBiometric(false);
+            } else {
+                setError(err.message || 'Biometric login failed');
+            }
+
             await hapticService.error();
         } finally {
             setLoading(false);
