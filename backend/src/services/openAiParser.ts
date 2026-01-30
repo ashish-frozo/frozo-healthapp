@@ -1,8 +1,11 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
 
-// Initialize Gemini
-const genAI = process.env.GEMINI_API_KEY
-    ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+dotenv.config();
+
+// Initialize OpenAI
+const openai = process.env.OPENAI_API_KEY
+    ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     : null;
 
 export interface ParsedHealthMessage {
@@ -58,43 +61,43 @@ RESPOND IN JSON FORMAT ONLY:
 }`;
 
 /**
- * Parse a WhatsApp message using Gemini AI
+ * Parse a WhatsApp message using OpenAI
  */
-export async function parseWithGemini(message: string): Promise<ParsedHealthMessage> {
-    // Default response for unknown messages
+export async function parseWithOpenAI(message: string): Promise<ParsedHealthMessage> {
     const defaultResponse: ParsedHealthMessage = {
         type: 'unknown',
         confidence: 0,
         originalMessage: message,
     };
 
-    if (!genAI) {
-        console.warn('Gemini API not configured, falling back to regex parsing');
+    if (!openai) {
+        console.warn('OpenAI API not configured, falling back to regex parsing');
         return defaultResponse;
     }
 
     try {
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-1.5-flash',
-            generationConfig: {
-                temperature: 0.1, // Low temperature for consistent parsing
-                maxOutputTokens: 256,
-            },
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+                {
+                    role: 'system',
+                    content: SYSTEM_PROMPT
+                },
+                {
+                    role: 'user',
+                    content: `Parse this health message: "${message}"`
+                }
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0.1,
         });
 
-        const prompt = `${SYSTEM_PROMPT}\n\nParse this message from user:\n"${message}"\n\nRespond with JSON only:`;
-
-        const result = await model.generateContent(prompt);
-        const response = result.response.text();
-
-        // Extract JSON from response (handle markdown code blocks)
-        const jsonMatch = response.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            console.error('Gemini response not valid JSON:', response);
+        const responseText = completion.choices[0].message.content;
+        if (!responseText) {
             return defaultResponse;
         }
 
-        const parsed = JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(responseText);
 
         return {
             type: parsed.type || 'unknown',
@@ -110,19 +113,19 @@ export async function parseWithGemini(message: string): Promise<ParsedHealthMess
             interpretation: parsed.interpretation || undefined,
         };
     } catch (error) {
-        console.error('Gemini parsing error:', error);
+        console.error('OpenAI parsing error:', error);
         return defaultResponse;
     }
 }
 
 /**
- * Fallback regex-based parser (when Gemini is unavailable)
+ * Fallback regex-based parser
  */
 export function parseWithRegex(message: string): ParsedHealthMessage {
     const text = message.trim().toLowerCase();
     const originalMessage = message.trim();
 
-    // BP patterns (English, Hindi, Hinglish)
+    // BP patterns
     const bpPatterns = [
         /(?:bp|blood\s*pressure|b\.p\.?)\s*[:=]?\s*(\d{2,3})\s*[\/\-\s]\s*(\d{2,3})/i,
         /(\d{2,3})\s*(?:over|by|\/)\s*(\d{2,3})/i,
@@ -217,24 +220,20 @@ export function parseWithRegex(message: string): ParsedHealthMessage {
 }
 
 /**
- * Main parsing function - tries Gemini first, falls back to regex
+ * Main parsing function - tries regex first, then OpenAI
  */
 export async function parseHealthMessage(message: string): Promise<ParsedHealthMessage> {
-    // Always try regex first for simple patterns (faster)
     const regexResult = parseWithRegex(message);
 
-    // If regex is confident enough, use it
     if (regexResult.confidence >= 0.85) {
         return regexResult;
     }
 
-    // For complex/natural language, use Gemini
-    if (genAI) {
-        const geminiResult = await parseWithGemini(message);
+    if (openai) {
+        const openaiResult = await parseWithOpenAI(message);
 
-        // Use Gemini if it's more confident
-        if (geminiResult.confidence > regexResult.confidence) {
-            return geminiResult;
+        if (openaiResult.confidence > regexResult.confidence) {
+            return openaiResult;
         }
     }
 

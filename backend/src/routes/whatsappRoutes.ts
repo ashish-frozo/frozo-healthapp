@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import twilio from 'twilio';
-import { parseHealthMessage, ParsedHealthMessage } from '../services/geminiParser';
+import { parseHealthMessage, ParsedHealthMessage } from '../services/openAiParser';
 import { socketService } from '../services/socketService';
 
 const router = Router();
@@ -215,10 +215,10 @@ router.post('/webhook', async (req: Request, res: Response) => {
             return res.status(200).send('OK');
         }
 
-        // Parse message using Gemini AI
+        // Parse message using OpenAI
         const parsed: ParsedHealthMessage = await parseHealthMessage(Body);
 
-        console.log(`[Gemini Parse] Type: ${parsed.type}, Confidence: ${parsed.confidence}, Interpretation: ${parsed.interpretation}`);
+        console.log(`[OpenAI Parse] Type: ${parsed.type}, Confidence: ${parsed.confidence}, Interpretation: ${parsed.interpretation}`);
 
         const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
 

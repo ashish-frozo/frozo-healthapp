@@ -1,47 +1,66 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Initialize with API Key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY || '',
+});
 
 export const generateHealthInsights = async (data: any) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }, { apiVersion: 'v1' });
+        if (!process.env.OPENAI_API_KEY) {
+            console.warn('OPENAI_API_KEY not set');
+            return 'AI insights unavailable.';
+        }
 
-        const prompt = `
-      As a medical AI assistant, analyze the following health data and provide 3-4 concise, actionable insights.
-      Focus on trends, potential risks, and positive progress.
-      Data: ${JSON.stringify(data)}
-      
-      Return the response in a clear bulleted format.
-    `;
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a medical AI assistant. Analyze health data and provide 3-4 concise, actionable insights.'
+                },
+                {
+                    role: 'user',
+                    content: `Analyze this health data and provide insights: ${JSON.stringify(data)}`
+                }
+            ],
+            temperature: 0.7,
+        });
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
+        return completion.choices[0].message.content || 'No insights generated.';
     } catch (error) {
-        console.error('Gemini Insights Error:', error);
+        console.error('OpenAI Insights Error:', error);
         throw new Error('Failed to generate insights');
     }
 };
 
 export const translateLabReport = async (text: string) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }, { apiVersion: 'v1' });
+        if (!process.env.OPENAI_API_KEY) {
+            console.warn('OPENAI_API_KEY not set');
+            return 'Translation unavailable.';
+        }
 
-        const prompt = `
-      Translate the following complex medical lab report into simple, easy-to-understand language for a patient.
-      Explain what the key values mean and if they are within normal ranges.
-      Report Text: ${text}
-    `;
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a medical translator. Translate complex lab reports into simple language for patients.'
+                },
+                {
+                    role: 'user',
+                    content: `Translate this report: ${text}`
+                }
+            ],
+            temperature: 0.3,
+        });
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
+        return completion.choices[0].message.content || 'Translation failed.';
     } catch (error) {
-        console.error('Gemini Translation Error:', error);
+        console.error('OpenAI Translation Error:', error);
         throw new Error('Failed to translate lab report');
     }
 };
@@ -54,83 +73,48 @@ interface ClassificationResult {
 
 export const classifyDocument = async (text: string): Promise<ClassificationResult> => {
     try {
-        const rawApiKey = process.env.GEMINI_API_KEY || '';
-        const apiKey = rawApiKey.trim();
+        const apiKey = (process.env.OPENAI_API_KEY || '').trim();
 
         if (!apiKey) {
-            console.warn('GEMINI_API_KEY not set, falling back to "other" category');
+            console.warn('OPENAI_API_KEY not set, falling back to "other" category');
             return { category: 'other', confidence: 0 };
         }
 
-        // Minimal validation log (don't log the actual key)
-        console.log(`API Key Check: length=${apiKey.length}, startsWithAIza=${apiKey.startsWith('AIza')}`);
-
-        const localGenAI = new GoogleGenerativeAI(apiKey);
-
-        const prompt = `You are a medical document classifier. Analyze the following text extracted from a PDF and classify it into ONE of these categories:
-
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a medical document classifier. Analyze text from a PDF and classify it into ONE category:
 Categories:
-- prescription: Medical prescriptions, medication orders, Rx documents
-- lab_result: Laboratory test results, blood tests, diagnostic reports, pathology reports
-- bill: Medical bills, invoices, payment receipts, hospital charges
-- insurance: Insurance documents, claims, coverage letters, policy documents
-- other: Any document that doesn't fit the above categories
+- prescription: Medical prescriptions, medication orders
+- lab_result: Lab test results, blood tests, diagnostic reports
+- bill: Medical bills, invoices, receipts
+- insurance: Insurance claims, coverage letters, policies
+- other: Anything else
 
-Text to classify:
-"""
-${text.slice(0, 3000)}
-"""
-
-Respond ONLY with a JSON object in this exact format:
+Respond ONLY with a JSON object:
 {
   "category": "one of: prescription, lab_result, bill, insurance, other",
   "confidence": 0.95,
   "reasoning": "brief explanation"
-}`;
-
-        let responseText = '';
-        // Hyper-robust fallback list including specific version codes and lighter models
-        const combinations = [
-            { name: 'gemini-1.5-flash', version: 'v1' },
-            { name: 'gemini-1.5-flash-8b', version: 'v1' },
-            { name: 'gemini-1.5-flash-001', version: 'v1' },
-            { name: 'gemini-1.5-flash-002', version: 'v1' },
-            { name: 'gemini-1.5-pro', version: 'v1' },
-            { name: 'gemini-pro', version: 'v1' },
-            { name: 'gemini-1.5-flash', version: 'v1beta' },
-            { name: 'gemini-1.5-flash-8b', version: 'v1beta' }
-        ];
-
-        for (const combo of combinations) {
-            try {
-                process.stdout.write(`Attempting: ${combo.name} (${combo.version})... `);
-                const model = localGenAI.getGenerativeModel({ model: combo.name }, { apiVersion: combo.version as any });
-                const result = await model.generateContent(prompt);
-                responseText = result.response.text();
-                process.stdout.write('SUCCESS\n');
-                break;
-            } catch (err: any) {
-                process.stdout.write(`FAILED (${err.status || err.message || 'Error'})\n`);
-                // If it's the last one, throw or log diagnostics
-                if (combo === combinations[combinations.length - 1]) {
-                    console.error('All Gemini model attempts failed. Diagnostic check list:');
-                    console.error('1. Visit https://aistudio.google.com/ to verify your API Key is valid and active.');
-                    console.error('2. Ensure "Generative Language API" is enabled in your Google Cloud Project.');
-                    console.error('3. Check if your region has specific restrictions (sometimes requires v1beta specifically).');
-                    throw err;
+}`
+                },
+                {
+                    role: 'user',
+                    content: `Classify this document text: """${text.slice(0, 4000)}"""`
                 }
-            }
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0,
+        });
+
+        const responseText = completion.choices[0].message.content;
+        if (!responseText) {
+            throw new Error('Empty response from OpenAI');
         }
 
-        const response = responseText;
-
-        // Extract JSON from response (handle markdown code blocks)
-        const jsonMatch = response.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error('Invalid response format from AI');
-        }
-
-        const classification = JSON.parse(jsonMatch[0]) as ClassificationResult;
+        const classification = JSON.parse(responseText) as ClassificationResult;
 
         // Validate category
         const validCategories = ['prescription', 'lab_result', 'bill', 'insurance', 'other'];
@@ -144,7 +128,7 @@ Respond ONLY with a JSON object in this exact format:
 
         return classification;
     } catch (error) {
-        console.error('Document classification error:', error);
+        console.error('OpenAI Document classification error:', error);
         return { category: 'other', confidence: 0 };
     }
 };
