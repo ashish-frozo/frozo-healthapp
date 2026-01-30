@@ -60,47 +60,67 @@ export function DocumentsPage() {
     };
 
     const renderDocCard = (doc: Document, isOlder = false) => (
-        <button
+        <div
             key={doc.id}
-            onClick={() => setSelectedDoc(doc)}
-            className={`group flex items-center gap-4 bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 active:scale-[0.98] transition-all text-left ${isOlder ? 'opacity-80' : ''}`}
+            className={`group relative flex items-center gap-4 bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-all ${isOlder ? 'opacity-80' : ''}`}
         >
-            {/* Thumbnail */}
-            <div className={`relative shrink-0 flex items-center justify-center size-16 rounded-lg ${doc.thumbnailUrl ? 'overflow-hidden' : getCategoryIconBg(doc.category)
-                }`}>
-                {doc.thumbnailUrl ? (
-                    <div
-                        className="absolute inset-0 bg-cover bg-center opacity-80"
-                        style={{ backgroundImage: `url(${doc.thumbnailUrl})` }}
-                    />
-                ) : (
-                    <span className="material-symbols-outlined text-3xl">{getCategoryIcon(doc.category)}</span>
-                )}
-            </div>
-
-            <div className="flex flex-col flex-1 min-w-0">
-                <div className="flex justify-between items-start">
-                    <h3 className="text-text-primary-light dark:text-text-primary-dark text-lg font-semibold leading-tight line-clamp-1">
-                        {doc.title}
-                    </h3>
-                    {doc.inVisitPack && (
-                        <span className="material-symbols-outlined text-amber-400 text-xl ml-2" title="In Visit Pack">stars</span>
+            {/* Clickable area for details */}
+            <div
+                className="flex flex-1 items-center gap-4 cursor-pointer min-w-0"
+                onClick={() => setSelectedDoc(doc)}
+            >
+                {/* Thumbnail */}
+                <div className={`relative shrink-0 flex items-center justify-center size-16 rounded-lg ${doc.thumbnailUrl ? 'overflow-hidden' : getCategoryIconBg(doc.category)
+                    }`}>
+                    {doc.thumbnailUrl ? (
+                        <div
+                            className="absolute inset-0 bg-cover bg-center opacity-80"
+                            style={{ backgroundImage: `url(${doc.thumbnailUrl})` }}
+                        />
+                    ) : (
+                        <span className="material-symbols-outlined text-3xl">{getCategoryIcon(doc.category)}</span>
                     )}
                 </div>
-                <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium mt-1">
-                    {new Date(doc.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getCategoryColor(doc.category)}`}>
-                        {doc.category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </span>
+
+                <div className="flex flex-col flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
+                        <h3 className="text-text-primary-light dark:text-text-primary-dark text-lg font-semibold leading-tight line-clamp-1">
+                            {doc.title}
+                        </h3>
+                        {doc.inVisitPack && (
+                            <span className="material-symbols-outlined text-amber-400 text-xl ml-2" title="In Visit Pack">stars</span>
+                        )}
+                    </div>
+                    <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium mt-1">
+                        {new Date(doc.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getCategoryColor(doc.category)}`}>
+                            {doc.category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div className="shrink-0 text-gray-400">
-                <span className="material-symbols-outlined">chevron_right</span>
+            {/* Actions group */}
+            <div className="flex items-center gap-1 shrink-0">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (doc.id && window.confirm('Delete this document?')) {
+                            deleteDocument(doc.id).catch(err => console.error(err));
+                        }
+                    }}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    title="Delete document"
+                >
+                    <span className="material-symbols-outlined">delete</span>
+                </button>
+                <div className="text-gray-400 p-1">
+                    <span className="material-symbols-outlined">chevron_right</span>
+                </div>
             </div>
-        </button>
+        </div>
     );
 
     return (
